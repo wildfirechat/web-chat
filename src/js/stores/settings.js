@@ -1,7 +1,5 @@
 
 import { observable, action } from 'mobx';
-import { remote, ipcRenderer } from 'electron';
-
 import storage from 'utils/storage';
 import helper from 'utils/helper';
 

@@ -1,5 +1,4 @@
 
-import storage from 'electron-json-storage';
 
 export default {
     get: (key) => {

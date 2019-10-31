@@ -1,6 +1,5 @@
 
 import { observable, action } from 'mobx';
-import { ipcRenderer } from 'electron';
 import axios from 'axios';
 import pinyin from '../han';
 

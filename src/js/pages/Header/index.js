@@ -1,6 +1,5 @@
 
 import React, { Component } from 'react';
-import { remote, ipcRenderer } from 'electron';
 
 import classes from './style.css';
 
@@ -32,7 +31,7 @@ export default class Header extends Component {
     }
 
     render() {
-        var isWin = window.process.platform === 'win32';
+        var isWin = true;
         return (
             <header className={classes.container}>
                 <h1>{this.getTitle()}</h1>

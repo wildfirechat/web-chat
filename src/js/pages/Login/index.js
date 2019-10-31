@@ -50,7 +50,8 @@ export default class Login extends Component {
         var response = await axios.post('/pc_session', {
             token: '',
             device_name: 'my mac',
-            clientId: wfc.getClientId(),
+            // clientId: wfc.getClientId(),
+            clientId: 'clientId',
         });
         console.log('----------- getCode', response.data);
         if (response.data) {

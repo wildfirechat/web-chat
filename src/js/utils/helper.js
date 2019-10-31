@@ -1,5 +1,4 @@
 
-import { remote, ipcRenderer } from 'electron';
 import axios from 'axios';
 import MD5 from 'browser-md5-file';
 
@@ -145,7 +144,7 @@ const helper = {
         }
     },
 
-    getCookie: async(name) => {
+    getCookie: async (name) => {
         var value = {
             name,
         };
@@ -288,7 +287,7 @@ const helper = {
         });
     },
 
-    isOsx: window.process.platform === 'darwin',
+    isOsx: false,
 
     isSuspend: () => {
         return ipcRenderer.sendSync('is-suspend');

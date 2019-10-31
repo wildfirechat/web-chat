@@ -34,15 +34,12 @@
     <div id="root">
     </div>
     <script>
-        if (process.env.HOT) {
-            let script = document.createElement('script');
-            let port = process.env.PORT || 3000;
+        let script = document.createElement('script');
 
-            script.async = '';
-            script.src = `http://localhost:${port}/dist/bundle.js`;
+        script.async = '';
+        script.src = '../app.js';
 
-            document.body.appendChild(script);
-        }
+        document.body.appendChild(script);
     </script>
 </body>
 

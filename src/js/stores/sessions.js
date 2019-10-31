@@ -2,10 +2,8 @@
 /* eslint-disable no-eval */
 import axios from 'axios';
 import { observable, action } from 'mobx';
-import { ipcRenderer } from 'electron';
 
 import helper from 'utils/helper';
-import storage from 'utils/storage';
 import wfc from '../wfc/wfc';
 import ConversationType from '../wfc/model/conversationType';
 

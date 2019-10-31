@@ -1,7 +1,6 @@
 
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { ipcRenderer, remote } from 'electron';
 import clazz from 'classname';
 import moment from 'moment';
 import axios from 'axios';
@@ -18,7 +17,6 @@ import UserInfo from '../../../wfc/model/userInfo';
 import GroupInfo from '../../../wfc/model/groupInfo';
 import NotificationMessageContent from '../../../wfc/messages/notification/notificationMessageContent';
 import MessageStatus from '../../../wfc/messages/messageStatus';
-import { fs } from 'file-system';
 import BenzAMRRecorder from 'benz-amr-recorder';
 import MessageConfig from '../../../wfc/messageConfig';
 import UnknownMessageContent from '../../../wfc/messages/unknownMessageContent';

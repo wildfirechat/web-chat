@@ -21,7 +21,7 @@ export default {
 
     output: {
         path: config.dist,
-        filename: 'app.[hash].js'
+        filename: 'app.js'
     },
 
     plugins: [
@@ -55,17 +55,14 @@ export default {
         new HtmlWebpackPlugin({
             filename: `${config.dist}/src/index.html`,
             template: './src/index.html',
-            inject: 'body',
+            inject: false,
             hash: true,
             minify: {
                 collapseWhitespace: true
             }
-        }),
-        new webpack.DefinePlugin({
-            'process.env.FLUENTFFMPEG_COV': false
         })
     ],
 
     // https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
-    target: 'electron-renderer'
+    target: 'web'
 };

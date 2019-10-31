@@ -1,7 +1,6 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron';
 import clazz from 'classname';
 
 import classes from './style.css';

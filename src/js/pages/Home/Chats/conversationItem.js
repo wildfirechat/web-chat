@@ -1,5 +1,4 @@
 
-import { remote } from 'electron';
 import clazz from 'classname';
 import React, { Component } from 'react';
 import helper from 'utils/helper';

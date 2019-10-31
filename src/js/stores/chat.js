@@ -1,7 +1,6 @@
 
 import { observable, action } from 'mobx';
 import axios from 'axios';
-import { ipcRenderer } from 'electron';
 
 import storage from 'utils/storage';
 import helper from 'utils/helper';
@@ -19,9 +18,6 @@ import VideoMessageContent from '../wfc/messages/videoMessageContent';
 import FileMessageContent from '../wfc/messages/fileMessageContent';
 import MessageStatus from '../wfc/messages/messageStatus';
 import resizeImage from 'resize-image';
-import { imgSync } from 'base64-img';
-import { fs } from 'file-system';
-import tmp from 'tmp';
 import QuitGroupNotification from '../wfc/messages/notification/quitGroupNotification';
 import DismissGroupNotification from '../wfc/messages/notification/dismissGroupNotification';
 import KickoffGroupMemberNotification from '../wfc/messages/notification/kickoffGroupMemberNotification';

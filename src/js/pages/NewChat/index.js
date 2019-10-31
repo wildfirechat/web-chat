@@ -10,9 +10,6 @@ import wfc from '../../wfc/wfc'
 import Conversation from '../../wfc/model/conversation';
 import ConversationType from '../../wfc/model/conversationType';
 import MessageContentMediaType from '../../wfc/messages/messageContentMediaType';
-import { imgSync } from 'base64-img';
-import { fs } from 'file-system';
-import tmp from 'tmp';
 
 @inject(stores => ({
     show: stores.newchat.show,

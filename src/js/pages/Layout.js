@@ -1,7 +1,6 @@
 
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
-import { ipcRenderer, remote } from 'electron';
 
 import classes from './Layout.css';
 import Header from './Header';
@@ -46,48 +45,6 @@ export default class Layout extends Component {
     };
 
     componentDidMount() {
-        var templates = [
-            {
-                label: 'Undo',
-                role: 'undo',
-            }, {
-                label: 'Redo',
-                role: 'redo',
-            }, {
-                type: 'separator',
-            }, {
-                label: 'Cut',
-                role: 'cut',
-            }, {
-                label: 'Copy',
-                role: 'copy',
-            }, {
-                label: 'Paste',
-                role: 'paste',
-            }, {
-                type: 'separator',
-            }, {
-                label: 'Select all',
-                role: 'selectall',
-            },
-        ];
-        var menu = new remote.Menu.buildFromTemplate(templates);
-        var canidrag = this.props.canidrag;
-
-        document.body.addEventListener('contextmenu', e => {
-            e.preventDefault();
-
-            let node = e.target;
-
-            while (node) {
-                if (node.nodeName.match(/^(input|textarea)$/i)
-                    || node.isContentEditable) {
-                    menu.popup(remote.getCurrentWindow());
-                    break;
-                }
-                node = node.parentNode;
-            }
-        });
 
         // window.addEventListener('offline', () => {
         //     this.setState({
@@ -103,7 +60,8 @@ export default class Layout extends Component {
         //     });
         // });
 
-        if (window.process.platform === 'win32') {
+        let isWin32 = true;
+        if (isWin32) {
             document.body.classList.add('isWin');
         }
 
@@ -187,7 +145,6 @@ export default class Layout extends Component {
                     text={message} />
 
                 <Loader show={loading} />
-                <Header location={location} />
                 <div
                     className={classes.container}
                     ref="viewport">
