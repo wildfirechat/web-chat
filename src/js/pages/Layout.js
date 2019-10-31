@@ -128,14 +128,14 @@ export default class Layout extends Component {
         //     );
         // }
 
-        if (this.connectionStatus === ConnectionStatus.ConnectionStatusRejected
-            || this.connectionStatus === ConnectionStatus.ConnectionStatusLogout
-            || wfc.getUserId() === '') {
-            return <Login />;
-        }
+        // if (this.connectionStatus === ConnectionStatus.ConnectionStatusRejected
+        //     || this.connectionStatus === ConnectionStatus.ConnectionStatusLogout
+        //     || wfc.getUserId() === '') {
+        //     return <Login />;
+        // }
 
-        ipcRenderer.send('logined');
-        loading = !wfc.isLogin() && (this.connectionStatus === 0 || this.connectionStatus === 2/** receving */);
+        // ipcRenderer.send('logined');
+        // loading = !wfc.isLogin() && (this.connectionStatus === 0 || this.connectionStatus === 2/** receving */);
 
         return (
             <div>
