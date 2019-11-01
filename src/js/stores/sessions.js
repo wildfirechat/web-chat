@@ -4,7 +4,12 @@ import axios from 'axios';
 import { observable, action } from 'mobx';
 
 import helper from 'utils/helper';
+<<<<<<< HEAD
 import wfc from '../wfc/wfc';
+=======
+import storage from 'utils/storage';
+import wfc from '../wfc/client/wfc';
+>>>>>>> master
 import ConversationType from '../wfc/model/conversationType';
 
 async function updateMenus({ conversations = [], contacts = [] }) {
