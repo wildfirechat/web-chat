@@ -14,16 +14,17 @@
             "mentionedTargets": [ ]
         }, 
  */
-export default class MessagePayload{
+export default class MessagePayload {
     type;
     searchableContent;
     pushContent;
     content;
-    binaryContent;
+    binaryContent; // base64 string, 图片时，不包含头部信息:data:image/png;base64,
     localContent;
     mediaType;
     remoteMediaUrl;
     localMediaPath;
-    mentionedType  = 0;
+    mentionedType = 0;
     mentionedTargets = [];
+    extra;
 }

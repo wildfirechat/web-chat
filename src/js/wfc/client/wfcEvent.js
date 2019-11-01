@@ -6,7 +6,8 @@ export default class EventType {
     static MessageStatusUpdate = 'msgStatusUpdate';
     static ConnectionStatusChanged = 'connectionStatusChanged';
     static UserInfoUpdate = 'userInfoUpdate';
-    static GroupInfoUpdate = 'groupInfoUpdate';
+    static UserInfosUpdate = 'userInfosUpdate';
+    static GroupInfosUpdate = 'groupInfosUpdate';
     static FriendListUpdate = 'friendListUpdate'
     static ConversationInfoUpdate = 'conversationInfoUpdate'
     static SettingUpdate = 'settingUpdate'

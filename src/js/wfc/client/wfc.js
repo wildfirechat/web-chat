@@ -1,1148 +1,453 @@
-// import proto from 'node-loader!../../../marswrapper.node';
-import Message from '../messages/message';
-import Conversation from '../model/conversation';
-import ConversationInfo from '../model/conversationInfo';
-import { EventEmitter } from 'events';
-import EventType from './wfcEvent'
-import UserInfo from '../model/userInfo';
-import NullUserInfo from '../model/nullUserInfo';
-import NullGroupInfo from '../model/nullGroupInfo';
-import GroupInfo from '../model/groupInfo';
-import GroupMember from '../model/groupMember';
-import { UserSettingScope } from './userSettingScope';
-import CreateGroupNotification from '../messages/notification/createGroupNotification';
-import MessageContentMediaType from '../messages/messageContentMediaType';
-import AddGroupMemberNotification from '../messages/notification/addGroupMemberNotification';
-import MessageConfig from './messageConfig';
-import UnreadCount from '../model/unreadCount';
-import ConversationSearchResult from '../model/conversationSearchResult';
-import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
-import GroupSearchResult from '../model/groupSearchResult';
-import FriendRequest from '../model/friendRequest';
-import ChatRoomMemberInfo from '../model/chatRoomMemberInfo';
-import ChannelInfo from '../model/channelInfo';
+import MessageStatus from '../messages/messageStatus';
+import Conversation from '../model/conversation';
+//import impl from '../internal/wfcImpl';
+import impl from '../proto/proto.min.js';
+import ImageMessageContent from '../messages/imageMessageContent';
 import ConversationType from '../model/conversationType';
-import TextMessageContent from '../messages/textMessageContent';
-import ConnectionStatus from './connectionStatus';
-var proto = null;
+import Message from '../messages/message';
+import { EventEmitter } from 'events';
 
 // 其实就是imclient，后续可能需要改下名字
-class WfcManager {
-    connectionStatus = 0;
-    userId = '';
-    token = '';
-    users = new Map();
-    groups = new Map();
-    isLogined = false;
-
-    // TODO 移除吧，全都走EventEmitter
-    // onReceiveMessageListeners = [];
-
-    messageContentList = new Map();
-
+export class WfcManager {
+    // impl = new WfcImpl();
     eventEmitter = new EventEmitter();
 
-    onConnectionChanged(status) {
-        if (!self.isLogined && status == ConnectionStatus.ConnectionStatusConnected) {
-            self.isLogined = true;
-        }
-        self.connectionStatus = status;
-        self.eventEmitter.emit(EventType.ConnectionStatusChanged, status);
-        console.log('connection status changed', status);
-    }
-
-    // /**
-    //  *
-    //  * @param {function} listener
-    //  */
-    // setOnReceiveMessageListener(listener) {
-    //     if (typeof listener !== 'function') {
-    //         console.log('listener should be a function');
-    //         return;
-    //     }
-    //     self.onReceiveMessageListeners.forEach(l => {
-    //         l === listener
-    //         return
-    //     });
-    //     self.onReceiveMessageListeners.push(listener);
-    // }
-
-    // removeOnReceiMessageListener(listener) {
-    //     if (typeof listener !== 'function') {
-    //         console.log('listener should be a function');
-    //         return;
-    //     }
-    //     self.onReceiveMessageListeners.splice(self.onReceiveMessageListeners.indexOf(listener), 1);
-    // }
-
-    onReceiveMessage(messages, hasMore) {
-        if (!self.isLogined) {
-            return;
-        }
-        // receiving
-        if (self.connectionStatus === 2) {
-            return;
-        }
-        var msgs = JSON.parse(messages);
-        msgs.forEach(m => {
-            let msg = Message.fromProtoMessage(m);
-            // self.onReceiveMessageListeners.forEach(listener => {
-            //     listener(msg, hasMore);
-            // });
-            if (msg) {
-                self.eventEmitter.emit(EventType.ReceiveMessage, msg);
-            }
-        });
-    }
-
-    onGroupInfoUpdate(groupListIds) {
-        if (!self.isLogined) {
-            return;
-        }
-
-        let groupIdArray = JSON.parse(groupListIds);
-
-        groupIdArray.forEach((groupId => {
-            self.groups.delete(groupId);
-            self.eventEmitter.emit(EventType.GroupInfoUpdate, groupId);
-        }))
-    }
-
-    onChannelInfoUpdate(channelListIds) {
-        // TODO
-        if (!self.isLogined) {
-            return;
-        }
-    }
-
-    onSettingUpdate() {
-        if (!self.isLogined) {
-            return;
-        }
-        // TODO 具体更新的信息
-        self.eventEmitter.emit(EventType.SettingUpdate);
-    }
-
-    onRecallMessage(operatorUid, messageUid) {
-        if (!self.isLogined) {
-            return;
-        }
-        self.eventEmitter.emit(EventType.RecallMessage, operatorUid, messageUid);
-    }
-
-    onMessageDeleted(messageId) {
-        if (!self.isLogined) {
-            return;
-        }
-        self.eventEmitter.emit(EventType.DeleteMessage, messageId);
-    }
-
-    onUserInfoUpdate(userIds) {
-        if (!self.isLogined) {
-            return;
-        }
-        let userIdArray = JSON.parse(userIds);
-
-        userIdArray.forEach((userId => {
-            self.users.delete(userId);
-            self.eventEmitter.emit(EventType.UserInfoUpdate, userId);
-        }))
-    }
-
-    onFriendListUpdate(friendListIds) {
-        if (!self.isLogined) {
-            return;
-        }
-        console.log('friendList update, ids', friendListIds);
-        let ids = JSON.parse(friendListIds);
-        ids.forEach((uid) => {
-            self.users.delete(uid);
-        });
-        self.eventEmitter.emit(EventType.FriendListUpdate, friendListIds);
-    }
-
-    onFriendRequestUpdate() {
-        // TODO
-        if (!self.isLogined) {
-            return;
-        }
-    }
-
-    init() {
-        // proto = self.proto;
-        // // if(process.platform === 'win32'){
-        // //     proto.setDBPath(process.cwd());
-        // // }
-        // proto.setConnectionStatusListener(self.onConnectionChanged);
-        // proto.setReceiveMessageListener(self.onReceiveMessage, self.onRecallMessage);
-        // proto.setUserInfoUpdateListener(self.onUserInfoUpdate);
-        // proto.setFriendUpdateListener(self.onFriendListUpdate);
-        // proto.setFriendRequestListener(self.onFriendRequestUpdate);
-        // proto.setGroupInfoUpdateListener(self.onGroupInfoUpdate);
-        // proto.setSettingUpdateListener(self.onSettingUpdate);
-        // proto.setChannelInfoUpdateListener(self.onChannelInfoUpdate);
-        // self.registerDefaultMessageContents();
+    constructor() {
+        impl.eventEmitter = this.eventEmitter;
     }
 
     /**
-     *
-     * @param {messagecontent} content
+     * 
+     * @param {messagecontent} content 
      */
-    registerMessageContent(type, content) {
-        self.messageContentList[type] = content;
-    }
-
-    async connect(userId, token) {
-        self.userId = userId;
-        proto.connect(userId, token);
-
-        // for testing your code
-        // self.test();
+    registerMessageContent(name, type, contentClazz) {
+        impl.registerMessageContent(name, type, contentClazz);
     }
 
     disconnect() {
-        self.userId = '';
-        proto.disconnect(0);
-
-
-        //sleep 1 second wait disconnect with im server
-        var now = new Date();
-        var exitTime = now.getTime() + 1000;
-        while (true) {
-            now = new Date();
-            if (now.getTime() > exitTime)
-                return;
-        }
-    }
-
-    registerDefaultMessageContents() {
-        MessageConfig.MessageContents.map((e) => {
-            proto.registerMessageFlag(e.type, e.flag);
-            self.registerMessageContent(e.type, e.content);
-        });
+        impl.disconnect();
     }
 
     getClientId() {
-        return proto.getClientId();
+        return impl.getClientId();
     }
 
     getUserId() {
-        return self.userId;
+        return impl.getUserId();
     }
 
     getServerDeltaTime() {
-        return proto.getServerDeltaTime();
-    }
-
-    screenShot() {
-        var ret = proto.screenShot();
-        return ret;
+        return impl.getServerDeltaTime();
     }
 
     isLogin() {
-        // return proto.isLogin();
-        return self.isLogined;
+        return impl.isLogin();
     }
 
     getConnectionStatus() {
-        return proto.getConnectionStatus();
+        return impl.getConnectionStatus();
     }
-
-
 
     getMyGroupList() {
-        let str = proto.getUserSettings(UserSettingScope.FavoriteGroup);
-        let arr = JSON.parse(str);
-        var groupList = [];
-        arr.map(e => {
-            if (e['value'] === '1') {
-                groupList.push(e['key']);
-            }
-        });
-        return groupList;
+        return impl.getMyGroupList();
     }
 
-    /**
-     * @param {string} userId
-     * @param {bool} fresh
-     */
-    getUserInfo(userId, fresh = false, groupId = '') {
-        if (!userId || userId === '') {
-            return new NullUserInfo('');
-        }
-        let userInfo;
-        if (!fresh && (!groupId || groupId === '')) {
-            userInfo = self.users.get(userId);
-            if (userInfo) {
-                return userInfo;
-            }
-        }
+    getUserInfo(userId, refresh = false) {
+        return impl.getUserInfo(userId, refresh);
+    }
 
-        console.log('getuserInfo', userId, fresh, groupId);
-        let userInfoStr = proto.getUserInfo(userId, fresh, groupId);
-        if (userInfoStr === '') {
-            userInfo = new NullUserInfo(userId);
-        } else {
-            userInfo = Object.assign(new UserInfo(), JSON.parse(userInfoStr));
-        }
-        if (!groupId || groupId === '') {
-            self.users.set(userInfo.uid, userInfo);
-        }
-        return userInfo;
-    }
-    getUserInfos(userIds, groupId = '') {
-        let users = [];
-        let userInfoStrs = proto.getUserInfos(userIds, groupId);
-        if (userInfoStrs && userInfoStrs !== '') {
-            let tmp = JSON.parse(userInfoStrs);
-            tmp.forEach((u) => {
-                let userInfo = Object.assign(new UserInfo(), u);
-                users.push(userInfo)
-            });
-        }
-        return users;
-    }
 
     async searchUser(keyword, successCB, failCB) {
-        proto.searchUser(keyword, (result) => {
-            let userListStr = JSON.parse(result);
-            let userList = [];
-            if (userListStr && userListStr.length > 0) {
-                userListStr.forEach(u => {
-                    userList.push(Object.assign(new UserInfo(), u));
-                });
-            }
-            if (successCB) {
-                successCB(userList);
-            }
-        }, (errorCode) => {
-            if (errorCode) {
-                failCB(errorCode);
-            }
-
-        });
+        impl.searchUser(keyword, successCB, failCB);
     }
 
     searchFriends(keyword) {
-        let result = proto.searchFriends(keyword);
-        let userListStr = JSON.parse(result);
-        let userList = [];
-        if (userListStr && userListStr.length > 0) {
-            userListStr.forEach(u => {
-                userList.push(Object.assign(new UserInfo(), u));
-            });
-        }
-        return userList;
+        return impl.searchFriends(keyword);
     }
 
     searchGroups(keyword) {
-        let result = proto.searchGroups(keyword);
-        let groupSearchResultListStr = JSON.parse(result);
-        let groupSearchResultList = [];
-        if (groupSearchResultListStr && groupSearchResultListStr.length > 0) {
-            groupSearchResultListStr.forEach(g => {
-                groupSearchResultList.push(GroupSearchResult.fromProtoGroupSearchResult(g));
-            });
-        }
-        return groupSearchResultList;
+        return impl.searchGroups(keyword);
     }
 
     getIncommingFriendRequest() {
-        let result = proto.getIncommingFriendRequest();
-        let friendRequestListStr = JSON.parse(result);
-        let firendRequestList = [];
-        if (friendRequestListStr && friendRequestListStr.length > 0) {
-            friendRequestListStr.forEach((r) => {
-                firendRequestList.push(Object.assign(new FriendRequest(), r));
-            });
-        }
-        return firendRequestList;
+        return impl.getIncommingFriendRequest();
     }
 
     getOutgoingFriendRequest() {
-        let result = proto.getOutgoingFriendRequest();
-        let friendRequestListStr = JSON.parse(result);
-        let firendRequestList = [];
-        if (friendRequestListStr && friendRequestListStr.length > 0) {
-            friendRequestListStr.forEach((r) => {
-                firendRequestList.push(Object.assign(new FriendRequest(), r));
-            });
-        }
-        return firendRequestList;
+        return impl.getOutgoingFriendRequest();
     }
 
     loadFriendRequestFromRemote() {
-        proto.loadFriendRequestFromRemote();
+        return impl.loadFriendRequestFromRemote();
     }
 
     getUnreadFriendRequestCount() {
-        return proto.getUnreadFriendRequestStatus();
+        return impl.getUnreadFriendRequestCount();
     }
 
     clearUnreadFriendRequestStatus() {
-        proto.clearUnreadFriendRequestStatus();
+        return impl.clearUnreadFriendRequestStatus();
     }
 
     async deleteFriend(userId, successCB, failCB) {
-        proto.deleteFriend(userId, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.deleteFriend(userId, successCB, failCB);
     }
 
     async handleFriendRequest(userId, accept, successCB, failCB) {
-        proto.handleFriendRequest(userId, accept, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-
-        });
+        impl.handleFriendRequest(userId, accept, successCB, failCB);
     }
 
     isBlackListed(userId) {
-        return proto.isBlackListed(userId);
+        return impl.isBlackListed(userId);
     }
 
     getBlackList() {
-        let result = proto.getBlackList();
-        return JSON.parse(result);
+        return impl.getBlackList();
     }
 
     setBlackList(userId, block, successCB, failCB) {
-        proto.setBlackList(userId, block, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.setBlackList(userId, block, successCB, failCB);
     }
 
     getMyFriendList(fresh = false) {
-        let idsStr = proto.getMyFriendList(fresh);
-        if (idsStr !== '') {
-            return JSON.parse(idsStr);
-        }
-        return [];
+        return impl.getMyFriendList(fresh);
     }
 
-    async createGroup(groupId, name, portrait, memberIds = [], lines = [0], notifyContent, successCB, failCB) {
-        groupId = !groupId ? '' : groupId;
-        let myUid = self.getUserId();
-
-        if (!notifyContent) {
-            notifyContent = new CreateGroupNotification(myUid, name);
-        }
-
-        if (!memberIds.includes(myUid)) {
-            memberIds.push(myUid);
-        }
-
-        let payload = notifyContent.encode();
-        let notifyContentStr = JSON.stringify(payload);
-        proto.createGroup(groupId, name, portrait, memberIds, lines, notifyContentStr,
-            (groupId) => {
-                if (successCB) {
-                    successCB(groupId);
-                }
-            },
-            (errorCode) => {
-                if (failCB) {
-                    failCB();
-                }
-            });
+    async createGroup(groupId, groupType, name, portrait, memberIds = [], lines = [0], notifyContent, successCB, failCB) {
+        impl.createGroup(groupId, groupType, name, portrait, memberIds, lines, notifyContent, successCB, failCB);
     }
 
-    getGroupInfo(groupId, fresh = false) {
-        let groupInfo;
-        if (!fresh) {
-            groupInfo = self.groups.get(groupId);
-            if (groupInfo) {
-                return groupInfo;
-            }
-        }
-
-        console.log('get groupInfo', groupId, fresh);
-        let groupInfoStr = proto.getGroupInfo(groupId, fresh);
-        if (groupInfoStr === '') {
-            return new NullGroupInfo(groupId);
-        } else {
-            groupInfo = Object.assign(new GroupInfo(), JSON.parse(groupInfoStr));
-            self.groups.set(groupId, groupInfo);
-            return groupInfo;
-        }
+    async setGroupManager(groupId, isSet, memberIds, lines, notifyMessageContent, successCB, failCB) {
+        impl.setGroupManager(groupId, isSet, memberIds, lines, notifyMessageContent, successCB, failCB);
     }
+
+    getGroupInfo(groupId, refresh = false) {
+        return impl.getGroupInfo(groupId, refresh);
+    }
+
 
     addGroupMembers(groupId, memberIds, notifyLines, notifyMessageContent, successCB, failCB) {
-        if (!notifyMessageContent) {
-            notifyMessageContent = new AddGroupMemberNotification(self.getUserId(), memberIds);
-        }
-        let payload = notifyMessageContent.encode();
-        let notifyContentStr = JSON.stringify(payload);
-        proto.addMembers(memberIds, groupId, notifyLines, notifyContentStr,
-            () => {
-                if (successCB) {
-                    successCB();
-                }
-            },
-            (errorCode) => {
-                if (failCB) {
-                    failCB(errorCode);
-                }
-            });
+        impl.addGroupMembers(groupId, memberIds, notifyLines, notifyMessageContent, successCB, failCB);
     }
 
     getGroupMemberIds(groupId, fresh = false) {
-        let groupMembers = self.getGroupMembers(groupId, fresh);
-        var groupMemberIds = [];
-        groupMembers.forEach(e => {
-            groupMemberIds.push(e.memberId);
-        });
-        return groupMemberIds;
+        return impl.getGroupMemberIds(groupId, fresh);
     }
 
     getGroupMembers(groupId, fresh = false) {
-        let memberIdsStr = proto.getGroupMembers(groupId, fresh);
-        var members = [];
-        let arr = JSON.parse(memberIdsStr);
-        arr.forEach(e => {
-            members.push(Object.assign(new GroupMember(), e));
-        });
-        return members;
+        return impl.getGroupMembers(groupId, fresh);
     }
 
     getGroupMember(groupId, memberId) {
-        let result = proto.getGroupMember(groupId, memberId);
-        return Object.assign(new GroupMember(), JSON.parse(result));
+        return impl.getGroupMember(groupId, memberId);
     }
 
     kickoffGroupMembers(groupId, memberIds, notifyLines, notifyMsg, successCB, failCB) {
-        let payload = notifyMsg.encode();
-        let strCont = JSON.stringify(payload);
-        proto.kickoffMembers(groupId, memberIds, notifyLines, strCont,
-            () => {
-                if (successCB) {
-                    successCB();
-                }
-
-            }, (errorCode) => {
-                if (failCB) {
-                    failCB(errorCode);
-                }
-            });
+        impl.kickoffGroupMembers(groupId, memberIds, notifyLines, notifyMsg, successCB, failCB);
     }
 
     async quitGroup(groupId, lines, notifyMessageContent, successCB, failCB) {
-        let payload = notifyMessageContent.encode();
-        proto.quitGroup(groupId, lines, JSON.stringify(payload), () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.quitGroup(groupId, lines, notifyMessageContent, successCB, failCB);
     }
 
     async dismissGroup(groupId, lines, notifyMessageContent, successCB, failCB) {
-        let payload = notifyMessageContent.encode();
-        proto.dismissGroup(groupId, lines, JSON.stringify(payload), () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.dismissGroup(groupId, lines, notifyMessageContent, successCB, failCB);
     }
 
     async modifyGroupInfo(groupId, type, newValue, lines, notifyMessageContent, successCB, failCB) {
-        let payload = notifyMessageContent.encode();
-        proto.modifyGroupInfo(groupId, type, newValue, lines, JSON.stringify(payload),
-            () => {
-                if (successCB) {
-                    successCB();
-                }
-            }, (errorCode) => {
-                if (failCB) {
-                    failCB(errorCode);
-                }
-            });
+        impl.modifyGroupInfo(groupId, type, newValue, lines, notifyMessageContent, successCB, failCB);
     }
 
     async modifyGroupAlias(groupId, alias, lines, notifyMessageContent, successCB, failCB) {
-        let payload = notifyMessageContent.encode();
-        proto.modifyGroupAlias(groupId, alias, lines, JSON.stringify(payload), () => {
-            successCB();
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.modifyGroupAlias(groupId, alias, lines, notifyMessageContent, successCB, failCB);
     }
 
     transferGroup(groupId, newOwner, lines, notifyMessageContent, successCB, failCB) {
-        let payload = notifyMessageContent.encode();
-        proto.transferGroup(groupId, newOwner, lines, JSON.stringify(payload), () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.transferGroup(groupId, newOwner, lines, notifyMessageContent, successCB, failCB);
     }
 
     getFavGroups() {
-        let result = proto.getFavGroups();
-        return JSON.parse(result);
+        return impl.getFavGroups();
     }
 
     isFavGroup(groupId) {
-        return proto.isFavGroup(groupId);
+        return impl.isFavGroup(groupId);
     }
 
     async setFavGroup(groupId, fav, successCB, failCB) {
-        proto.setFavGroup(groupId, fav, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.setFavGroup(groupId, fav, successCB, failCB);
     }
 
     getUserSetting(scope, key) {
-        return proto.getUserSetting(scope, key);
+        return impl.getUserSetting(scope, key);
     }
 
     getUserSettings(scope) {
-        let result = proto.getUserSettings(scope);
-        return JSON.parse(result);
+        return impl.getUserSettings(scope);
     }
 
     async setUserSetting(scope, key, value, successCB, failCB) {
-        proto.setUserSetting(scope, key, value, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.setUserSetting(scope, key, value, successCB, failCB);
     }
 
-    modifyMyInfo() {
-        // TODO
-        self.users.delete(self.getUserId())
+    modifyMyInfo(modifyMyInfoEntries, successCB, failCB) {
+        impl.modifyMyInfo(entries, successCB, failCB);
     }
 
     isGlobalSlient() {
-        return proto.isGlobalSlient();
+        impl.isGlobalSlient();
     }
 
-    setGlobalSlient(silent, successCB, failCB) {
-        proto.setGlobalSlient(silent, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+    async setGlobalSlient(silent, successCB, failCB) {
+        impl.setGlobalSlient(silent, successCB, failCB);
     }
 
     isHiddenNotificationDetail() {
-        return proto.isHiddenNotificationDetail();
+        impl.isHiddenNotificationDetail();
     }
 
     async setHiddenNotificationDetail(hide, successCB, failCB) {
-        proto.setHiddenNotificationDetail(hide, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.setHiddenNotificationDetail(hide, successCB, failCB);
     }
 
     isHiddenGroupMemberName(groupId) {
-        return proto.isHiddenGroupMemberName(groupId);
+        return impl.isHiddenGroupMemberName(groupId);
     }
 
     async setHiddenGroupMemberName(groupId, hide, successCB, failCB) {
-        proto.setHiddenGroupMemberName(groupId, hide, () => {
-            successCB();
-        }, (errorCode) => {
-            failCB(errorCode);
-        });
+        impl.setHiddenGroupMemberName(groupId, hide, successCB, failCB);
     }
 
     async joinChatroom(chatroomId, successCB, failCB) {
-        proto.joinChatroom(chatroomId, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.joinChatroom(chatroomId, successCB, failCB);
     }
 
     async quitChatroom(chatroomId, successCB, failCB) {
-        proto.quitChatroom(chatroomId, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.quitChatroom(chatroomId, successCB, failCB);
     }
 
     async getChatroomInfo(chatroomId, updateDt, successCB, failCB) {
-        proto.getChatroomInfo(chatroomId, updateDt, (info) => {
-            if (successCB) {
-                successCB(JSON.parse(info));
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.getChatroomInfo(chatroomId, updateDt, successCB, failCB);
     }
 
     async getChatroomMemberInfo(chatroomId, maxCount, successCB, failCB) {
-        proto.getChatroomMemberInfo(chatroomId, maxCount, (info) => {
-            if (successCB) {
-                successCB(Object.assign(new ChatRoomMemberInfo(), JSON.parse(info)));
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.getChatroomMemberInfo(chatroomId, maxCount, successCB, failCB);
     }
 
     createChannel(name, portrait, status, desc, extra, successCB, failCB) {
-        proto.createChannel(name, portrait, status, desc, extra, (info) => {
-            if (successCB) {
-                successCB(Object.assign(new ChannelInfo(), JSON.parse(info)));
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.createChannel(name, portrait, status, desc, extra, successCB, failCB);
     }
 
     getChannelInfo(channelId, refresh) {
-        let result = proto.getChannelInfo(channelId, refresh);
-        if (result === '') {
-            return null;
-        }
-
-        return Object.assign(new ChannelInfo(), JSON.parse(result));
+        return this.getChannelInfo(channelId, refresh);
     }
 
     async modifyChannelInfo(channelId, type, newValue, successCB, failCB) {
-        proto.modifyChannelInfo(channelId, type, newValue, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.modifyChannelInfo(channelId, type, newValue, successCB, failCB);
     }
 
     searchChannel(keyword, successCB, failCB) {
-        proto.searchChannel(keyword, (result) => {
-            if (successCB) {
-                let channels = [];
-                let tmp = JSON.parse(result);
-                tmp.forEach(channel => {
-                    channels.push(Object.assign(new ChannelInfo(), channel));
-                });
-                successCB(channels);
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.searchChannel(keyword, successCB, failCB);
     }
 
     isListenedChannel(channelId) {
-        return proto.isListenedChannel(channelId);
+        return impl.isListenedChannel(channelId);
     }
 
     async listenChannel(channelId, listen, successCB, failCB) {
-        proto.listenChannel(channelId, listen, () => {
-            successCB();
-        }, errorCode => {
-            failCB(errorCode);
-        });
+        impl.listenChannel(channelId, listen, successCB, failCB);
     }
 
     // return channelIds
     getMyChannels() {
-        let result = proto.getMyChannels();
-        return JSON.parse(result);
+        return impl.getMyChannels();
     }
 
     getListenedChannels() {
-        let result = proto.getListenedChannels();
-        return JSON.parse(result);
+        return impl.getListenedChannels();
     }
 
     async destoryChannel(channelId, successCB, failCB) {
-        proto.destoryChannel(channelId, () => {
-            if (successCB) {
-                successCB();
-            }
-        }, errorCode => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.destoryChannel(channelId, successCB, failCB);
     }
 
     getConversationList(types, lines) {
-        var conversationListStr = proto.getConversationInfos(types, lines);
-        // console.log(conversationListStr);
-        // TODO convert to conversationInfo, messageContent
-
-        let conversationInfoList = [];
-        let tmp = JSON.parse(conversationListStr);
-        tmp.forEach(c => {
-            conversationInfoList.push(ConversationInfo.protoConversationToConversationInfo(c));
-        });
-
-        return conversationInfoList;
+        return impl.getConversationList(types, lines);
     }
 
     getConversationInfo(conversation) {
-        let convStr = proto.getConversationInfo(JSON.stringify(conversation));
-        return ConversationInfo.protoConversationToConversationInfo(JSON.parse(convStr));
+        return impl.getConversationInfo(conversation);
     }
 
     searchConversation(keyword, types = [], lines = []) {
-        let result = proto.searchConversation(keyword, types, lines);
-        let resultList = JSON.parse(result);
-        var conversationSearchResult = [];
-        if (resultList && resultList.length > 0) {
-            resultList.forEach(r => {
-                conversationSearchResult.push(ConversationSearchResult.fromProtoConversationSearchResult(r));
-            });
-        }
-        return conversationSearchResult;
+        return impl.searchConversation(keyword, types, lines);
     }
 
     async removeConversation(conversation, clearMsg) {
-        proto.removeConversation(JSON.stringify(conversation), clearMsg);
+        impl.removeConversation(conversation, clearMsg);
     }
 
     setConversationTop(conversation, top, successCB, failCB) {
-        proto.setConversationTop(JSON.stringify(conversation), top, () => {
-            let conversationInfo = self.getConversationInfo(conversation);
-            self.eventEmitter.emit(EventType.ConversationInfoUpdate, conversationInfo);
-
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.setConversationTop(conversation, top, successCB, failCB);
     }
 
     setConversationSlient(conversation, silent, successCB, failCB) {
-        proto.setConversationSlient(JSON.stringify(conversation), top, () => {
-            let conversationInfo = self.getConversationInfo(conversation);
-            self.eventEmitter.emit(EventType.ConversationInfoUpdate, conversationInfo);
-
-            if (successCB) {
-                successCB();
-            }
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.setConversationSlient(conversation, silent, successCB, failCB);
     }
 
     setConversationDraft(conversation, draft = '') {
-        proto.setConversationDraft(JSON.stringify(conversation), draft);
+        impl.setConversationDraft(conversation, draft);
     }
 
-    getUnreadCount(types = [], lines = [0]) {
-        let unreadCountStr = proto.getUnreadCount(types, lines);
-        return Object.assign(new UnreadCount(), JSON.parse(unreadCountStr));
+    getUnreadCount(types = [0, 1, 2], lines = [0]) {
+        return impl.getUnreadCount(types, lines);
     }
 
     getConversationUnreadCount(conversation) {
-        let unreadCountStr = proto.getConversationUnreadCount(JSON.stringify(conversation));
-        return Object.assign(new UnreadCount(), JSON.parse(unreadCountStr));
+        return impl.getConversationUnreadCount(conversation);
     }
 
     clearConversationUnreadStatus(conversation) {
-        proto.clearUnreadStatus(JSON.stringify(conversation));
-        let conversationInfo = self.getConversationInfo(conversation);
-        self.eventEmitter.emit(EventType.ConversationInfoUpdate, conversationInfo);
+        impl.clearConversationUnreadStatus(conversation);
     }
 
     clearAllUnreadStatus() {
-        // TODO emit ConversationInfoUpdate event
-        proto.clearAllUnreadStatus();
+        impl.clearAllUnreadStatus();
     }
 
     setMediaMessagePlayed(messageId) {
-        // TODO need to emit message update event?
-        proto.setMediaMessagePlayed(messageId);
+        return 'no implement'
+        // impl.setMediaMessagePlayed(messageId);
     }
 
     isMyFriend(userId) {
-        return proto.isMyFriend(userId);
+        return impl.isMyFriend(userId);
     }
 
     async sendFriendRequest(userId, reason, successCB, failCB) {
-        proto.sendFriendRequest(userId, reason, () => {
-            if (successCB) {
-                successCB();
-            }
-
-        }, (errorCode) => {
-            if (failCB) {
-                failCB(errorCode);
-            }
-        });
+        impl.sendFriendRequest(userId, reason, successCB, failCB);
     }
 
     /**
-     *
+     * 
      * @param {Conversation} conversation
-     * @param {number} fromIndex
-     * @param {boolean} before
-     * @param {number} count
-     * @param {string} withUser
+     * @param {number} fromIndex 
+     * @param {boolean} before 
+     * @param {number} count 
+     * @param {string} withUser 
      */
-    async getMessages(conversation, fromIndex, before = true, count = 20, withUser = '') {
-        let protoMsgsStr = proto.getMessages(JSON.stringify(conversation), [], fromIndex, before, count, withUser);
-        // let protoMsgsStr = proto.getMessages('xxx', [0], fromIndex, before, count, withUser);
-        var protoMsgs = JSON.parse(protoMsgsStr);
-        let msgs = [];
-        protoMsgs.map(m => {
-            let msg = Message.fromProtoMessage(m);
-            if (msg) {
-                msgs.push(msg);
-            }
-        });
-        console.log('getMessages', msgs.length);
+    getMessages(conversation, fromIndex, before = true, count = 20, withUser = '') {
+        return impl.getMessages(conversation, fromIndex, before, count, withUser);
+    }
 
-        return msgs;
+    loadRemoteMessages(conversation, beforeUid, count, successCB, failCB) {
+        impl.loadRemoteMessages(conversation, beforeUid, count, successCB, failCB);
     }
 
     getMessageById(messageId) {
-        let mStr = proto.getMessage(messageId);
-        return Message.fromProtoMessage(JSON.parse(mStr));
+        return impl.getMessageById(messageId);
     }
 
     getMessageByUid(messageUid) {
-        let mStr = proto.getMessageByUid(messageUid);
-        return Message.fromProtoMessage(JSON.parse(mStr));
+        return impl.getMessageByUid(messageUid);
     }
 
     searchMessage(conversation, keyword) {
-        let result = proto.searchMessage(JSON.stringify(conversation), keyword);
-        let msgs = JSON.parse(result);
-        let matchMsgs = [];
-        if (msgs && msgs.length > 0) {
-            msgs.forEach(m => {
-                matchMsgs.push(Message.fromProtoMessage(m));
-            });
-        }
-
-        return matchMsgs;
+        return impl.searchMessage(conversation, keyword);
     }
 
     async sendConversationMessage(conversation, messageContent, toUsers, preparedCB, progressCB, successCB, failCB) {
-        let message = new Message();
-        message.conversation = conversation;
-        message.messageContent = messageContent;
-        self.sendMessageEx(message, toUsers, preparedCB, progressCB, successCB, failCB);
+        impl.sendConversationMessage(conversation, messageContent, toUsers, preparedCB, progressCB, successCB, failCB);
     }
 
     async sendMessage(message, preparedCB, progressCB, successCB, failCB) {
-        self.sendMessageEx(message, [], preparedCB, progressCB, successCB, failCB);
+        impl.sendMessage(message, preparedCB, progressCB, successCB, failCB);
     }
 
     // toUsers 用来实现定向消息
     async sendMessageEx(message, toUsers = [], preparedCB, progressCB, successCB, failCB) {
-        let strConv = JSON.stringify(message.conversation);
-        message.content = await message.messageContent.encode();
-        console.log('--------------p', message.content);
-        let strCont = JSON.stringify(message.content);
-
-        proto.sendMessage(strConv, strCont, toUsers, 0,
-            function (messageId, timestamp) { //preparedCB
-                message.memberId = messageId;
-                if (typeof preparedCB === 'function') {
-                    preparedCB(messageId, Number(timestamp));
-                }
-            },
-            function (uploaded, total) { //progressCB
-                if (typeof progressCB === 'function') {
-                    progressCB(uploaded, total);
-                }
-                // upload progress update
-                //self.eventEmitter.emit(EventType.MessageStatusUpdate, message);
-            },
-            function (messageUid, timestamp) { //successCB
-                message.messageUid = messageUid;
-                if (typeof successCB === 'function') {
-                    successCB(Number(messageUid), Number(timestamp));
-                }
-                self.eventEmitter.emit(EventType.MessageStatusUpdate, message);
-            },
-            function (errorCode) { //errorCB
-                if (typeof failCB === 'function') {
-                    failCB(errorCode);
-                }
-                self.eventEmitter.emit(EventType.MessageStatusUpdate, message);
-            });
-
-        self.eventEmitter.emit(EventType.SendMessage, message);
+        impl.sendMessageEx(message, toUsers, preparedCB, progressCB, successCB, failCB);
     }
 
     // 更新了原始消息的内容
     async recallMessage(messageUid, successCB, failCB) {
-        console.log('recall', messageUid);
-        proto.recall(messageUid,
-            () => {
-                console.log('recall, s', messageUid);
-                if (successCB) {
-                    successCB();
-                    this.onRecallMessage(this.getUserId(), messageUid);
-                }
-            },
-            (errorCode) => {
-                console.log('recall, f', messageUid, errorCode);
-                if (failCB) {
-                    failCB();
-                }
-            });
+        impl.recallMessage(messageUid, successCB, failCB);
     }
 
     deleteMessage(messageId) {
-        let result = proto.deleteMessage(messageId);
-        if (result) {
-            this.onMessageDeleted(messageId);
-        }
-        return result;
+        impl.deleteMessageById(messageId);
     }
 
     async clearMessages(conversation) {
-        proto.clearMessages(JSON.stringify(conversation));
-        let conversationInfo = this.getConversationInfo(conversation);
-        self.eventEmitter.emit(EventType.ConversationInfoUpdate, conversationInfo);
+        impl.clearMessages(conversation);
     }
 
     /**
-     *
-     * @param {Conversation} conversation
-     * @param {MessageContent} messageContent
-     * @param {MessageStatus} status
+     * 
+     * @param {Conversation} conversation 
+     * @param {MessageContent} messageContent 
+     * @param {MessageStatus} status 
      * @param {boolean} notify 是否触发onReceiveMessage
      * @param {Number} serverTime 服务器时间，精度到毫秒
      */
     insertMessage(conversation, messageContent, status, notify = false, serverTime = 0) {
-        proto.insertMessage(JSON.stringify(conversation), self.userId, JSON.stringify(messageContent), status, notify, serverTime);
+        impl.insertMessage(conversation, messageContent, status, notify, serverTime);
     }
 
     async updateMessageContent(messageId, messageContent) {
-        proto.updateMessage(messageId, JSON.stringify(messageContent))
+        impl.updateMessageContent(messageId, messageContent);
     }
 
-    async uploadMedia(fileName, data, mediaType, successCB, failCB, progressCB) {
-        // var data = file.slile(0, file.size);
-        proto.uploadMedia(fileName, data, mediaType,
-            (remoteUrl) => {
-                if (successCB) {
-                    successCB(remoteUrl);
-                }
-            },
-            (errorCode) => {
-                if (failCB) {
-                    failCB(errorCode);
-                }
-            },
-            (current, total) => {
-                if (progressCB) {
-                    progressCB(current, total);
-                }
-            });
+    async uploadMedia(data, mediaType, successCB, failCB, progressCB) {
+        impl.uploadMedia(data, mediaType, successCB, failCB, progressCB);
     }
 
-    test() {
+    // 一定需要带上http://或者 wx://
+    // 网页 http://pc.wildfirechat.cn
+    // 微信小程序 wx://pc.wildifirechat.cn
+    connect(appId, appKey, host, port, userId, clientId, token) {
+        console.log('connect', appId, appKey, host, port, userId, clientId, token);
+        impl.connect(appId, appKey, host, port, userId, clientId, token);
+    }
 
-        // let u = proto.getUserInfo('uiuJuJcc', true)
-        // let u1 = Object.assign(new UserInfo(), JSON.parse(u));
-        // u1.hello();
+    async testSendImageMessage(file, thumbnail) {
+        let imgMsg = new ImageMessageContent(file, thumbnail);
+        let conv = new Conversation(ConversationType.Single, 'uiuJuJcc', 0);
+        let msg = new Message(conv, imgMsg);
 
-        console.log('---------------test start----------------------');
-        let u = self.getUserInfo('uiuJuJccj', true);
-        u.hello();
-        console.log('user info', u);
-        self.getMessageById(200);
-
-        let g = self.getGroupInfo('PHPSPS22');
-        console.log(g);
-
-        let m = self.getGroupMembers('PHPSPS22');
-        console.log(m);
-
-        this.getMyGroupList();
-
-        console.log('localStorage', localStorage.getItem('test'));
-        localStorage.setItem('test', 'hello world');
-        console.log('localStorage', localStorage.getItem('test'));
-
-        console.log('atob', btoa('hello world'));
-        self.uploadMedia('test', 'hello world', MessageContentMediaType.Image,
-            (remoteUrl) => {
-                console.log('----------------upload success', remoteUrl);
-            },
-            (errorCode) => {
-                console.log('-------------upload error', errorCode);
-            },
-            (current, total) => {
-
-            });
-
-        // let conversation = new Conversation(ConversationType.Group, "tTt5t566", 0);
-        // let content = new TextMessageContent("hello");
-        // self.sendConversationMessage(conversation, content, ["CbGHCH88"])
-        // content = new TextMessageContent("world");
-        // self.sendConversationMessage(conversation, content, [])
-
-        console.log('---------------test end----------------------');
+        let retValue = this.sendMessage(msg, function (messageId, timestamp) { //preparedCB
+            console.log("sendMessage prepared:", messageId, timestamp);
+        }, function (uploaded, total) { //progressCB
+            console.log("sendMessage progress:", uploaded, total);
+        }, function (messageUid, timestamp) { //successCB
+            console.log("sendMessage success:", messageUid, timestamp);
+        }, function (errorCode) { //errorCB
+            console.log("sendMessage failed:", errorCode);
+        });
+        console.log("call sendMessage return:", retValue);
     }
 }
+// global.WfcManager = WfcManager;
+
 const self = new WfcManager();
+// global.WfcManager = self;
 export default self;
+
+// //remote
+var username = 'GNMtGtZZ';
+var clientId = '78E616BC-1F7C-405F-AB16-41539EA89150';
+var token = 'Ni3ya43aML2x3fTWKwAsCuRE4SZpFi8ZDgqqgbmSfkWES0hIx6d8gvmFRIjT2Unhm6Et+wOV632kQrjMQTSo5Mu6u2yAL5fp0MVhI5E8Ln0/eohOsEK1JsFJfrc292l/9lrwgmCkqc7VhLcuYy/GEW6l2Db/rLXIkRMM2nSpYPE=';
+var host = 'wildfirechat.cn';
+var shortPort = 80;
+
+// local
+// var username = 'MUMmMm55'
+// var clientId = '78E616BC-1F7C-405F-AB16-41539EA89150';
+// var token = 'qQCBJD7nr31gtUB5zm4Oewhn3ec7Uxuw9aFJm7vwgNa9ZsYH0BQNgPjm4p9HNktC9t9kglUhoJokg2JzHkWJVuqqKNltOe5JWVNXf3qmvwQsogRYPErO6dxFhdRtx+ypgujYMJ9ZlRjZdJww0g55rwomXP9iWMjtupk9TxbnJgI='
+// var host = '192.168.0.158';
+// var shortPort = 80;
+
+
+// self.connect(host, shortPort, username, token)
+// self.impl.connect(host, username, clientId, token);
