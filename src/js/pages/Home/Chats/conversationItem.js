@@ -77,7 +77,7 @@ export default class ConversationItem extends Component {
         let txtUnread = unreadCount.unread > 99 ? "..." : unreadCount.unread;
 
         if (!portrait) {
-            switch (e.conversation.conversationType) {
+            switch (e.conversation.type) {
                 case ConversationType.Single:
                     portrait = 'assets/images/user-fallback.png';
                     break;

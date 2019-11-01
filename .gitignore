@@ -22,6 +22,7 @@ xcuserdata
 DerivedData
 *.hmap
 *.ipa
+*.js.map
 *.xcuserstate
 project.xcworkspace
 

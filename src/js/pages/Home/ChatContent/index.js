@@ -311,7 +311,7 @@ export default class ChatContent extends Component {
             // var { message, user } = this.props.parseMessage(e, from);
             var message = e;
             let user;
-            if (message.conversation.conversationType === ConversationType.Group) {
+            if (message.conversation.type === ConversationType.Group) {
                 user = wfc.getUserInfo(message.from, false, message.conversation.target);
             } else {
                 user = wfc.getUserInfo(message.from);
@@ -641,7 +641,7 @@ export default class ChatContent extends Component {
 
         // if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
         //     wfc.clearConversationUnreadStatus(this.props.conversation);
-        //     wfc.eventEmitter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
+        //     wfc.eventEmiter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
         // }
 
         Array.from(unread).map(e => {
@@ -755,7 +755,7 @@ export default class ChatContent extends Component {
 
         // if (nextProps.conversation) {
         //     wfc.clearConversationUnreadStatus(nextProps.conversation);
-        //     wfc.eventEmitter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
+        //     wfc.eventEmiter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
         // }
         this.scrollTop = -1;
         this.stopAudio();
@@ -769,6 +769,7 @@ export default class ChatContent extends Component {
         } else if (target instanceof GroupInfo) {
             title = target.name;
         } else {
+            console.log('chatTo.........', target);
             title = 'TODO';
         }
         return title;

@@ -110,11 +110,11 @@ export default class Layout extends Component {
 
     componentWillMount() {
         console.log('lyaout--------------wfc', wfc);
-        wfc.eventEmitter.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+        wfc.eventEmiter.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
     }
 
     componentWillUnmount() {
-        wfc.eventEmitter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+        wfc.eventEmiter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
     }
 
     render() {

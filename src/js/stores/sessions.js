@@ -35,7 +35,7 @@ class sessions {
 
     @action genConversationKey(index) {
         let conversation = self.conversations[index]
-        return conversation.conversationType + conversation.target + conversation.line;
+        return conversation.type + conversation.target + conversation.line;
     }
 
     async test(info) {

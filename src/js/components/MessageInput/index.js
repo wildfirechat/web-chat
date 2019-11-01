@@ -10,6 +10,7 @@ import TextMessageContent from '../../wfc/messages/textMessageContent';
 import ConversationType from '../../wfc/model/conversationType';
 import wfc from '../../wfc/client/wfc'
 import pinyin from '../../han';
+import EventType from '../../wfc/client/wfcEvent';
 
 export default class MessageInput extends Component {
     static propTypes = {
@@ -31,27 +32,23 @@ export default class MessageInput extends Component {
     initMention(conversation) {
         // TODO group, channel
         console.log('initMention');
-        let type = conversation.conversationType;
-        if (type === ConversationType.Single
-            || type === ConversationType.ChatRoom) {
-            return
-        }
 
         let mentionMenuItems = [];
-        if (type === ConversationType.Group) {
-            let groupInfo = wfc.getGroupInfo(conversation.target);
-            let members = wfc.getGroupMembers(conversation.target);
-            mentionMenuItems.push({ key: "所有人", value: '@' + conversation.target, avatar: groupInfo.portrait, searchKey: '所有人' + pinyin.letter('所有人', '', null) });
-            let userIds = [];
-            members.forEach(e => {
-                userIds.push(e.memberId);
-            });
-
-            let userInfos = wfc.getUserInfos(userIds, groupInfo.target);
-            userInfos.forEach((e) => {
-                mentionMenuItems.push({ key: e.displayName, value: '@' + e.uid, avatar: e.portrait, searchKey: e.displayName + pinyin.letter(e.displayName, '', null) });
-            });
+        let groupInfo = wfc.getGroupInfo(conversation.target);
+        let members = wfc.getGroupMembers(conversation.target);
+        if (!members) {
+            return;
         }
+        mentionMenuItems.push({ key: "所有人", value: '@' + conversation.target, avatar: groupInfo.portrait, searchKey: '所有人' + pinyin.letter('所有人', '', null) });
+        let userIds = [];
+        members.forEach(e => {
+            userIds.push(e.memberId);
+        });
+
+        let userInfos = wfc.getUserInfos(userIds, groupInfo.target);
+        userInfos.forEach((e) => {
+            mentionMenuItems.push({ key: e.displayName, value: '@' + e.uid, avatar: e.portrait, searchKey: e.displayName + pinyin.letter(e.displayName, '', null) });
+        });
 
         this.tribute = new Tribute({
             // menuContainer: document.getElementById('content'),
@@ -203,10 +200,42 @@ export default class MessageInput extends Component {
         }
     }
 
+    onGroupInfosUpdate = (groupInfos) => {
+        console.log('onGroupInfosupdate', groupInfos);
+        if (!this.props || !this.shouldHandleMention(this.props.conversation)) {
+            return;
+        }
+        for (const groupInfo of groupInfos) {
+            if (groupInfo.target === this.props.conversation.target) {
+                if (this.tribute) {
+                    this.tribute.detach(document.getElementById('messageInput'));
+                    this.tribute = null;
+                }
+                this.initMention(this.props.conversation);
+                break;
+            }
+        }
+    }
+
     componentDidMount() {
+        wfc.eventEmiter.on(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
+        if (!this.shouldHandleMention(this.props.conversation)) {
+            return;
+        }
         if (this.props.conversation && !this.tribute) {
             this.initMention(this.props.conversation);
         }
+    }
+
+    componentWillUnmount() {
+        wfc.eventEmiter.removeListener(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
+    }
+
+    shouldHandleMention(conversation) {
+        if (!conversation) {
+            return false;
+        }
+        return conversation.type === ConversationType.Group;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -229,7 +258,7 @@ export default class MessageInput extends Component {
             this.tribute = null;
         }
 
-        if (nextProps.conversation) {
+        if (this.shouldHandleMention(nextProps.conversation)) {
             this.initMention(nextProps.conversation);
         }
     }

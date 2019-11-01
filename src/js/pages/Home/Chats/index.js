@@ -30,7 +30,7 @@ moment.updateLocale('en', {
     removeChat: stores.sessions.removeConversation,
     loading: stores.sessions.loading,
     searching: stores.search.searching,
-    event: stores.wfc.eventEmitter,
+    event: stores.wfc.eventEmiter,
     loadConversations: stores.sessions.loadConversations,
     reloadConversation: stores.sessions.reloadConversation,
 }))
@@ -95,7 +95,7 @@ export default class Chats extends Component {
 
     onUserInfoUpdate = (userId) => {
         this.props.chats.map((c, index) => {
-            if (c.conversation.conversationType === ConversationType.Single && c.conversation.target === userId) {
+            if (c.conversation.type === ConversationType.Single && c.conversation.target === userId) {
                 this.props.reloadConversation(c.conversation);
             }
         });
@@ -103,7 +103,7 @@ export default class Chats extends Component {
 
     onGroupInfoUpdate = (groupId) => {
         this.props.chats.map((c, index) => {
-            if (c.conversation.conversationType === ConversationType.Group && c.conversation.target === groupId) {
+            if (c.conversation.type === ConversationType.Group && c.conversation.target === groupId) {
                 this.props.reloadConversation(c.conversation);
             }
         });

@@ -241,7 +241,7 @@ class Chat {
         if (self.conversation && message.messageId > 0 && self.conversation.equal(message.conversation)) {
             // message conent type
             let content = message.messageContent;
-            if (self.conversation.conversationType === ConversationType.Group) {
+            if (self.conversation.type === ConversationType.Group) {
                 if ((content instanceof QuitGroupNotification && content.groupId === self.conversation.target && content.operator === wfc.getUserId())
                     || (content instanceof DismissGroupNotification && content.groupId === self.conversation.target)
                     || (content instanceof KickoffGroupMemberNotification && content.groupId === self.conversation.target && content.kickedMembers.indexOf(wfc.getUserId()) > -1)
@@ -265,7 +265,8 @@ class Chat {
 
         // 第一次进入的时候订阅
         if (self.conversation === undefined) {
-            wfc.eventEmitter.on(EventType.ReceiveMessage, self.onReceiveMessage);
+            wfc.eventEmiter.on(EventType.ReceiveMessage, self.onReceiveMessage);
+            wfc.eventEmiter.on(EventType.SendMessage, self.onReceiveMessage);
         }
 
         self.conversation = conversation;
@@ -275,7 +276,7 @@ class Chat {
         self.loadConversationMessages(conversation, 10000000);
 
         // TODO update observable for chat content
-        switch (conversation.conversationType) {
+        switch (conversation.type) {
             case ConversationType.Single:
                 self.target = wfc.getUserInfo(conversation.target);
                 break
@@ -453,23 +454,7 @@ class Chat {
         let msg = new Message();
         msg.conversation = self.conversation;
         msg.messageContent = messgeContent;
-        var m;
-        wfc.sendMessage(msg,
-            function (messageId, timestamp) {
-                m = wfc.getMessageById(messageId);
-                self.messageList.push(m);
-            },
-            null,
-            function (messageUid, timestamp) {
-                m.messageUid = messageUid;
-                m.status = 1;
-                m.timestamp = timestamp;
-
-            },
-            function (errorCode) {
-                console.log('send message failed', errorCode);
-            }
-        );
+        wfc.sendMessage(msg);
         return true;
     }
 
@@ -597,23 +582,7 @@ class Chat {
         }
         msg.messageContent = messageContent;
         var m;
-        wfc.sendMessage(msg,
-            function (messageId, timestamp) {
-                m = wfc.getMessageById(messageId);
-                self.messageList.push(m);
-            },
-            (current, total) => {
-                // progress
-            },
-            function (messageUid, timestamp) {
-                m.messageUid = messageUid;
-                m.status = MessageStatus.Sent;
-                m.timestamp = timestamp;
-            },
-            function (errorCode) {
-                console.log('send message failed', errorCode);
-            }
-        );
+        wfc.sendMessage(msg);
         return true;
     }
 

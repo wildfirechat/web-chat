@@ -15,7 +15,7 @@ import stores from '../../../stores';
     getContacts: stores.contacts.getContacts,
     showUserinfo: stores.contactInfo.toggle,
     contactItemName: stores.contacts.contactItemName,
-    event: stores.wfc.eventEmitter,
+    event: stores.wfc.eventEmiter,
 }))
 @observer
 export default class Contacts extends Component {

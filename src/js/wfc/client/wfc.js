@@ -11,10 +11,10 @@ import { EventEmitter } from 'events';
 // 其实就是imclient，后续可能需要改下名字
 export class WfcManager {
     // impl = new WfcImpl();
-    eventEmitter = new EventEmitter();
+    eventEmiter = new EventEmitter();
 
     constructor() {
-        impl.eventEmitter = this.eventEmitter;
+        impl.eventEmiter = this.eventEmiter;
     }
 
     /**
@@ -57,6 +57,9 @@ export class WfcManager {
         return impl.getUserInfo(userId, refresh);
     }
 
+    getUserInfos(userIds, groupId) {
+        return impl.getUserInfos(userIds, groupId);
+    }
 
     async searchUser(keyword, successCB, failCB) {
         impl.searchUser(keyword, successCB, failCB);
@@ -407,7 +410,6 @@ export class WfcManager {
     // 网页 http://pc.wildfirechat.cn
     // 微信小程序 wx://pc.wildifirechat.cn
     connect(appId, appKey, host, port, userId, clientId, token) {
-        console.log('connect', appId, appKey, host, port, userId, clientId, token);
         impl.connect(appId, appKey, host, port, userId, clientId, token);
     }
 
