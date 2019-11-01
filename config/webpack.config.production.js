@@ -24,6 +24,10 @@ export default {
         filename: 'app.js'
     },
 
+    optimization: {
+        minimize: false
+    }, 
+
     plugins: [
         // https://github.com/webpack/webpack/issues/2545
         // Use babel-minify-webpack-plugin minify code

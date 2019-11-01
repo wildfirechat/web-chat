@@ -110,7 +110,7 @@ export default class Chats extends Component {
     }
 
     componentWillMount() {
-        console.log('componentWillMount');
+        console.log('chats----------componentWillMount');
         this.props.loadConversations();
         this.props.event.on(EventType.ReceiveMessage, this.onReceiveMessage);
         this.props.event.on(EventType.SendMessage, this.onSendMessage);

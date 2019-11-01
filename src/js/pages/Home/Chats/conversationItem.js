@@ -121,7 +121,7 @@ export default class ConversationItem extends Component {
 
                         <span
                             className={classes.message}
-                            dangerouslySetInnerHTML={{ __html: e.lastMessage ? e.lastMessage.messageContent.digest() : '' }} />
+                            dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
                     </div>
                 </div>
 

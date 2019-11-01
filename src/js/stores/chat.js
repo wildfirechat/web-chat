@@ -196,13 +196,6 @@ function hasUnreadMessage(messages) {
             counter += (item.data.length - item.unread);
         }
     );
-
-    ipcRenderer.send(
-        'message-unread',
-        {
-            counter,
-        }
-    );
 }
 
 async function updateMenus({ conversations = [], contacts = [] }) {
@@ -266,7 +259,7 @@ class Chat {
 
     @action async chatToN(conversation) {
         console.log('chat to conversation', conversation);
-        if (_.isEqual(self.conversation, conversation)) {
+        if (self.conversation && self.conversation.equal(conversation)) {
             return
         }
 

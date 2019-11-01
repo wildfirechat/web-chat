@@ -9,6 +9,7 @@ import wfc from '../../wfc/client/wfc'
 import PCSession from '../../wfc/model/pcsession';
 import { observable } from 'mobx';
 import axios from 'axios';
+import { userInfo } from 'os';
 
 @inject(stores => ({
     avatar: stores.sessions.avatar,
@@ -21,7 +22,7 @@ export default class Login extends Component {
     loginTimer;
 
     componentDidMount() {
-        axios.defaults.baseURL = Config.APP_SERVER;
+        axios.defaults.baseURL = Config.APP_SERVER_HOST + ':' + Config.APP_SERVER_PORT;
 
         this.getCode();
         this.keepLogin();
@@ -80,7 +81,9 @@ export default class Login extends Component {
                     clearInterval(this.loginTimer);
                     let userId = response.data.result.userId;
                     let token = response.data.result.token;
-                    wfc.connect(userId, token);
+                    //wfc.connect(userId, token);
+                    //connect(appId, appKey, host, port, userId, clientId, token) 
+                    wfc.connect('web_12345678', 'caf49318cdf130128a0507bdfacdc1b562b13ff7', 'http://pc.wildfirechat.cn', 80, userId, 'clientId', token)
                     break;
                 default:
                     console.log(response.data);
