@@ -83,7 +83,7 @@ export default class Login extends Component {
                     let token = response.data.result.token;
                     //wfc.connect(userId, token);
                     //connect(appId, appKey, host, port, userId, clientId, token) 
-                    wfc.connect('web_12345678', 'caf49318cdf130128a0507bdfacdc1b562b13ff7', 'http://pc.wildfirechat.cn', 80, userId, 'clientId', token)
+                    wfc.connect('web_12345678', '9a774dcadd9abc8f56cf677761f5cba441c9b887', 'http://pc.wildfirechat.cn', 80, userId, 'clientId', token)
                     break;
                 default:
                     console.log(response.data);
