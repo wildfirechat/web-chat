@@ -234,9 +234,16 @@ class Chat {
     @action toggleConversation(show = !self.showConversation) {
         self.showConversation = show;
     }
+    onRecallMessage(operatorUid, messageUid) {
+        let msg = wfc.getMessageByUid(messageUid);
+        if (self.conversation && self.conversation.equal(msg.conversation)) {
+            let index = self.messageList.findIndex(m => m.messageId === msg.messageId);
+            self.messageList[index] = msg;
+        }
+    }
 
     onReceiveMessage(message, hasMore) {
-        console.log('chat on receive message');
+        console.log('chat on receive message', message);
         // TODO message id
         if (self.conversation && message.messageId > 0 && self.conversation.equal(message.conversation)) {
             // message conent type
@@ -266,7 +273,6 @@ class Chat {
         // 第一次进入的时候订阅
         if (self.conversation === undefined) {
             wfc.eventEmiter.on(EventType.ReceiveMessage, self.onReceiveMessage);
-            wfc.eventEmiter.on(EventType.SendMessage, self.onReceiveMessage);
         }
 
         self.conversation = conversation;
@@ -454,7 +460,23 @@ class Chat {
         let msg = new Message();
         msg.conversation = self.conversation;
         msg.messageContent = messgeContent;
-        wfc.sendMessage(msg);
+        let m;
+        wfc.sendMessage(msg,
+            (messageId, timestamp) => {
+                m = wfc.getMessageById(messageId);
+                self.messageList.push(m);
+            },
+            null,
+            (messageUid, timestamp) => {
+                m.messageUid = messageUid;
+                m.status = 1;
+                m.timestamp = timestamp;
+
+            },
+            (errorCode) => {
+                console.log('send message failed', errorCode);
+            }
+        );
         return true;
     }
 
@@ -582,12 +604,33 @@ class Chat {
         }
         msg.messageContent = messageContent;
         var m;
-        wfc.sendMessage(msg);
+        wfc.sendMessage(msg,
+            function (messageId, timestamp) {
+                m = wfc.getMessageById(messageId);
+                self.messageList.push(m);
+            },
+            (current, total) => {
+                // progress
+            },
+            function (messageUid, timestamp) {
+                m.messageUid = messageUid;
+                m.status = MessageStatus.Sent;
+                m.timestamp = timestamp;
+            },
+            function (errorCode) {
+                console.log('send message failed', errorCode);
+            }
+        );
         return true;
     }
 
     @action async recallMessage(message) {
-        wfc.recallMessage(message.messageUid);
+        wfc.recallMessage(message.messageUid, () => {
+            let msg = wfc.getMessageById(message.messageId);
+            let oldMsg = self.messageList.find(m => m.messageId === msg.messageId);
+            // extendObservable(oldMsg, msg);
+            oldMsg.messageContent = msg.messageContent;
+        });
     }
 
     @action deleteMessage(messageId) {

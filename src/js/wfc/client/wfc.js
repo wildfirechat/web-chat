@@ -429,6 +429,10 @@ export class WfcManager {
         });
         console.log("call sendMessage return:", retValue);
     }
+
+    _getStore() {
+        return impl._getStore();
+    }
 }
 // global.WfcManager = WfcManager;
 
