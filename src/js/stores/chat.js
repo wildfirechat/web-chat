@@ -298,7 +298,7 @@ class Chat {
 
     //@action async getMessages(conversation, fromIndex, before = 'true', count = '20', withUser = ''){
     @action async loadConversationMessages(conversation, fromIndex, before = true, count = 20) {
-        self.messageList = await wfc.getMessages(conversation, fromIndex, before, count, '');
+        self.messageList = wfc.getMessages(conversation, fromIndex, before, count, '');
     }
 
     @action async loadOldMessages() {
@@ -312,15 +312,14 @@ class Chat {
 
         let fromIndex = self.messageList[0].messageId;
 
-        wfc.getMessages(self.conversation, fromIndex).then((msgs) => {
-            if (msgs.length > 0) {
-                self.messageList.unshift(...msgs);
-            } else {
-                self.hasMore = false;
-            }
-            self.loading = false;
-            console.log('loading old message', msgs.length, self.messageList.length);
-        });
+        let msgs = wfc.getMessages(self.conversation, fromIndex);
+        if (msgs.length > 0) {
+            self.messageList.unshift(...msgs);
+        } else {
+            self.hasMore = false;
+        }
+        self.loading = false;
+        console.log('loading old message', msgs.length, self.messageList.length);
 
     }
 

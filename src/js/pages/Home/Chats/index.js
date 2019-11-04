@@ -152,7 +152,7 @@ export default class Chats extends Component {
     }
 
     render() {
-        var { loading, chats, conversation, chatTo, searching, markedRead, sticky, removeChat} = this.props;
+        var { loading, chats, conversation, chatTo, searching, markedRead, sticky, removeChat } = this.props;
 
 
         // if (loading) return false;
@@ -172,7 +172,7 @@ export default class Chats extends Component {
                         !searching && chats.map((e, index) => {
                             return (
                                 <div key={e.conversation.target}>
-                                    <ConversationItem key={e.conversation.target} chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat} currentConversation={conversation} conversationInfo={e} />
+                                    <ConversationItem key={e.conversation.target + e.conversation.type + e.conversation.line} chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat} currentConversation={conversation} conversationInfo={e} />
                                 </div>
                             )
                             // return <this.conversationItem key={e.conversation.target} chatTo={chatTo} currentConversation={conversation} conversationInfo={e} />

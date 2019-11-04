@@ -273,7 +273,7 @@ export default class ChatContent extends Component {
             case MessageContentType.File:
                 // File message
                 let file = message.messageContent;
-                let download = fs.existsSync(file.localPath);
+                let download = false;
 
                 /* eslint-disable */
                 return `
