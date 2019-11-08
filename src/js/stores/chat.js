@@ -315,7 +315,7 @@ class Chat {
             self.messageList = wfc.getMessages(self.conversation);
             self.loading = false;
         }, (errorCode) => {
-        self.loading = false;
+            self.loading = false;
         });
 
         // let msgs = wfc.getMessages(self.conversation, fromIndex);
@@ -508,7 +508,7 @@ class Chat {
                 resolve(null);
             }
             if (file.path) {
-            img.src = file.path.indexOf(file.name) > -1 ? file.path : file.path + file.name; // local image url
+                img.src = file.path.indexOf(file.name) > -1 ? file.path : file.path + file.name; // local image url
             } else {
                 let reader = new FileReader();
                 reader.onload = function (event) {

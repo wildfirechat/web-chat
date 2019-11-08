@@ -23,6 +23,7 @@ import UnknownMessageContent from '../../../wfc/messages/unknownMessageContent';
 import EventType from '../../../wfc/client/wfcEvent';
 import ConversationType from '../../../wfc/model/conversationType';
 
+import { ContextMenu, MenuItem, ContextMenuTrigger, hideMenu } from "react-contextmenu";
 
 @inject(stores => ({
     sticky: stores.sessions.sticky,
@@ -373,16 +374,52 @@ export default class ChatContent extends Component {
                                 dangerouslySetInnerHTML={{ __html: user.displayName }}
                             />
 
-                            <div className={classes.content}>
-                                <p
-                                    onContextMenu={e => this.showMessageAction(message)}
-                                    dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
-                            </div>
+                            <ContextMenuTrigger id={`menu_item_${message.messageId}`} >
+                                <div className={classes.content}>
+                                    <p
+                                        // onContextMenu={e => this.showMessageAction(message)}
+                                        dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
+                                </div>
+                            </ContextMenuTrigger>
+                            {
+                                this.initMessageActionMenu(message)
+                            }
+
                         </div>
                     </div>
                 </div>
             );
         });
+    }
+
+    handleMessageActionMenuItem(e, data) {
+        console.log('menu clieck', data.message.messageId);
+    }
+
+    initMessageActionMenu(message) {
+        let deleteMessage = (
+            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
+                删除
+            </MenuItem>
+        );
+        let forward = (
+            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
+                转发
+            </MenuItem>
+        );
+        let recall = (
+            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
+                消息撤回
+            </MenuItem>
+        );
+        let items = [deleteMessage, recall, forward];
+        return (
+            <ContextMenu id={`menu_item_${message.messageId}`} >
+                {
+                    items
+                }
+            </ContextMenu>
+        );
     }
 
     // 点击消息的响应
@@ -628,6 +665,7 @@ export default class ChatContent extends Component {
     }
 
     handleScroll(e) {
+        hideMenu();
         var tips = this.refs.tips;
         var viewport = e.target;
         var unread = viewport.querySelectorAll(`.${classes.message}.unread`);
