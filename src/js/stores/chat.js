@@ -310,16 +310,22 @@ class Chat {
             return;
         }
 
-        let fromIndex = self.messageList[0].messageId;
-
-        let msgs = wfc.getMessages(self.conversation, fromIndex);
-        if (msgs.length > 0) {
-            self.messageList.unshift(...msgs);
-        } else {
-            self.hasMore = false;
-        }
+        let fromUid = self.messageList[0].messageUid;
+        wfc.loadRemoteMessages(self.conversation, fromUid, 20, () => {
+            self.messageList = wfc.getMessages(self.conversation);
+            self.loading = false;
+        }, (errorCode) => {
         self.loading = false;
-        console.log('loading old message', msgs.length, self.messageList.length);
+        });
+
+        // let msgs = wfc.getMessages(self.conversation, fromIndex);
+        // if (msgs.length > 0) {
+        //     self.messageList.unshift(...msgs);
+        // } else {
+        //     self.hasMore = false;
+        // }
+        // self.loading = false;
+        // console.log('loading old message', msgs.length, self.messageList.length);
 
     }
 
@@ -483,6 +489,7 @@ class Chat {
     imageThumbnail(file) {
         return new Promise((resolve, reject) => {
             var img = new Image();
+            img.setAttribute('crossOrigin', 'anonymous');
             img.onload = () => {
                 let resizedCanvas = resizeImage.resize2Canvas(img, 320, 240);
                 resizedCanvas.toBlob((blob) => {
@@ -500,7 +507,15 @@ class Chat {
             img.onerror = () => {
                 resolve(null);
             }
+            if (file.path) {
             img.src = file.path.indexOf(file.name) > -1 ? file.path : file.path + file.name; // local image url
+            } else {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         });
     }
 

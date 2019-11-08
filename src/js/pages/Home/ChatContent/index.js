@@ -139,7 +139,7 @@ export default class ChatContent extends Component {
                 if (uploading) {
                     return `
                         <div>
-                            <img class="open-image unload" data-id="${message.messageId}" src="${image.localPath}" data-fallback="${image.fallback}" />
+                            <img class="open-image unload" data-id="${message.messageId}" src="data:image/jpeg;base64, ${image.thumbnail}" data-fallback="${image.fallback}" />
                             <i class="icon-ion-android-arrow-up"></i>
                         </div>
                     `;
@@ -233,7 +233,7 @@ export default class ChatContent extends Component {
                 if (uploading) {
                     return `
                         <div>
-                            <video preload="metadata" controls src="${video.localPath}"></video>
+                            <video preload="metadata" controls src="data:image/jpeg;base64,${video.localPath}"></video>
 
                             <i class="icon-ion-android-arrow-up"></i>
                         </div>

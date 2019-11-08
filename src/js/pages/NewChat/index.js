@@ -10,6 +10,7 @@ import wfc from '../../wfc/client/wfc'
 import Conversation from '../../wfc/model/conversation';
 import ConversationType from '../../wfc/model/conversationType';
 import MessageContentMediaType from '../../wfc/messages/messageContentMediaType';
+import GroupType from "../../wfc/model/groupType";
 
 @inject(stores => ({
     show: stores.newchat.show,
@@ -64,9 +65,9 @@ export default class NewChat extends Component {
             }
             let dataUri = await this.props.mergeImages(portraits);
 
-            wfc.uploadMedia('', dataUri.split(',')[1], MessageContentMediaType.Portrait,
+            wfc.uploadMedia('', dataUri, MessageContentMediaType.Portrait,
                 (remoteUrl) => {
-                    wfc.createGroup(null, groupName, remoteUrl, selected, [0], null,
+                    wfc.createGroup(null, GroupType.Normal, groupName, remoteUrl, selected, [0], null,
                         (groupId) => {
                             let conversation = new Conversation(ConversationType.Group, groupId);
                             this.props.chatTo(conversation);

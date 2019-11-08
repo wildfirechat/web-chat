@@ -53,8 +53,8 @@ export class WfcManager {
         return impl.getMyGroupList();
     }
 
-    getUserInfo(userId, refresh = false) {
-        return impl.getUserInfo(userId, refresh);
+    getUserInfo(userId, refresh = false, groupId = '') {
+        return impl.getUserInfo(userId, refresh, groupId);
     }
 
     getUserInfos(userIds, groupId) {
@@ -402,8 +402,8 @@ export class WfcManager {
         impl.updateMessageContent(messageId, messageContent);
     }
 
-    async uploadMedia(data, mediaType, successCB, failCB, progressCB) {
-        impl.uploadMedia(data, mediaType, successCB, failCB, progressCB);
+    async uploadMedia(fileName, fileOrData, mediaType, successCB, failCB, progressCB) {
+        impl.uploadMedia(fileName, fileOrData, mediaType, successCB, failCB, progressCB);
     }
 
     // 一定需要带上http://或者 wx://

@@ -102,11 +102,7 @@ export default class Chats extends Component {
     }
 
     onGroupInfoUpdate = (groupId) => {
-        this.props.chats.map((c, index) => {
-            if (c.conversation.type === ConversationType.Group && c.conversation.target === groupId) {
-                this.props.reloadConversation(c.conversation);
-            }
-        });
+        this.props.loadConversations();
     }
 
     componentWillMount() {
@@ -119,8 +115,8 @@ export default class Chats extends Component {
         this.props.event.on(EventType.DeleteMessage, this.onRecallMessage);
         this.props.event.on(EventType.SettingUpdate, this.onSettingUpdate);
         this.props.event.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
-        this.props.event.on(EventType.UserInfoUpdate, this.onUserInfoUpdate);
-        this.props.event.on(EventType.GroupInfoUpdate, this.onGroupInfoUpdate);
+        this.props.event.on(EventType.UserInfosUpdate, this.onUserInfoUpdate);
+        this.props.event.on(EventType.GroupInfosUpdate, this.onGroupInfoUpdate);
 
         setTimeout(() => {
             this.props.loadConversations();
