@@ -23,7 +23,8 @@ import UnknownMessageContent from '../../../wfc/messages/unknownMessageContent';
 import EventType from '../../../wfc/client/wfcEvent';
 import ConversationType from '../../../wfc/model/conversationType';
 
-import { ContextMenu, MenuItem, ContextMenuTrigger, hideMenu } from "react-contextmenu";
+import { ContextMenuTrigger, hideMenu } from "react-contextmenu";
+import { isElectron, popMenu } from '../../../utils/platform'
 
 @inject(stores => ({
     sticky: stores.sessions.sticky,
@@ -374,15 +375,8 @@ export default class ChatContent extends Component {
                                 dangerouslySetInnerHTML={{ __html: user.displayName }}
                             />
 
-                            <ContextMenuTrigger id={`menu_item_${message.messageId}`} >
-                                <div className={classes.content}>
-                                    <p
-                                        // onContextMenu={e => this.showMessageAction(message)}
-                                        dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
-                                </div>
-                            </ContextMenuTrigger>
                             {
-                                this.initMessageActionMenu(message)
+                                this.messageContentLayout(message)
                             }
 
                         </div>
@@ -392,34 +386,31 @@ export default class ChatContent extends Component {
         });
     }
 
-    handleMessageActionMenuItem(e, data) {
-        console.log('menu clieck', data.message.messageId);
-    }
-
-    initMessageActionMenu(message) {
-        let deleteMessage = (
-            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
-                删除
-            </MenuItem>
-        );
-        let forward = (
-            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
-                转发
-            </MenuItem>
-        );
-        let recall = (
-            <MenuItem data={{ message: message }} onClick={this.handleMessageActionMenuItem}>
-                消息撤回
-            </MenuItem>
-        );
-        let items = [deleteMessage, recall, forward];
-        return (
-            <ContextMenu id={`menu_item_${message.messageId}`} >
-                {
-                    items
-                }
-            </ContextMenu>
-        );
+    messageContentLayout(message) {
+        if (isElectron()) {
+            return (
+                <div className={classes.content}>
+                    <p
+                        onContextMenu={e => this.showMessageAction(message)}
+                        dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
+                </div>
+            );
+        } else {
+            return (
+                <div>
+                    <ContextMenuTrigger id={`menu_item_${message.messageId}`} >
+                        <div className={classes.content}>
+                            <p
+                                // onContextMenu={e => this.showMessageAction(message)}
+                                dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
+                        </div>
+                    </ContextMenuTrigger>
+                    {
+                        this.showMessageAction(message, `menu_item_${message.messageId}`)
+                    }
+                </div>
+            );
+        }
     }
 
     // 点击消息的响应
@@ -583,7 +574,7 @@ export default class ChatContent extends Component {
         menu.popup(remote.getCurrentWindow());
     }
 
-    showMessageAction(message) {
+    showMessageAction(message, menuId) {
 
         if (message.messageContent instanceof NotificationMessageContent) {
             return;
@@ -598,7 +589,6 @@ export default class ChatContent extends Component {
                 }
             },
         ];
-        var menu;
 
         if (caniforward) {
             templates.unshift({
@@ -621,8 +611,7 @@ export default class ChatContent extends Component {
 
         if (message.uploading) return;
 
-        menu = new remote.Menu.buildFromTemplate(templates);
-        menu.popup(remote.getCurrentWindow());
+        return popMenu(templates, message, menuId);
     }
 
     showMenu() {
@@ -846,9 +835,14 @@ export default class ChatContent extends Component {
                                         title={signature} />
                                 </div>
 
-                                <i
-                                    className="icon-ion-android-more-vertical"
-                                    onClick={() => this.showMenu()} />
+                                {
+                                    isElectron() ? (
+                                        <i
+                                            className="icon-ion-android-more-vertical"
+                                            onClick={() => this.showMenu()} />
+                                    ) : ''
+                                }
+
                             </header>
 
                             <div
@@ -881,4 +875,6 @@ export default class ChatContent extends Component {
             </div>
         );
     }
+
+
 }

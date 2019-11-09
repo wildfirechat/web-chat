@@ -5,7 +5,8 @@ import helper from 'utils/helper';
 import ConversationType from '../../../wfc/model/conversationType';
 import classes from './style.css';
 import ConversationInfo from '../../../wfc/model/conversationInfo';
-import wfc from '../../../wfc/client/wfc'
+import { isElectron, popMenu } from '../../../utils/platform'
+import { ContextMenuTrigger, hideMenu } from "react-contextmenu";
 
 
 export default class ConversationItem extends Component {
@@ -30,8 +31,8 @@ export default class ConversationItem extends Component {
         return false;
     }
 
-    showContextMenu(conversationInfo) {
-        var menu = new remote.Menu.buildFromTemplate([
+    showContextMenu(conversationInfo, menuId) {
+        let templates = [
             {
                 label: 'Send Message',
                 click: () => {
@@ -59,9 +60,9 @@ export default class ConversationItem extends Component {
                     this.props.markedRead(conversationInfo.UserName);
                 }
             },
-        ]);
+        ];
 
-        menu.popup(remote.getCurrentWindow());
+        return popMenu(templates, conversationInfo, menuId);
     }
 
     render() {
@@ -89,50 +90,102 @@ export default class ConversationItem extends Component {
             }
         }
 
-        return (
-            <div
-                className={clazz(classes.chat, {
-                    [classes.sticky]: isTop,
-                    [classes.active]: this.active,
-                })}
-                // TODO key should be conversation
-                onContextMenu={ev => this.showContextMenu(e)}
-                onClick={ev => {
-                    chatTo(e.conversation)
-                    // wfc.clearConversationUnreadStatus(e.conversation);
-                }}>
-                <div className={classes.inner}>
-                    <div data-aftercontent={txtUnread} className={clazz(classes.dot, {
-                        [classes.green]: muted && hasUnread,
-                        [classes.red]: !muted && hasUnread
-                    })}>
-                        <img
-                            className="disabledDrag"
-                            // TODO portrait
-                            src={portrait}
-                            onError={e => (e.target.src = 'assets/images/user-fallback.png')}
-                        />
+        if (isElectron()) {
+            return (
+                <div
+                    className={clazz(classes.chat, {
+                        [classes.sticky]: isTop,
+                        [classes.active]: this.active,
+                    })}
+                    // TODO key should be conversation
+                    onContextMenu={ev => this.showContextMenu(e)}
+                    onClick={ev => {
+                        chatTo(e.conversation)
+                        // wfc.clearConversationUnreadStatus(e.conversation);
+                    }}>
+                    <div className={classes.inner}>
+                        <div data-aftercontent={txtUnread} className={clazz(classes.dot, {
+                            [classes.green]: muted && hasUnread,
+                            [classes.red]: !muted && hasUnread
+                        })}>
+                            <img
+                                className="disabledDrag"
+                                // TODO portrait
+                                src={portrait}
+                                onError={e => (e.target.src = 'assets/images/user-fallback.png')}
+                            />
+                        </div>
+
+                        <div className={classes.info}>
+                            <p
+                                className={classes.username}
+                                dangerouslySetInnerHTML={{ __html: e.title() }} />
+
+                            <span
+                                className={classes.message}
+                                dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
+                        </div>
                     </div>
 
-                    <div className={classes.info}>
-                        <p
-                            className={classes.username}
-                            dangerouslySetInnerHTML={{ __html: e.title() }} />
-
-                        <span
-                            className={classes.message}
-                            dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
-                    </div>
+                    <span className={classes.times}>
+                        {
+                            e.timestamp ? helper.timeFormat(e.timestamp) : ''
+                        }
+                    </span>
                 </div>
+            );
+        } else {
+            let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.linei : '';
+            let menuId = `conversation_item_${conversationKey}`
+            return (
+                <div>
+                    <ContextMenuTrigger id={menuId} >
+                        <div
+                            className={clazz(classes.chat, {
+                                [classes.sticky]: isTop,
+                                [classes.active]: this.active,
+                            })}
+                            onClick={ev => {
+                                chatTo(e.conversation)
+                                // wfc.clearConversationUnreadStatus(e.conversation);
+                            }}>
+                            <div className={classes.inner}>
+                                <div data-aftercontent={txtUnread} className={clazz(classes.dot, {
+                                    [classes.green]: muted && hasUnread,
+                                    [classes.red]: !muted && hasUnread
+                                })}>
+                                    <img
+                                        className="disabledDrag"
+                                        // TODO portrait
+                                        src={portrait}
+                                        onError={e => (e.target.src = 'assets/images/user-fallback.png')}
+                                    />
+                                </div>
 
-                <span className={classes.times}>
+                                <div className={classes.info}>
+                                    <p
+                                        className={classes.username}
+                                        dangerouslySetInnerHTML={{ __html: e.title() }} />
+
+                                    <span
+                                        className={classes.message}
+                                        dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
+                                </div>
+                            </div>
+
+                            <span className={classes.times}>
+                                {
+                                    e.timestamp ? helper.timeFormat(e.timestamp) : ''
+                                }
+                            </span>
+                        </div>
+                    </ContextMenuTrigger>
                     {
-                        e.timestamp ? helper.timeFormat(e.timestamp) : ''
+                        this.showContextMenu(e, menuId)
                     }
-                </span>
-            </div>
-        );
-
+                </div>
+            )
+        }
     }
 
 }
