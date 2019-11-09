@@ -299,6 +299,16 @@ class Chat {
     //@action async getMessages(conversation, fromIndex, before = 'true', count = '20', withUser = ''){
     @action async loadConversationMessages(conversation, fromIndex, before = true, count = 20) {
         self.messageList = wfc.getMessages(conversation, fromIndex, before, count, '');
+        if (!self.messageList || self.messageList.length === 0) {
+            wfc.loadRemoteMessages(conversation, 0, 20,
+                () => {
+                    self.messageList = wfc.getMessages(conversation, fromIndex, before, count, '');
+                },
+                (errorCode) => {
+
+                });
+
+        }
     }
 
     @action async loadOldMessages() {
@@ -310,23 +320,14 @@ class Chat {
             return;
         }
 
+        self.loading = true;
         let fromUid = self.messageList[0].messageUid;
-        wfc.loadRemoteMessages(self.conversation, fromUid, 20, () => {
-            self.messageList = wfc.getMessages(self.conversation);
+        wfc.loadRemoteMessages(self.conversation, fromUid, 20, (msgs) => {
+            self.messageList.unshift(...msgs);
             self.loading = false;
         }, (errorCode) => {
             self.loading = false;
         });
-
-        // let msgs = wfc.getMessages(self.conversation, fromIndex);
-        // if (msgs.length > 0) {
-        //     self.messageList.unshift(...msgs);
-        // } else {
-        //     self.hasMore = false;
-        // }
-        // self.loading = false;
-        // console.log('loading old message', msgs.length, self.messageList.length);
-
     }
 
     @action chatToPrev() {

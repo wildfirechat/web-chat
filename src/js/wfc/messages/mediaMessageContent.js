@@ -13,7 +13,6 @@ export default class MediaMessageContent extends MessageContent {
 
     encode() {
         let payload = super.encode();
-        payload.localMediaPath = this.localPath;
         payload.remoteMediaUrl = this.remotePath;
         payload.mediaType = this.mediaType;
         return payload;
@@ -21,7 +20,6 @@ export default class MediaMessageContent extends MessageContent {
 
     decode(payload) {
         super.decode(payload);
-        this.localPath = payload.localMediaPath;
         this.remotePath = payload.remoteMediaUrl;
         this.mediaType = payload.mediaType;
     }

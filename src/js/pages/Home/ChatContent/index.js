@@ -324,23 +324,23 @@ export default class ChatContent extends Component {
                 return (
                     <div
                         key={message.messageId}
-                        className={clazz('unread', classes.message, classes.system)}
+                        className={clazz(classes.message, classes.system)}
                         dangerouslySetInnerHTML={{ __html: message.messageContent.formatNotification() }} />
                 );
             }
 
 
-            // if (!user) {
-            //     return false;
-            // }
+            // TODO 
+            let unread = message.direction === 1 ? 'unread' : '';
 
             return (
                 <div key={message.messageId}>
                     <div
-                        className={clazz('unread', classes.message, classes.system)}
+                        className={clazz(classes.message, classes.system)}
                         dangerouslySetInnerHTML={{ __html: helper.timeFormat(message.timestamp) }} />
-                    <div className={clazz('unread', classes.message, {
+                    <div className={clazz(classes.message, {
                         // File is uploading
+                        unread,
                         [classes.uploading]: message.status === MessageStatus.Sending,
 
                         [classes.isme]: message.direction === 0,
@@ -727,10 +727,10 @@ export default class ChatContent extends Component {
             }
 
             // Scroll to bottom when you receive message and you alread at the bottom
-            if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
-                viewport.scrollTop = viewport.scrollHeight;
-                return;
-            }
+            // if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
+            //     viewport.scrollTop = viewport.scrollHeight;
+            //     return;
+            // }
 
             // Show the unread messages count
             // TODO unread logic

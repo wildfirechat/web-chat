@@ -379,7 +379,7 @@ export class WfcManager {
     }
 
     deleteMessage(messageId) {
-        impl.deleteMessageById(messageId);
+        return impl.deleteMessageById(messageId);
     }
 
     async clearMessages(conversation) {
