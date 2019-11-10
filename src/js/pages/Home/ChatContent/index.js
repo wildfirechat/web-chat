@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
+import { ipcRenderer, popMenu, isElectron, fs, ContextMenuTrigger, hideMenu } from '../../../utils/platform';
 import clazz from 'classname';
 import moment from 'moment';
 import axios from 'axios';
@@ -23,8 +24,7 @@ import UnknownMessageContent from '../../../wfc/messages/unknownMessageContent';
 import EventType from '../../../wfc/client/wfcEvent';
 import ConversationType from '../../../wfc/model/conversationType';
 
-import { ContextMenuTrigger, hideMenu } from "react-contextmenu";
-import { isElectron, popMenu } from '../../../utils/platform'
+
 
 @inject(stores => ({
     sticky: stores.sessions.sticky,
@@ -57,6 +57,7 @@ import { isElectron, popMenu } from '../../../utils/platform'
                 caniremove = true;
             }
         }
+        wfc.getUserInfo(user.uid, true);
 
         stores.userinfo.toggle(true, stores.chat.conversation, user, caniremove);
     },
@@ -124,6 +125,7 @@ export default class ChatContent extends Component {
                 console.log('unknown', unknownMessageContent.digest(), message);
                 return emojiParse(unknownMessageContent.digest());
             case MessageContentType.Text:
+            case MessageContentType.P_Text:
                 if (message.location) {
                     return `
                         <img class="open-map unload" data-map="${message.location.href}" src="${message.location.image}" />
@@ -276,6 +278,9 @@ export default class ChatContent extends Component {
                 // File message
                 let file = message.messageContent;
                 let download = false;
+                if (fs) {
+                    download = fs.existsSync(file.localPath);
+                }
 
                 /* eslint-disable */
                 return `
@@ -323,29 +328,29 @@ export default class ChatContent extends Component {
             if (message.messageContent instanceof NotificationMessageContent) {
                 return (
                     <div
-                        key={message.messageId}
-                        className={clazz(classes.message, classes.system)}
+                        key={message.timestamp}
+                        className={clazz('unread', classes.message, classes.system)}
                         dangerouslySetInnerHTML={{ __html: message.messageContent.formatNotification() }} />
                 );
             }
 
 
-            // TODO 
-            let unread = message.direction === 1 ? 'unread' : '';
+            // if (!user) {
+            //     return false;
+            // }
 
             return (
                 <div key={message.messageId}>
                     <div
-                        className={clazz(classes.message, classes.system)}
+                        className={clazz('unread', classes.message, classes.system)}
                         dangerouslySetInnerHTML={{ __html: helper.timeFormat(message.timestamp) }} />
-                    <div className={clazz(classes.message, {
+                    <div className={clazz('unread', classes.message, {
                         // File is uploading
-                        unread,
                         [classes.uploading]: message.status === MessageStatus.Sending,
 
                         [classes.isme]: message.direction === 0,
                         //[classes.isText]: type === 1 && !message.location,
-                        [classes.isText]: type === MessageContentType.Text || (message.messageContent instanceof UnknownMessageContent) || (message.messageContent instanceof UnsupportMessageContent),
+                        [classes.isText]: type === MessageContentType.Text || type === MessageContentType.P_Text || (message.messageContent instanceof UnknownMessageContent) || (message.messageContent instanceof UnsupportMessageContent),
                         [classes.isLocation]: type === MessageContentType.Location,
                         [classes.isImage]: type === MessageContentType.Image,
                         //[classes.isEmoji]: type === 47 || type === 49 + 8,
@@ -426,10 +431,14 @@ export default class ChatContent extends Component {
             // eslint-disable-next-line
             let base64 = new window.Buffer(response.data, 'binary').toString('base64');
 
+            if (isElectron()) {
             ipcRenderer.send('open-image', {
                 dataset: target.dataset,
                 base64,
             });
+            } else {
+                // TODO
+            }
 
             return;
         }
@@ -491,9 +500,13 @@ export default class ChatContent extends Component {
         // Open the location
         if (target.tagName === 'IMG'
             && target.classList.contains('open-map')) {
+            if (isElectron()) {
             ipcRenderer.send('open-map', {
                 map: target.dataset.map,
             });
+            } else {
+                // TODO
+            }
         }
 
         // Show contact card
@@ -534,6 +547,7 @@ export default class ChatContent extends Component {
             let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
             // eslint-disable-next-line
             let base64 = new window.Buffer(response.data, 'binary').toString('base64');
+            if (isElectron()) {
             let filename = ipcRenderer.sendSync(
                 'file-download',
                 {
@@ -541,6 +555,10 @@ export default class ChatContent extends Component {
                     raw: base64,
                 },
             );
+            } else {
+                // TODO
+
+            }
 
             file.localPath = filename;
             wfc.updateMessageContent(message.messageId, file);
@@ -569,6 +587,7 @@ export default class ChatContent extends Component {
                 }
             },
         ];
+        // TODO fixme
         var menu = new remote.Menu.buildFromTemplate(templates);
 
         menu.popup(remote.getCurrentWindow());
@@ -668,7 +687,7 @@ export default class ChatContent extends Component {
 
         // if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
         //     wfc.clearConversationUnreadStatus(this.props.conversation);
-        //     wfc.eventEmiter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
+        //     wfc.eventEmitter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
         // }
 
         Array.from(unread).map(e => {
@@ -685,6 +704,12 @@ export default class ChatContent extends Component {
         } else {
             tips.classList.remove(classes.show);
         }
+    }
+
+    componentWillMount() {
+        console.log('componentWillMount');
+        wfc.eventEmitter.on(EventType.UserInfoUpdate, this.onUserInfoUpdate);
+        wfc.eventEmitter.on(EventType.GroupInfoUpdate, this.onGroupInfoUpdate);
     }
 
     componentWillUnmount() {
@@ -727,10 +752,10 @@ export default class ChatContent extends Component {
             }
 
             // Scroll to bottom when you receive message and you alread at the bottom
-            // if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
-            //     viewport.scrollTop = viewport.scrollHeight;
-            //     return;
-            // }
+            if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
+                viewport.scrollTop = viewport.scrollHeight;
+                return;
+            }
 
             // Show the unread messages count
             // TODO unread logic
@@ -782,7 +807,7 @@ export default class ChatContent extends Component {
 
         // if (nextProps.conversation) {
         //     wfc.clearConversationUnreadStatus(nextProps.conversation);
-        //     wfc.eventEmiter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
+        //     wfc.eventEmitter.emit(EventType.ConversationInfoUpdate, this.props.conversation);
         // }
         this.scrollTop = -1;
         this.stopAudio();
@@ -876,5 +901,15 @@ export default class ChatContent extends Component {
         );
     }
 
+    onUserInfoUpdate = (userId) => {
+        this.props.messages.map((c, index) => {
+            if (c.conversation.conversationType === ConversationType.Single && c.conversation.target === userId) {
+                // Todo update user info
+            }
+        });
+    }
 
+    onGroupInfoUpdate = (groupId) => {
+        // Todo update group info
+    }
 }

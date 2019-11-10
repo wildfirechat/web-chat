@@ -5,8 +5,7 @@ import helper from 'utils/helper';
 import ConversationType from '../../../wfc/model/conversationType';
 import classes from './style.css';
 import ConversationInfo from '../../../wfc/model/conversationInfo';
-import { isElectron, popMenu } from '../../../utils/platform'
-import { ContextMenuTrigger, hideMenu } from "react-contextmenu";
+import { isElectron, popMenu, ContextMenuTrigger, hideMenu } from '../../../utils/platform'
 
 
 export default class ConversationItem extends Component {

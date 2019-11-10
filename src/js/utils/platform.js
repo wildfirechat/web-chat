@@ -1,5 +1,6 @@
 
 import { ContextMenu, MenuItem } from "react-contextmenu";
+import Config from "../wfc/client/config";
 
 export function isElectron() {
     // Renderer process
@@ -46,3 +47,14 @@ export function showBrowserMenu(menuTemplates = [], data, menuId) {
         </ContextMenu>
     );
 }
+// export const remote =  require('electron').remote;
+// export const ipcRenderer = require('electron').ipcRenderer;
+// export const fs = require('file-system').fs;
+// export const ContextMenuTrigger = require("react-contextmenu").ContextMenuTrigger;
+// export const hideMenu = require("react-contextmenu").hideMenu;
+
+export const remote = null;
+export const ipcRenderer = null;
+export const fs = null;
+export const ContextMenuTrigger = require("react-contextmenu").ContextMenuTrigger;
+export const hideMenu = require("react-contextmenu").hideMenu;

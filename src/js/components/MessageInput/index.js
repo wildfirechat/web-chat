@@ -1,12 +1,14 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { ipcRenderer, isElectron } from '../../utils/platform';
 import clazz from 'classname';
 
 import classes from './style.css';
 import Emoji from './Emoji';
 import Tribute from "tributejs";
 import TextMessageContent from '../../wfc/messages/textMessageContent';
+import PTextMessageContent from '../../wfc/messages/ptextMessageContent';
 import ConversationType from '../../wfc/model/conversationType';
 import wfc from '../../wfc/client/wfc'
 import pinyin from '../../han';
@@ -32,6 +34,11 @@ export default class MessageInput extends Component {
     initMention(conversation) {
         // TODO group, channel
         console.log('initMention');
+        let type = conversation.conversationType;
+        if (type === ConversationType.Single
+            || type === ConversationType.ChatRoom) {
+            return
+        }
 
         let mentionMenuItems = [];
         let groupInfo = wfc.getGroupInfo(conversation.target);
@@ -144,6 +151,9 @@ export default class MessageInput extends Component {
     }
 
     async screenShot() {
+        if (!isElectron()) {
+            return;
+        }
         let ret = wfc.screenShot();
         if ('done' === ret) {
             var args = ipcRenderer.sendSync('file-paste');
@@ -218,7 +228,7 @@ export default class MessageInput extends Component {
     }
 
     componentDidMount() {
-        wfc.eventEmiter.on(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
+        wfc.eventEmitter.on(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
         if (!this.shouldHandleMention(this.props.conversation)) {
             return;
         }
@@ -228,7 +238,7 @@ export default class MessageInput extends Component {
     }
 
     componentWillUnmount() {
-        wfc.eventEmiter.removeListener(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
+        wfc.eventEmitter.removeListener(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
     }
 
     shouldHandleMention(conversation) {

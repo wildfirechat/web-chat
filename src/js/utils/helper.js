@@ -287,7 +287,7 @@ const helper = {
         });
     },
 
-    isOsx: false,
+    isOsx: window.process && window.process.platform === 'darwin',
 
     isSuspend: () => {
         return ipcRenderer.sendSync('is-suspend');

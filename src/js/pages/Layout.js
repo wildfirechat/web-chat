@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
+import { ipcRenderer, remote, isElectron } from '../utils/platform';
 
 import classes from './Layout.css';
 import Header from './Header';
@@ -45,7 +46,52 @@ export default class Layout extends Component {
     };
 
     componentDidMount() {
+        if (isElectron()) {
 
+            var templates = [
+                {
+                    label: 'Undo',
+                    role: 'undo',
+                }, {
+                    label: 'Redo',
+                    role: 'redo',
+                }, {
+                    type: 'separator',
+                }, {
+                    label: 'Cut',
+                    role: 'cut',
+                }, {
+                    label: 'Copy',
+                    role: 'copy',
+                }, {
+                    label: 'Paste',
+                    role: 'paste',
+                }, {
+                    type: 'separator',
+                }, {
+                    label: 'Select all',
+                    role: 'selectall',
+                },
+            ];
+            var menu = new remote.Menu.buildFromTemplate(templates);
+
+            document.body.addEventListener('contextmenu', e => {
+                e.preventDefault();
+
+                let node = e.target;
+
+                while (node) {
+                    if (node.nodeName.match(/^(input|textarea)$/i)
+                        || node.isContentEditable) {
+                        menu.popup(remote.getCurrentWindow());
+                        break;
+                    }
+                    node = node.parentNode;
+                }
+            });
+        }
+
+        var canidrag = this.props.canidrag;
         // window.addEventListener('offline', () => {
         //     this.setState({
         //         offline: true,
@@ -60,8 +106,7 @@ export default class Layout extends Component {
         //     });
         // });
 
-        let isWin32 = true;
-        if (isWin32) {
+        if (window.process && window.process.platform === 'win32') {
             document.body.classList.add('isWin');
         }
 
@@ -110,11 +155,11 @@ export default class Layout extends Component {
 
     componentWillMount() {
         console.log('lyaout--------------wfc', wfc);
-        wfc.eventEmiter.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+        wfc.eventEmitter.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
     }
 
     componentWillUnmount() {
-        wfc.eventEmiter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+        wfc.eventEmitter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
     }
 
     render() {
@@ -135,6 +180,9 @@ export default class Layout extends Component {
             return <Login />;
         }
 
+        if (ipcRenderer) {
+            ipcRenderer.send('logined');
+        }
         loading = !wfc.isLogin() && (this.connectionStatus === 0 || this.connectionStatus === 2/** receving */);
 
         return (
@@ -145,6 +193,9 @@ export default class Layout extends Component {
                     text={message} />
 
                 <Loader show={loading} />
+                {
+                    isElectron() ? <Header location={location} /> : ''
+                }
                 <div
                     className={classes.container}
                     ref="viewport">

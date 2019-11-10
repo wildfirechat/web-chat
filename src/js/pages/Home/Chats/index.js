@@ -30,7 +30,7 @@ moment.updateLocale('en', {
     removeChat: stores.sessions.removeConversation,
     loading: stores.sessions.loading,
     searching: stores.search.searching,
-    event: stores.wfc.eventEmiter,
+    event: stores.wfc.eventEmitter,
     loadConversations: stores.sessions.loadConversations,
     reloadConversation: stores.sessions.reloadConversation,
 }))
@@ -167,7 +167,7 @@ export default class Chats extends Component {
                     {
                         !searching && chats.map((e, index) => {
                             return (
-                                <div key={e.conversation.target}>
+                                <div key={e.conversation.type + e.conversation.target + e.conversation.line}>
                                     <ConversationItem key={e.conversation.target + e.conversation.type + e.conversation.line} chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat} currentConversation={conversation} conversationInfo={e} />
                                 </div>
                             )

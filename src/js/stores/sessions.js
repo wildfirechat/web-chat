@@ -2,6 +2,7 @@
 /* eslint-disable no-eval */
 import axios from 'axios';
 import { observable, action } from 'mobx';
+import { ipcRenderer } from '../utils/platform';
 
 import helper from 'utils/helper';
 import storage from 'utils/storage';
@@ -9,6 +10,9 @@ import wfc from '../wfc/client/wfc';
 import ConversationType from '../wfc/model/conversationType';
 
 async function updateMenus({ conversations = [], contacts = [] }) {
+    if (!ipcRenderer) {
+        return;
+    }
     ipcRenderer.send('menu-update', {
         conversations: conversations.map(e => ({
             id: e.UserName,
@@ -66,12 +70,13 @@ class sessions {
             counter += e.unreadCount.unread;
         });
         console.log('loadConversations', counter);
-        // ipcRenderer.send(
-        //     'message-unread',
-        //     {
-        //         counter,
-        //     }
-        // );
+	if(ipcRenderer)
+        ipcRenderer.send(
+            'message-unread',
+            {
+                counter,
+            }
+        );
     }
 
 

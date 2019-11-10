@@ -10,19 +10,15 @@ import { EventEmitter } from 'events';
 
 // 其实就是imclient，后续可能需要改下名字
 export class WfcManager {
-    // impl = new WfcImpl();
-    eventEmiter = new EventEmitter();
+
+    eventEmitter = new EventEmitter();
 
     constructor() {
-        impl.eventEmiter = this.eventEmiter;
+        impl.eventEmitter = this.eventEmitter;
     }
 
-    /**
-     * 
-     * @param {messagecontent} content 
-     */
-    registerMessageContent(name, type, contentClazz) {
-        impl.registerMessageContent(name, type, contentClazz);
+    registerMessageContent(name, flag, type, content) {
+        impl.registerMessageContent(name, flag, type, content);
     }
 
     disconnect() {
@@ -39,6 +35,10 @@ export class WfcManager {
 
     getServerDeltaTime() {
         return impl.getServerDeltaTime();
+    }
+
+    screenShot() {
+	// TODO
     }
 
     isLogin() {
@@ -82,7 +82,7 @@ export class WfcManager {
     }
 
     loadFriendRequestFromRemote() {
-        return impl.loadFriendRequestFromRemote();
+        impl.loadFriendRequestFromRemote();
     }
 
     getUnreadFriendRequestCount() {
@@ -90,7 +90,7 @@ export class WfcManager {
     }
 
     clearUnreadFriendRequestStatus() {
-        return impl.clearUnreadFriendRequestStatus();
+        impl.clearUnreadFriendRequestStatus();
     }
 
     async deleteFriend(userId, successCB, failCB) {
@@ -195,19 +195,19 @@ export class WfcManager {
     }
 
     modifyMyInfo(modifyMyInfoEntries, successCB, failCB) {
-        impl.modifyMyInfo(entries, successCB, failCB);
+        impl.modifyMyInfo(modifyMyInfoEntries, successCB, failCB);
     }
 
     isGlobalSlient() {
-        impl.isGlobalSlient();
+        return impl.isGlobalSlient();
     }
 
-    async setGlobalSlient(silent, successCB, failCB) {
+    setGlobalSlient(silent, successCB, failCB) {
         impl.setGlobalSlient(silent, successCB, failCB);
     }
 
     isHiddenNotificationDetail() {
-        impl.isHiddenNotificationDetail();
+        return impl.isHiddenNotificationDetail();
     }
 
     async setHiddenNotificationDetail(hide, successCB, failCB) {
@@ -231,7 +231,7 @@ export class WfcManager {
     }
 
     async getChatroomInfo(chatroomId, updateDt, successCB, failCB) {
-        impl.getChatroomInfo(chatroomId, updateDt, successCB, failCB);
+        return impl.getChatroomInfo(chatroomId, updateDt, successCB, failCB);
     }
 
     async getChatroomMemberInfo(chatroomId, maxCount, successCB, failCB) {
@@ -243,7 +243,7 @@ export class WfcManager {
     }
 
     getChannelInfo(channelId, refresh) {
-        return this.getChannelInfo(channelId, refresh);
+        return impl.getChannelInfo(channelId, refresh);
     }
 
     async modifyChannelInfo(channelId, type, newValue, successCB, failCB) {
@@ -413,47 +413,11 @@ export class WfcManager {
         impl.connect(appId, appKey, host, port, userId, clientId, token);
     }
 
-    async testSendImageMessage(file, thumbnail) {
-        let imgMsg = new ImageMessageContent(file, thumbnail);
-        let conv = new Conversation(ConversationType.Single, 'uiuJuJcc', 0);
-        let msg = new Message(conv, imgMsg);
-
-        let retValue = this.sendMessage(msg, function (messageId, timestamp) { //preparedCB
-            console.log("sendMessage prepared:", messageId, timestamp);
-        }, function (uploaded, total) { //progressCB
-            console.log("sendMessage progress:", uploaded, total);
-        }, function (messageUid, timestamp) { //successCB
-            console.log("sendMessage success:", messageUid, timestamp);
-        }, function (errorCode) { //errorCB
-            console.log("sendMessage failed:", errorCode);
-        });
-        console.log("call sendMessage return:", retValue);
-    }
-
     _getStore() {
         return impl._getStore();
     }
 }
-// global.WfcManager = WfcManager;
 
 const self = new WfcManager();
-// global.WfcManager = self;
 export default self;
 
-// //remote
-var username = 'GNMtGtZZ';
-var clientId = '78E616BC-1F7C-405F-AB16-41539EA89150';
-var token = 'Ni3ya43aML2x3fTWKwAsCuRE4SZpFi8ZDgqqgbmSfkWES0hIx6d8gvmFRIjT2Unhm6Et+wOV632kQrjMQTSo5Mu6u2yAL5fp0MVhI5E8Ln0/eohOsEK1JsFJfrc292l/9lrwgmCkqc7VhLcuYy/GEW6l2Db/rLXIkRMM2nSpYPE=';
-var host = 'wildfirechat.cn';
-var shortPort = 80;
-
-// local
-// var username = 'MUMmMm55'
-// var clientId = '78E616BC-1F7C-405F-AB16-41539EA89150';
-// var token = 'qQCBJD7nr31gtUB5zm4Oewhn3ec7Uxuw9aFJm7vwgNa9ZsYH0BQNgPjm4p9HNktC9t9kglUhoJokg2JzHkWJVuqqKNltOe5JWVNXf3qmvwQsogRYPErO6dxFhdRtx+ypgujYMJ9ZlRjZdJww0g55rwomXP9iWMjtupk9TxbnJgI='
-// var host = '192.168.0.158';
-// var shortPort = 80;
-
-
-// self.connect(host, shortPort, username, token)
-// self.impl.connect(host, username, clientId, token);

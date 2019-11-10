@@ -1,8 +1,8 @@
 
 import { observable, action } from 'mobx';
 import axios from 'axios';
+import { ipcRenderer, isElectron } from '../utils/platform'
 
-import storage from 'utils/storage';
 import helper from 'utils/helper';
 import contacts from './contacts';
 import settings from './settings';
@@ -196,6 +196,17 @@ function hasUnreadMessage(messages) {
             counter += (item.data.length - item.unread);
         }
     );
+    if (isElectron()) {
+        ipcRenderer.send(
+            'message-unread',
+            {
+                counter,
+            }
+        );
+    } else {
+        // TODO
+
+    }
 }
 
 async function updateMenus({ conversations = [], contacts = [] }) {
@@ -272,7 +283,7 @@ class Chat {
 
         // 第一次进入的时候订阅
         if (self.conversation === undefined) {
-            wfc.eventEmiter.on(EventType.ReceiveMessage, self.onReceiveMessage);
+            wfc.eventEmitter.on(EventType.ReceiveMessage, self.onReceiveMessage);
         }
 
         self.conversation = conversation;
@@ -320,6 +331,18 @@ class Chat {
             return;
         }
 
+        if (isElectron()) {
+            let fromIndex = self.messageList[0].messageId;
+            let msgs = wfc.getMessages(self.conversation, fromIndex);
+                if (msgs.length > 0) {
+                    self.messageList.unshift(...msgs);
+                } else {
+                    self.hasMore = false;
+                }
+                self.loading = false;
+                console.log('loading old message', msgs.length, self.messageList.length);
+        } else {
+	// TODO has more
         self.loading = true;
         let fromUid = self.messageList[0].messageUid;
         wfc.loadRemoteMessages(self.conversation, fromUid, 20, (msgs) => {
@@ -328,6 +351,7 @@ class Chat {
         }, (errorCode) => {
             self.loading = false;
         });
+        }
     }
 
     @action chatToPrev() {
@@ -562,12 +586,6 @@ class Chat {
             });
     }
 
-    imgDataUriToBase64(dataUri) {
-        let filePath = imgSync(dataUri, tmp.dirSync().name, tmp.tmpNameSync());
-        let imageData = fs.readFileSync(filePath, { encoding: 'base64' });
-
-        return imageData;
-    }
 
     @action async process(file, user = self.user) {
         var showMessage = snackbar.showMessage;

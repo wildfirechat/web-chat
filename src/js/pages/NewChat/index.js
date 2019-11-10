@@ -59,6 +59,7 @@ export default class NewChat extends Component {
             groupName = groupName.substr(0, groupName.lastIndexOf('、'))
 
             var portraits = [];
+            selected.splice(0, 0, wfc.getUserId());
             for (let i = 0; i < 9 && i < selected.length; i++) {
                 let userInfo = wfc.getUserInfo(selected[i]);
                 portraits.push(userInfo.portrait);
@@ -67,7 +68,7 @@ export default class NewChat extends Component {
 
             wfc.uploadMedia('', dataUri, MessageContentMediaType.Portrait,
                 (remoteUrl) => {
-                    wfc.createGroup(null, GroupType.Normal, groupName, remoteUrl, selected, [0], null,
+                    wfc.createGroup(null, GroupType.Restricted, groupName, remoteUrl, selected, [0], null,
                         (groupId) => {
                             let conversation = new Conversation(ConversationType.Group, groupId);
                             this.props.chatTo(conversation);

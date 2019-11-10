@@ -9,10 +9,10 @@ export default class TypingMessageContent extends MessageContent {
     static TYPING_LOCATION = 3;
     static TYPING_FILE = 4;
 
-    typeType = TypingMessageContent.TYPING_TEXT;
+    typingType = TypingMessageContent.TYPING_TEXT;
     constructor(type) {
         super(MessageContentType.Typing);
-        this.typeType = type;
+        this.typingType = type;
     }
 
     digest() {
@@ -21,12 +21,12 @@ export default class TypingMessageContent extends MessageContent {
 
     encode() {
         let payload = super.encode();
-        payload.content = this.typeType + '';
+        payload.content = this.typingType + '';
         return payload;
     };
 
     decode(payload) {
         super.decode(payload);
-        this.typeType = parseInt(payload.content);
+        this.typingType = parseInt(payload.content);
     }
 }

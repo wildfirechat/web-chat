@@ -10,11 +10,13 @@ import ConversationType from "./conversationType";
  */
 export default class Conversation {
     type = ConversationType.Single;
+    conversationType = this.type; // 这行是为了做一个兼容处理
     target = '';
     line = 0;
 
     constructor(type, target, line) {
         this.type = type;
+        this.conversationType = type;
         this.target = target;
         this.line = line;
     }

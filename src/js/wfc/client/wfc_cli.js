@@ -17,11 +17,11 @@ export default class WfcCli {
 
         // connect(appId, appKey, host, port, userId, clientId, token) {
         wfc.connect('appId', 'appKey', host, shortPort, username, clientId, token)
-        wfc.eventEmiter.on(EventType.ConnectionStatusChanged, (status) => {
+        wfc.eventEmitter.on(EventType.ConnectionStatusChanged, (status) => {
             vorpal.log('on connect status change', status);
         });
 
-        wfc.eventEmiter.on(EventType.ReceiveMessage, (msg) => {
+        wfc.eventEmitter.on(EventType.ReceiveMessage, (msg) => {
             vorpal.log('on receive msg', msg);
         });
     }
