@@ -66,7 +66,7 @@ export default class Layout extends Component {
         }
 
         window.ondragover = e => {
-            if (canidrag()) {
+            if (this.props.canidrag()) {
                 this.refs.holder.classList.add(classes.show);
                 this.refs.viewport.classList.add(classes.blur);
             }
@@ -77,7 +77,7 @@ export default class Layout extends Component {
         };
 
         window.ondragleave = () => {
-            if (!canidrag()) return false;
+            if (!this.props.canidrag()) return false;
 
             this.refs.holder.classList.remove(classes.show);
             this.refs.viewport.classList.remove(classes.blur);
@@ -93,7 +93,7 @@ export default class Layout extends Component {
             e.preventDefault();
             e.stopPropagation();
 
-            if (files.length && canidrag()) {
+            if (files.length && this.props.canidrag()) {
                 Array.from(files).map(e => this.props.process(e));
             }
 
