@@ -20,13 +20,13 @@ export default {
     ],
 
     output: {
-        path: config.dist,
+        path: `${config.dist}/src`,
         filename: 'app.js'
     },
 
     optimization: {
         minimize: false
-    }, 
+    },
 
     plugins: [
         // https://github.com/webpack/webpack/issues/2545
@@ -40,7 +40,7 @@ export default {
         new CopyWebpackPlugin([
             {
                 from: `${config.assets}/fonts/**/*`,
-                to: `${config.dist}/src`,
+                to: config.dist,
             },
             {
                 from: `${config.assets}/images/**/*`,
