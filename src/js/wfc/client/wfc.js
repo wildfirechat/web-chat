@@ -17,8 +17,8 @@ export class WfcManager {
         impl.eventEmitter = this.eventEmitter;
     }
 
-    registerMessageContent(name, flag, type, content) {
-        impl.registerMessageContent(name, flag, type, content);
+    registerMessageContent(name, flag, type, clazz) {
+        impl.registerMessageContent(name, flag, type, clazz);
     }
 
     disconnect() {
@@ -38,7 +38,7 @@ export class WfcManager {
     }
 
     screenShot() {
-	// TODO
+        // TODO
     }
 
     isLogin() {
@@ -415,6 +415,8 @@ export class WfcManager {
 
     _getStore() {
         return impl._getStore();
+    init(args = []) {
+        impl.init(args);
     }
 }
 

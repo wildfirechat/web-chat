@@ -7,8 +7,8 @@ import { HashRouter } from 'react-router-dom';
 import './global.css';
 import './assets/fonts/icomoon/style.css';
 import 'utils/albumcolors';
-import getRoutes from './js/routes';
-import stores from './js/stores';
+import getRoutes from './js/ui/routes';
+import stores from './js/ui/stores';
 
 class App extends Component {
     async componentWillMount() {
