@@ -1,12 +1,9 @@
-import MessageContent from '../messages/messageContent';
-import MessageStatus from '../messages/messageStatus';
 import Conversation from '../model/conversation';
-//import impl from '../internal/wfcImpl';
-import impl from '../proto/proto.min.js';
-import ImageMessageContent from '../messages/imageMessageContent';
-import ConversationType from '../model/conversationType';
-import Message from '../messages/message';
 import { EventEmitter } from 'events';
+import MessageStatus from '../messages/messageStatus';
+import MessageContent from '../messages/messageContent';
+
+import impl from '../proto/proto.min';
 
 // 其实就是imclient，后续可能需要改下名字
 export class WfcManager {
@@ -38,7 +35,7 @@ export class WfcManager {
     }
 
     screenShot() {
-        // TODO
+        return impl.screenShot();
     }
 
     isLogin() {
@@ -320,8 +317,7 @@ export class WfcManager {
     }
 
     setMediaMessagePlayed(messageId) {
-        return 'no implement'
-        // impl.setMediaMessagePlayed(messageId);
+        impl.setMediaMessagePlayed(messageId);
     }
 
     isMyFriend(userId) {
@@ -406,15 +402,13 @@ export class WfcManager {
         impl.uploadMedia(fileName, fileOrData, mediaType, successCB, failCB, progressCB);
     }
 
-    // 一定需要带上http://或者 wx://
-    // 网页 http://pc.wildfirechat.cn
-    // 微信小程序 wx://pc.wildifirechat.cn
-    connect(appId, appKey, host, port, userId, clientId, token) {
-        impl.connect(appId, appKey, host, port, userId, clientId, token);
+    async connect(userId, token) {
+        impl.connect(userId, token);
     }
 
     _getStore() {
         return impl._getStore();
+}
     init(args = []) {
         impl.init(args);
     }

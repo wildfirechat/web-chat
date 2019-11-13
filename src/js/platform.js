@@ -49,7 +49,7 @@ export function showBrowserMenu(menuTemplates = [], data, menuId) {
 }
 
 export function connect(userId, token) {
-    wfc.connect('web_12345678', '9a774dcadd9abc8f56cf677761f5cba441c9b887', 'http://pc.wildfirechat.cn', 80, userId, 'clientId', token)
+    wfc.connect(userId, token)
 }
 
 
