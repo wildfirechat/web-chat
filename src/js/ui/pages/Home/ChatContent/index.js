@@ -62,7 +62,7 @@ import GroupMemberType from '../../../../wfc/model/groupMemberType';
             if (groupInfo.type === GroupType.Restricted) {
                 if (!groupMember || groupMember.type === GroupMemberType.Normal) {
                     return;
-        }
+                }
             }
 
         }
@@ -156,22 +156,23 @@ export default class ChatContent extends Component {
                 // Image
                 let image = message.messageContent;
 
+                let imgSrc;
+                if (image.localPath) {
+                    imgSrc = image.localPath;
+                } else if (image.thumbnail) {
+                    imgSrc = `data:image/jpeg;base64, ${image.thumbnail}`;
+                } else {
+                    imgSrc = image.remotePath;
+                }
                 if (uploading) {
                     return `
                         <div>
-                            <img class="open-image unload" data-id="${message.messageId}" src="data:image/jpeg;base64, ${image.thumbnail}" data-fallback="${image.fallback}" />
+                            <img class="open-image unload" data-id="${message.messageId}" src="${imgSrc}" data-fallback="${image.fallback}" />
                             <i class="icon-ion-android-arrow-up"></i>
                         </div>
                     `;
                 }
-                // return `<img class="open-image unload" data-id="${message.messageId}" src="${image.remotePath}" data-fallback="${image.fallback}" />`;
-                // TODO: 图片数据，需要base64编码
-                if (image.localPath) {
-                    return `<img class="open-image unload" data-id="${message.messageId}" src="${image.localPath}" data-fallback="${image.fallback}" />`;
-                } else {
-                    //return `<img class="open-image unload" data-id="${message.messageId}" src="data:image/jpeg;base64, ${image.thumbnail}" data-fallback="${image.fallback}" />`;
-                    return `<img class="open-image unload" data-id="${message.messageId}" src="${image.remotePath}" data-fallback="${image.fallback}" />`;
-                }
+                return `<img class="open-image unload" data-id="${message.messageId}" src="${imgSrc}" data-fallback="${image.fallback}" />`;
             case MessageContentType.Voice:
                 /* eslint-disable */
                 // Voice
@@ -249,11 +250,19 @@ export default class ChatContent extends Component {
             case MessageContentType.Video:
                 // Video message
                 let video = message.messageContent;
+                let videoThumbnailSrc;
+                if (video.localPath) {
+                    videoThumbnailSrc = `${video.localPath}#t=0.1`;
+                } else if (video.thumbnail) {
+                    videoThumbnailSrc = `data:image/jpeg;base64, ${video.thumbnail}`;
+                } else {
+                    videoThumbnailSrc = `${video.remotePath}#t=0.1`;
+                }
 
                 if (uploading) {
                     return `
                         <div>
-                            <video preload="metadata" controls src="data:image/jpeg;base64,${video.localPath}"></video>
+                            <video preload="metadata" controls src="data:image/jpeg;base64,${videoThumbnailSrc}"></video>
 
                             <i class="icon-ion-android-arrow-up"></i>
                         </div>
@@ -270,11 +279,11 @@ export default class ChatContent extends Component {
 
                 if (video.localPath) {
                     return `
-                        <video preload="metadata" controls src="${video.localPath}" />
+                        <video preload="metadata" controls src="${video.localPath}#t=0.1" />
                     `;
                 } else {
                     return `
-                        <video preload="metadata" poster="data:image/jpeg;base64, ${video.thumbnail}" controls src="${video.remotePath}" />
+                        <video preload="metadata" poster="data:image/jpeg;base64, ${video.thumbnail}" controls src="${video.remotePath}#t=0.1" />
                     `;
                 }
 
@@ -448,10 +457,10 @@ export default class ChatContent extends Component {
             let base64 = new window.Buffer(response.data, 'binary').toString('base64');
 
             if (isElectron()) {
-            ipcRenderer.send('open-image', {
-                dataset: target.dataset,
-                base64,
-            });
+                ipcRenderer.send('open-image', {
+                    dataset: target.dataset,
+                    base64,
+                });
             } else {
                 // TODO
             }
@@ -517,9 +526,9 @@ export default class ChatContent extends Component {
         if (target.tagName === 'IMG'
             && target.classList.contains('open-map')) {
             if (isElectron()) {
-            ipcRenderer.send('open-map', {
-                map: target.dataset.map,
-            });
+                ipcRenderer.send('open-map', {
+                    map: target.dataset.map,
+                });
             } else {
                 // TODO
             }
@@ -564,13 +573,13 @@ export default class ChatContent extends Component {
             // eslint-disable-next-line
             let base64 = new window.Buffer(response.data, 'binary').toString('base64');
             if (isElectron()) {
-            let filename = ipcRenderer.sendSync(
-                'file-download',
-                {
-                    filename: `${this.props.downloads}/${message.messageId}_${file.name}`,
-                    raw: base64,
-                },
-            );
+                let filename = ipcRenderer.sendSync(
+                    'file-download',
+                    {
+                        filename: `${this.props.downloads}/${message.messageId}_${file.name}`,
+                        raw: base64,
+                    },
+                );
             } else {
                 // TODO
 
