@@ -661,7 +661,7 @@ export default class ChatContent extends Component {
     showMenu() {
         var user = this.props.user;
         let covnersationInfo = wfc.getConversationInfo(this.props.conversation);
-        var menu = new remote.Menu.buildFromTemplate([
+        var templates = [
             {
                 label: '全屏模式/正常模式',
                 click: () => {
@@ -692,9 +692,9 @@ export default class ChatContent extends Component {
                     this.props.removeChat(this.props.conversation);
                 }
             },
-        ]);
+        ];
 
-        menu.popup(remote.getCurrentWindow());
+        popMenu(templates);
     }
 
     handleScroll(e) {
