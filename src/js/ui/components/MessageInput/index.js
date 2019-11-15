@@ -189,6 +189,9 @@ export default class MessageInput extends Component {
     }
 
     async handlePaste(e) {
+        if (!isElectron()) {
+            return;
+        }
         var args = ipcRenderer.sendSync('file-paste');
 
         if (args.hasImage && this.canisend()) {

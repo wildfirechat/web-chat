@@ -50,6 +50,7 @@ export default class Message {
     messageId = 0;
     direction = 0;
     @observable status = 0;
+    @observable forceRerender = 0;
     messageUid = 0;
     timestamp = 0;
     to = '';

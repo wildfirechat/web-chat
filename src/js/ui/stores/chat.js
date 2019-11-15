@@ -665,6 +665,13 @@ class Chat {
         return true;
     }
 
+    @action forceRerenderMessage(messageId) {
+        let msg = self.messageList.find(m => m.messageId === messageId);
+        if (msg) {
+            msg.forceRerender = new Date().getTime();
+        }
+    }
+
     @action async recallMessage(message) {
         wfc.recallMessage(message.messageUid, () => {
             let msg = wfc.getMessageById(message.messageId);
