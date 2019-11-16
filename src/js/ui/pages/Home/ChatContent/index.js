@@ -8,6 +8,7 @@ import axios from 'axios';
 
 import classes from './style.css';
 import Avatar from 'components/Avatar';
+import PreviewImage from './PreviewImage'
 import helper from 'utils/helper';
 import { parser as emojiParse } from 'utils/emoji';
 import { on, off } from 'utils/event';
@@ -38,6 +39,7 @@ import GroupMemberType from '../../../../wfc/model/groupMemberType';
     conversation: stores.chat.conversation,
     target: stores.chat.target,
     forceRerenderMessage: stores.chat.forceRerenderMessage,
+    togglePreviewImage: stores.chat.togglePreviewImage,
     getTimePanel: (messageTime) => {
         // 当天的消息，以每5分钟为一个跨度显示时间；
         // 消息超过1天、小于1周，显示为“星期 消息发送时间”；
@@ -421,7 +423,8 @@ export default class ChatContent extends Component {
     messageContentLayout(message) {
         if (isElectron()) {
             return (
-                <div className={classes.content}>
+                <div className={classes.content} data-message-id={message.messageId}
+                    onClick={e => this.handleClick(e)}>
                     <p
                         onContextMenu={e => this.showMessageAction(message)}
                         dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
@@ -431,7 +434,8 @@ export default class ChatContent extends Component {
             return (
                 <div>
                     <ContextMenuTrigger id={`menu_item_${message.messageId}`} >
-                        <div className={classes.content}>
+                        <div className={classes.content} data-message-id={message.messageId}
+                            onClick={e => this.handleClick(e)}>
                             <p
                                 // onContextMenu={e => this.showMessageAction(message)}
                                 dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
@@ -447,8 +451,24 @@ export default class ChatContent extends Component {
 
     // 点击消息的响应
     async handleClick(e) {
-        console.log('handle click', e.target.tagName);
         var target = e.target;
+
+        let messageId;
+        let currentElement = e.target;
+        while (currentElement) {
+            messageId = currentElement.dataset.messageId;
+            if (messageId) {
+                break;
+            } else {
+                currentElement = currentElement.parentElement;
+            }
+        }
+        if (!currentElement || !currentElement.dataset) {
+            return;
+        }
+        messageId = Number(currentElement.dataset.messageId);
+
+        console.log('handle message click', messageId);
 
         // Open the image
         if (target.tagName === 'IMG'
@@ -460,7 +480,7 @@ export default class ChatContent extends Component {
             } else {
                 // thumbnail
                 if (target.src.startsWith('data')) {
-                base64 = target.src.split(',')[1];
+                    base64 = target.src.split(',')[1];
                 }
                 src = target.dataset.remotePath;
             }
@@ -479,7 +499,7 @@ export default class ChatContent extends Component {
                     base64,
                 });
             } else {
-                // TODO show big image
+                this.props.togglePreviewImage(e, true, messageId);
             }
 
             return;
@@ -599,7 +619,7 @@ export default class ChatContent extends Component {
                 );
                 file.localPath = filename;
 
-            wfc.updateMessageContent(message.messageId, file);
+                wfc.updateMessageContent(message.messageId, file);
                 this.props.forceRerenderMessage(message.messageId);
             } else {
                 // TODO
@@ -876,8 +896,7 @@ export default class ChatContent extends Component {
             <div
                 className={clazz(classes.container, {
                     [classes.hideConversation]: !showConversation,
-                })}
-                onClick={e => this.handleClick(e)}>
+                })} >
                 {
                     conversation ? (
                         <div>
@@ -931,6 +950,7 @@ export default class ChatContent extends Component {
                     ref="tips">
                     Unread message.
                 </div>
+                <PreviewImage onRef={ref => (this.previewImage = ref)} />
             </div>
         );
     }
