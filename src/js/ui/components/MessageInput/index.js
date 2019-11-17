@@ -190,8 +190,16 @@ export default class MessageInput extends Component {
 
     async handlePaste(e) {
         if (!isElectron()) {
-            if (this.canisend() && this.pasteListener(e)) {
+            let result = this.readClipImage(e);
+            if (this.canisend() && result.hasImage) {
                 e.preventDefault();
+                let url = URL.createObjectURL(result.file);
+                if ((await this.props.confirmSendImage(url)) === false) {
+                    URL.revokeObjectURL(url);
+                    return;
+                }
+                this.batchProcess(result.file);
+                URL.revokeObjectURL(url);
             }
             return;
         }
@@ -215,7 +223,8 @@ export default class MessageInput extends Component {
             this.batchProcess(file);
         }
     }
-    pasteListener(event) {
+    readClipImage(event) {
+        let result = { hasImage: false, file: null };
         if (event.clipboardData || event.originalEvent) {
             const clipboardData = (event.clipboardData || event.originalEvent.clipboardData);
             if (clipboardData.items) {
@@ -223,13 +232,14 @@ export default class MessageInput extends Component {
                 for (let i = 0; i < clipboardData.items.length; i++) {
                     if (clipboardData.items[i].type.indexOf('image') !== -1) {
                         blob = clipboardData.items[i].getAsFile();
-                        this.batchProcess(blob);
-                        return true;
+                        result.hasImage = true;
+                        result.file = blob;
+                        break;
                     }
                 }
             }
         }
-        return false;
+        return result;
     };
 
     onGroupInfosUpdate = (groupInfos) => {
