@@ -27,6 +27,7 @@ import ConversationType from '../../../../wfc/model/conversationType';
 
 import GroupType from '../../../../wfc/model/groupType';
 import GroupMemberType from '../../../../wfc/model/groupMemberType';
+import FileSaver from 'file-saver';
 
 
 @inject(stores => ({
@@ -608,8 +609,8 @@ export default class ChatContent extends Component {
             let file = message.messageContent;
             let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
             // eslint-disable-next-line
-            let base64 = Buffer.from(response.data, 'binary').toString('base64');
             if (isElectron()) {
+                let base64 = Buffer.from(response.data, 'binary').toString('base64');
                 let filename = ipcRenderer.sendSync(
                     'file-download',
                     {
@@ -622,8 +623,7 @@ export default class ChatContent extends Component {
                 wfc.updateMessageContent(message.messageId, file);
                 this.props.forceRerenderMessage(message.messageId);
             } else {
-                // TODO
-
+                FileSaver.saveAs(new Blob([response.data]), file.name);
             }
         }
     }
