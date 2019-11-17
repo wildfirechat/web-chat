@@ -24,7 +24,6 @@ import { isElectron } from '../../../platform'
 }))
 @observer
 export default class Home extends Component {
-    focus = false;
     componentDidMount() {
         this.props.toggleConversation(true);
         if (!isElectron()) {

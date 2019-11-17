@@ -494,7 +494,7 @@ export default class ChatContent extends Component {
             }
 
 
-            if (isElectron()) {
+            if (false) {
                 ipcRenderer.send('open-image', {
                     dataset: target.dataset,
                     base64,
