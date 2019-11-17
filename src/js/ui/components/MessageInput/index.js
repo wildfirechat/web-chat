@@ -190,6 +190,9 @@ export default class MessageInput extends Component {
 
     async handlePaste(e) {
         if (!isElectron()) {
+            if (this.canisend() && this.pasteListener(e)) {
+                e.preventDefault();
+            }
             return;
         }
         var args = ipcRenderer.sendSync('file-paste');
@@ -212,6 +215,22 @@ export default class MessageInput extends Component {
             this.batchProcess(file);
         }
     }
+    pasteListener(event) {
+        if (event.clipboardData || event.originalEvent) {
+            const clipboardData = (event.clipboardData || event.originalEvent.clipboardData);
+            if (clipboardData.items) {
+                let blob;
+                for (let i = 0; i < clipboardData.items.length; i++) {
+                    if (clipboardData.items[i].type.indexOf('image') !== -1) {
+                        blob = clipboardData.items[i].getAsFile();
+                        this.batchProcess(blob);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    };
 
     onGroupInfosUpdate = (groupInfos) => {
         console.log('onGroupInfosupdate', groupInfos);
