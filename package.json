@@ -41,6 +41,7 @@
     "moment": "^2.22.2",
     "play-sound": "^1.1.1",
     "prop-types": "^15.6.0",
+    "push.js": "^1.0.12",
     "randomcolor": "^0.5.3",
     "react-addons-css-transition-group": "^15.6.2",
     "react-contextmenu": "^2.13.0",
