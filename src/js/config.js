@@ -3,7 +3,7 @@ export default class Config {
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
 
     static WEB_APP_ID = 'web_12345678';
-    static WEB_APP_KEY = '9a774dcadd9abc8f56cf677761f5cba441c9b887';
+    static WEB_APP_KEY = 'daa0390ce338f3b5075b0ab38fd081aae802b4bf';
 
     static SDK_PLATFORM_PC = 0;
     static SDK_PLATFORM_WEB = 1;
