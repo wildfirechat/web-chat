@@ -32,6 +32,8 @@ export default class Login extends Component {
 
     componentWillUnmount() {
         console.log('login will disappear');
+        clearInterval(this.loginTimer);
+        clearInterval(this.qrCodeTimer);
     }
 
     renderUser() {
@@ -85,8 +87,6 @@ export default class Login extends Component {
         if (response.data) {
             switch (response.data.code) {
                 case 0:
-                    clearInterval(this.loginTimer);
-                    clearInterval(this.qrCodeTimer);
                     let userId = response.data.result.userId;
                     let token = response.data.result.token;
                     connect(userId, token);
