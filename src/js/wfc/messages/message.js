@@ -42,6 +42,8 @@ import Config from '../../config';
 
 import Long from 'long'
 import { observable } from 'mobx';
+import atob from 'atob';
+import btoa from 'btoa';
 export default class Message {
     conversation = {};
     from = '';
@@ -163,4 +165,11 @@ export default class Message {
         }
     }
 
+    static utf8_to_b64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    static b64_to_utf8(str) {
+        return decodeURIComponent(escape(atob(str)));
+    }
 }
