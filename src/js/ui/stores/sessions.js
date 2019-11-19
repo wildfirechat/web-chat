@@ -84,13 +84,12 @@ class sessions {
 
     @action removeConversation(conversation) {
 
-        let conversations = self.conversations.filter(e => !e.conversation.equal(conversation));
-        self.conversations.replace(conversations);
+        self.conversations = self.conversations.filter(e => !e.conversation.equal(conversation.conversation));
 
         wfc.removeConversation(conversation, true);
 
         updateMenus({
-            conversations: conversations.slice(0, 10)
+            conversations: self.conversations.slice(0, 10)
         });
     }
 
