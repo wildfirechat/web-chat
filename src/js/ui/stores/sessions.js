@@ -24,7 +24,6 @@ async function updateMenus({ conversations = [], contacts = [] }) {
             name: e.RemarkName || e.NickName,
             avatar: e.HeadImgUrl,
         })),
-        cookies: await helper.getCookie(),
     });
 }
 class sessions {

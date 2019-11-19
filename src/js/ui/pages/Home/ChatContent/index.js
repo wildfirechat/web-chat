@@ -55,7 +55,6 @@ import InfiniteScroll from 'react-infinite-scroller';
         return helper.isContact(user);
     },
     showUserinfo: async (isme, user) => {
-
         var caniremove = false;
         if (stores.chat.target instanceof GroupInfo) {
             let groupInfo = stores.chat.target;
@@ -397,12 +396,9 @@ export default class ChatContent extends Component {
                     })}>
 
                         <div>
-                            <Avatar
-                                //src={message.isme ? message.HeadImgUrl : user.HeadImgUrl}
-                                src={user.portrait ? user.portrait : 'assets/images/user-fallback.png'}
-                                className={classes.avatar}
-                                onClick={ev => this.props.showUserinfo(message.direction === 0, user)}
-                            />
+                            {
+                                this.userInfoLayout(user, message)
+                            }
 
                             <p
                                 className={classes.username}
@@ -419,6 +415,37 @@ export default class ChatContent extends Component {
                 </div>
             );
         });
+    }
+
+    userInfoLayout(user, message) {
+        if (isElectron()) {
+            return (
+                <Avatar
+                    //src={message.isme ? message.HeadImgUrl : user.HeadImgUrl}
+                    src={user.portrait ? user.portrait : 'assets/images/user-fallback.png'}
+                    className={classes.avatar}
+                    onContextMenu={e => this.showUserAction(user)}
+                    onClick={ev => this.props.showUserinfo(message.direction === 0, user)}
+                />
+            );
+        } else {
+            return (
+                <div>
+                    <ContextMenuTrigger id={`user_item_${user.uid}_${message.messageId}`} >
+                        <Avatar
+                            //src={message.isme ? message.HeadImgUrl : user.HeadImgUrl}
+                            src={user.portrait ? user.portrait : 'assets/images/user-fallback.png'}
+                            className={classes.avatar}
+                            onClick={ev => this.props.showUserinfo(message.direction === 0, user)}
+                        />
+                    </ContextMenuTrigger>
+                    {
+                        this.showUserAction(user, `user_item_${user.uid}_${message.messageId}`)
+                    }
+                </div>
+            );
+        }
+
     }
 
     messageContentLayout(message) {
@@ -647,6 +674,22 @@ export default class ChatContent extends Component {
         popMenu(templates);
     }
 
+    showUserAction(userInfo, menuId) {
+        if (this.props.conversation.type !== ConversationType.Group || userInfo.uid === wfc.getUserId()) {
+            return;
+        }
+
+        var templates = [
+            {
+                label: `@${userInfo.displayName}`,
+                click: () => {
+                    wfc.eventEmitter.emit('mention', userInfo);
+                }
+            },
+        ];
+        return popMenu(templates, userInfo, menuId);
+    }
+
     showMessageAction(message, menuId) {
 
         if (message.messageContent instanceof NotificationMessageContent) {
@@ -811,6 +854,7 @@ export default class ChatContent extends Component {
                 return;
             }
 
+            /*
             // Show the unread messages count
             // TODO unread logic
             if (viewport.scrollTop < this.scrollTop) {
@@ -853,6 +897,7 @@ export default class ChatContent extends Component {
 
             // Mark message has been loaded
             Array.from(viewport.querySelectorAll(`.${classes.message}.unread`)).map(e => e.classList.remove('unread'));
+            */
         }
     }
 
