@@ -2,6 +2,8 @@ import Conversation from '../model/conversation';
 import { EventEmitter } from 'events';
 import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
+import atob from 'atob';
+import btoa from 'btoa';
 
 import impl from '../proto/proto.min';
 
@@ -412,8 +414,14 @@ export class WfcManager {
     init(args = []) {
         impl.init(args);
     }
+    utf8_to_b64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
 }
 
+    b64_to_utf8(str) {
+        return decodeURIComponent(escape(atob(str)));
+    }
+}
 const self = new WfcManager();
 export default self;
 

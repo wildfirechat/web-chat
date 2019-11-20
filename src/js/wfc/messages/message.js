@@ -42,8 +42,7 @@ import Config from '../../config';
 
 import Long from 'long'
 import { observable } from 'mobx';
-import atob from 'atob';
-import btoa from 'btoa';
+
 export default class Message {
     conversation = {};
     from = '';
@@ -83,7 +82,7 @@ export default class Message {
                         content.fromSelf = msg.from === wfc.getUserId();
                     }
                 } catch (error) {
-                    console.log('decode message payload failed, fallback to unkownMessage', msg.content);
+                    console.log('decode message payload failed, fallback to unkownMessage', msg.content, error);
                     let flag = MessageConfig.getMessageContentPersitFlag(msg.content.type);
                     if (PersistFlag.Persist === flag || PersistFlag.Persist_And_Count === flag) {
                         content = new UnknownMessageContent(msg.content);
@@ -163,13 +162,6 @@ export default class Message {
             }
             return msg;
         }
-    }
 
-    static utf8_to_b64(str) {
-        return btoa(unescape(encodeURIComponent(str)));
-    }
-
-    static b64_to_utf8(str) {
-        return decodeURIComponent(escape(atob(str)));
     }
 }
