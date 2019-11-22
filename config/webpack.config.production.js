@@ -1,7 +1,6 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import MinifyPlugin from 'babel-minify-webpack-plugin';
 import config from './index';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
@@ -25,7 +24,7 @@ export default {
     },
 
     optimization: {
-        minimize: false
+        minimize: true
     },
 
     plugins: [
