@@ -2,6 +2,7 @@
 import webpack from 'webpack';
 import config from './index';
 import baseConfig from './webpack.config.base';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const { host, port } = config.server;
 
@@ -19,8 +20,10 @@ export default {
     ],
 
     output: {
-        ...baseConfig.output,
-        publicPath: `http://${host}:${port}/dist/`,
+        // ...baseConfig.output,
+        publicPath: `http://${host}:${port}/`,
+        path: `${config.dist}/src`,
+        filename: 'app.js'
     },
 
     plugins: [
@@ -30,11 +33,15 @@ export default {
 
         // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.DefinePlugin({
-            'process.env.FLUENTFFMPEG_COV': false
+
+        new HtmlWebpackPlugin({
+            filename: `${config.dist}/src/index.html`,
+            template: './src/index.html',
+            inject: false,
+            title: 'WFC'
         })
     ],
 
     // https://github.com/chentsulin/webpack-target-electron-renderer#how-this-module-works
-    target: 'electron-renderer'
+    target: 'web'
 };
