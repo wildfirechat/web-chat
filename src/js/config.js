@@ -1,5 +1,5 @@
 export default class Config {
-    static APP_SERVER = 'http://localhost:8888';
+    static APP_SERVER = 'http://web.wildfirechat.cn';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
 
     static WEB_APP_ID = 'web_12345678';
