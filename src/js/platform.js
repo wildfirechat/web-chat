@@ -50,7 +50,7 @@ export function showBrowserMenu(menuTemplates = [], data, menuId) {
 }
 
 export function connect(userId, token) {
-    wfc.connect(userId, token)
+    wfc.connect(userId, token);
 }
 
 
