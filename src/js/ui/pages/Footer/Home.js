@@ -7,9 +7,10 @@ import MessageInput from 'components/MessageInput';
 @inject(stores => ({
     sendMessage: stores.chat.sendMessage,
     conversation: stores.chat.conversation,
+    target: stores.chat.target,
     showMessage: stores.snackbar.showMessage,
     me: stores.sessions.user,
-    confirmSendImage: async(image) => {
+    confirmSendImage: async (image) => {
         if (!stores.settings.confirmImagePaste) {
             return true;
         }
@@ -21,7 +22,7 @@ import MessageInput from 'components/MessageInput';
 }))
 export default class Message extends Component {
     render() {
-        var { sendMessage, showMessage, me = {}, confirmSendImage, process, conversation } = this.props;
+        var { sendMessage, showMessage, me = {}, confirmSendImage, process, conversation, target } = this.props;
 
         return (
             <MessageInput {...{
@@ -31,6 +32,7 @@ export default class Message extends Component {
                 confirmSendImage,
                 process,
                 conversation,
+                target,
             }} />
         );
     }
