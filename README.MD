@@ -74,6 +74,7 @@ $ npm run build
 ```
 
 ## 本地部署测试
+0. 修改config.js#APP_SERVER为http://localhost:8888
 0. 打包
 1. 本地测试，需要配置nginx，参考配置如下：
 ```
@@ -82,7 +83,7 @@ $ npm run build
         listen [::]:8888 default_server;
 
         #server_name  localhost;
-        root  /your-path-to-web-chat/dist/src;
+        root  /<your-path-to-web-chat>/dist/src;
 
         location /pc_session{
           proxy_pass   http://pc.wildfirechat.cn:8888;
