@@ -342,6 +342,7 @@ export default class ChatContent extends Component {
 
     renderMessages(list, from) {
         //return list.data.map((e, index) => {
+        console.log('to render message count', list.length);
         return list.map((e) => {
             // var { message, user } = this.props.parseMessage(e, from);
             var message = e;
@@ -812,6 +813,8 @@ export default class ChatContent extends Component {
     componentWillUnmount() {
         !this.props.rememberConversation && this.props.reset();
         this.stopAudio();
+        wfc.eventEmitter.removeListener(EventType.UserInfoUpdate, this.onUserInfoUpdate);
+        wfc.eventEmitter.removeListener(EventType.GroupInfoUpdate, this.onGroupInfoUpdate);
     }
 
     stopAudio() {

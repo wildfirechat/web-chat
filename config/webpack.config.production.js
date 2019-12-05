@@ -24,7 +24,7 @@ export default {
     },
 
     optimization: {
-        minimize: true
+        minimize: false
     },
 
     plugins: [
