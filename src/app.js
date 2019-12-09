@@ -9,10 +9,12 @@ import './assets/fonts/icomoon/style.css';
 import 'utils/albumcolors';
 import getRoutes from './js/ui/routes';
 import stores from './js/ui/stores';
+import wfc from './js/wfc/client/wfc';
 
-class App extends Component {
+export default class App extends Component {
     async componentWillMount() {
         if (window.navigator.onLine) {
+            wfc.init();
         }
     }
 
@@ -37,7 +39,9 @@ class App extends Component {
     }
 }
 
-render(
-    <App />,
-    document.getElementById('root')
-);
+// render(
+//     <App />,
+//     document.getElementById('root')
+// );
+
+module.exports = App

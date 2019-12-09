@@ -4,6 +4,7 @@ import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
 import atob from 'atob';
 import btoa from 'btoa';
+import avEngineKit from '../av/avenginekit';
 
 import impl from '../proto/proto.min';
 
@@ -412,7 +413,8 @@ export class WfcManager {
         return impl._getStore();
 }
     init(args = []) {
-        impl.init(args);
+        // impl.init(args);
+        avEngineKit.setup(self);
     }
     utf8_to_b64(str) {
         return btoa(unescape(encodeURIComponent(str)));

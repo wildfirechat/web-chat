@@ -364,6 +364,12 @@ export default class MessageInput extends Component {
                     />
 
                     <i
+                        className="icon-ion-android-attach"
+                        id="voip"
+                        onClick={e => canisend && this.toggleVoip()}
+                    />
+
+                    <i
                         className="icon-ion-ios-heart"
                         id="showEmoji"
                         onClick={e => canisend && this.toggleEmoji()}
