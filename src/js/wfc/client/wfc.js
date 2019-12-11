@@ -413,7 +413,7 @@ export class WfcManager {
         return impl._getStore();
 }
     init(args = []) {
-        // impl.init(args);
+        impl.init(args);
         avEngineKit.setup(self);
     }
     utf8_to_b64(str) {

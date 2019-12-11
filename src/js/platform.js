@@ -53,51 +53,15 @@ export function connect(userId, token) {
     wfc.connect(userId, token);
 }
 
-export function voipEventEmit(webContents, event, args) {
-    if (isElectron()) {
-        if (webContents) {
-            // renderer/main to renderer
-            webContents.send(event, args);
-        } else {
-            // renderer to main
-            ipcRenderer.send(event, args);
-        }
-    } else {
-        // wfc.eventEmitter.emit(event, args);
-    }
-}
-
-export function voipEventOn(event, listener) {
-    if (isElectron()) {
-        // renderer
-        if ((process && process.type === 'renderer')) {
-            ipcRenderer.on(event, listener);
-        } else {
-            ipcMain.on(event, listener);
-        }
-    } else {
-        // wfc.eventEmitter.on(event, listener);
-    }
-}
-
-export function voipEventRemoveAllListeners(events) {
-    if (isElectron()) {
-        // renderer
-        if ((process && process.type === 'renderer')) {
-            ipcRenderer.removeAllListeners(events);
-        } else {
-            ipcMain.removeAllListeners(events);
-        }
-    } else {
-
-    }
-}
-
+// pc
 export const remote = null;
 export const ipcRenderer = null;
 export const ipcMain = null;
 export const fs = null;
-//export const BrowserWindow = require('electron').remote.BrowserWindow;
+export const currentWindow = null;
 export const BrowserWindow = null;
+
+// for web
 export const ContextMenuTrigger = require("react-contextmenu").ContextMenuTrigger;
 export const hideMenu = require("react-contextmenu").hideMenu;
+export const PostMessageEventEmitter = require('./ui/windowEmitter');

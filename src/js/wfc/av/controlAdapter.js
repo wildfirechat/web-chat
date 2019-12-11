@@ -1,63 +1,6 @@
-import { voipEventEmit, voipEventOn, isElectron, BrowserWindow } from '../../platform'
+import { isElectron, ipcRenderer, BrowserWindow, PostMessageEventEmitter } from '../../platform'
 const path = require('path');
 
-
-voipEventOn('onReceiveOffer', function (event, offer) {
-  if (!self.destroyed && self.onReceiveOffer) {
-    self.onReceiveOffer(offer);
-  }
-});
-voipEventOn('onCreateAnswerOffer', function (event, offer) {
-  console.log("onrecive offer " + offer);
-  console.log("onCreateAnswerOffer " + self.onCreateAnswerOffer);
-  if (!self.destroyed && self.onCreateAnswerOffer) {
-    console.log("onrecive offer11111 ");
-    self.onCreateAnswerOffer(JSON.parse(offer));
-  }
-});
-
-
-voipEventOn('onIceStateChange', function (event, msg) {
-  if (!self.destroyed && self.onIceStateChange) {
-    self.onIceStateChange(msg);
-  }
-});
-
-voipEventOn('offerCount', function (event, msg) {
-  console.log(msg);
-});
-
-voipEventOn('onIceCandidate', function (event, offer) {
-  console.log("onrecive candidate " + offer);
-  if (!self.destroyed && self.onIceCandidate) {
-    self.onIceCandidate(JSON.parse(offer));
-  }
-});
-
-voipEventOn('onCallButton', (event) => {
-  if (!self.destroyed && self.onCallButton) {
-    self.onCallButton();
-  }
-});
-
-voipEventOn('onHangupButton', (event) => {
-  if (!self.destroyed && self.onHangupButton) {
-    self.onHangupButton();
-  }
-});
-
-voipEventOn('downToVoice', (event) => {
-  if (!self.destroyed && self.downToVoice) {
-    self.downToVoice();
-  }
-});
-
-voipEventOn('pong', (event) => {
-  console.log("receive pong");
-  setTimeout(function () {
-    self.sendPing();
-  }, 1000);
-});
 
 class WfcControlAdaper {
 
@@ -71,10 +14,100 @@ class WfcControlAdaper {
   downToVoice;
   destroyed;
   callWin;
+  events;
+
+  voipEventEmit(event, args) {
+    if (isElectron()) {
+      // renderer/main to renderer
+      this.callWin.webContents.send(event, args);
+    } else {
+      this.events.emit(event, args);
+    }
+  }
+
+  voipEventOn(event, listener) {
+    if (isElectron()) {
+      // listen for event from main
+      ipcRenderer.on(event, listener);
+    } else {
+      this.events.on(event, listener);
+    }
+  }
+
+  voipEventRemoveAllListeners(events = []) {
+    if (isElectron()) {
+      // renderer
+      events.forEach(e => ipcRenderer.removeAllListeners(e));
+    } else {
+      this.events.stop();
+    }
+  }
 
   init(win) {
     this.callWin = win;
     this.destroyed = false;
+
+    if (!isElectron()) {
+      this.events = new PostMessageEventEmitter(win, window.location.origin)
+    }
+
+    this.voipEventOn('onReceiveOffer', (event, offer) => {
+      if (!self.destroyed && self.onReceiveOffer) {
+        self.onReceiveOffer(offer);
+      }
+    });
+    this.voipEventOn('onCreateAnswerOffer', (event, offer) => {
+      console.log("onrecive offer " + offer);
+      console.log("onCreateAnswerOffer " + self.onCreateAnswerOffer);
+      if (!self.destroyed && self.onCreateAnswerOffer) {
+        console.log("onrecive offer11111 ");
+        self.onCreateAnswerOffer(JSON.parse(offer));
+      }
+    });
+
+
+    this.voipEventOn('onIceStateChange', (event, msg) => {
+      if (!self.destroyed && self.onIceStateChange) {
+        self.onIceStateChange(msg);
+      }
+    });
+
+    this.voipEventOn('offerCount', (event, msg) => {
+      console.log(msg);
+    });
+
+    this.voipEventOn('onIceCandidate', (event, offer) => {
+      console.log("onrecive candidate " + offer);
+      if (!self.destroyed && self.onIceCandidate) {
+        self.onIceCandidate(JSON.parse(offer));
+      }
+    });
+
+    this.voipEventOn('onCallButton', (event) => {
+      if (!self.destroyed && self.onCallButton) {
+        self.onCallButton();
+      }
+    });
+
+    this.voipEventOn('onHangupButton', (event) => {
+      if (!self.destroyed && self.onHangupButton) {
+        self.onHangupButton();
+      }
+    });
+
+    this.voipEventOn('downToVoice', (event) => {
+      if (!self.destroyed && self.downToVoice) {
+        self.downToVoice();
+      }
+    });
+
+    this.voipEventOn('pong', (event) => {
+      console.log("receive pong");
+      setTimeout(() => {
+        self.sendPing();
+      }, 1000);
+    });
+
   }
 
   destory() {
@@ -87,29 +120,31 @@ class WfcControlAdaper {
     this.onHangupButton = null;
     this.downToVoice = null;
     this.destroyed = true;
+
+    this.voipEventRemoveAllListeners(['onReceiveOffer', 'onCreateAnswerOffer', , 'onIceStateChange', 'offerCount', 'onIceCandidate', 'onCallButton', 'onHangupButton', 'downToVoice', 'pong']);
   }
 
   startMedia(isInitiator, audioOnly) {
     if (!this.destroyed && this.callWin) {
-      voipEventEmit(this.callWin.webContents, 'startMedia', { 'isInitiator': isInitiator, 'audioOnly': audioOnly });
+      this.voipEventEmit('startMedia', { 'isInitiator': isInitiator, 'audioOnly': audioOnly });
     }
   }
 
   downgrade2Voice() {
     if (!this.destroyed && this.callWin) {
-      voipEventEmit(this.callWin.webContents, 'downgrade2Voice');
+      this.voipEventEmit('downgrade2Voice');
     }
   }
 
   endMedia() {
     if (!this.destroyed && this.callWin) {
-      voipEventEmit(this.callWin.webContents, 'endCall');
+      this.voipEventEmit('endCall');
     }
   }
 
   updateEngineToVoice() {
     if (!this.destroyed && this.callWin) {
-      voipEventEmit(this.callWin.webContents, 'updateEngineToVoice');
+      this.voipEventEmit('updateEngineToVoice');
     }
   }
 
@@ -146,7 +181,7 @@ class WfcControlAdaper {
       let win = new BrowserWindow(
         {
           width: 360,
-          height: 640 + 25,
+          height: 640 + 15,
           // resizable: false,
           // maximizable: false,
           webPreferences: {
@@ -178,22 +213,26 @@ class WfcControlAdaper {
 
       win.loadURL(path.join('file://', process.cwd(), 'src/index.html?voip'));
       win.show();
-    }else{
-      window.open('http://localhost:8888?voip', 'target', 'width=360,height=640,left=200,top=200');
+    } else {
+      let win = window.open(window.location.origin + '?voip', 'target', 'width=360,height=640,left=200,top=200,toolbar=no,menubar=no,resizable=no,location=no');
+      win.addEventListener('load', () => {
+        self.init(win);
+        self.initCallUI(isMoCall, audioOnly);
+      }, true);
     }
   }
 
   sendPing() {
     console.log("send ping");
     if (!this.destory) {
-      voipEventEmit(this.callWin.webContents, 'ping');
+      this.voipEventEmit('ping');
     }
 
   }
 
   initCallUI(isMoCall, audioOnly) {
     if (!this.destroyed) {
-      voipEventEmit(this.callWin.webContents, 'initCallUI', { audioOnly: audioOnly, moCall: isMoCall });
+      this.voipEventEmit('initCallUI', { audioOnly: audioOnly, moCall: isMoCall });
     }
   }
 
@@ -201,19 +240,19 @@ class WfcControlAdaper {
     console.log("set remote offer1");
     if (!this.destroyed) {
       console.log("set remote offer2");
-      voipEventEmit(this.callWin.webContents, 'setRemoteOffer', JSON.stringify(signal));
+      this.voipEventEmit('setRemoteOffer', JSON.stringify(signal));
     }
   }
 
   setRemoteAnswer(signal) {
     if (!this.destroyed) {
-      voipEventEmit(this.callWin.webContents, 'setRemoteAnswer', JSON.stringify(signal));
+      this.voipEventEmit('setRemoteAnswer', JSON.stringify(signal));
     }
   }
 
   setRemoteIceCandidate(signal) {
     if (!this.destroyed) {
-      voipEventEmit(this.callWin.webContents, 'setRemoteIceCandidate', JSON.stringify(signal));
+      this.voipEventEmit('setRemoteIceCandidate', JSON.stringify(signal));
     }
   }
 }
