@@ -15,12 +15,12 @@ export default {
 
     entry: [
         'babel-polyfill',
-        `${config.client}/app.js`,
+        `${config.client}/index.js`,
     ],
 
     output: {
         path: `${config.dist}/src`,
-        filename: 'app.js'
+        filename: 'wfc.[hash].js'
     },
 
     optimization: {
@@ -57,8 +57,8 @@ export default {
 
         new HtmlWebpackPlugin({
             filename: `${config.dist}/src/index.html`,
-            template: './src/index.html',
-            inject: false,
+            template: './src/index_prod.html',
+            inject: true,
             hash: true,
             minify: {
                 collapseWhitespace: true
