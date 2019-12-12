@@ -19,7 +19,7 @@ export default {
     ],
 
     output: {
-        publicPath:'http://static.wildfirechat.cn',
+        publicPath: 'http://static.wildfirechat.cn/',
         path: `${config.dist}/src`,
         filename: 'wfc.[hash].js'
     },
