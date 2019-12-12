@@ -16,6 +16,7 @@ import EventType from '../../../wfc/client/wfcEvent';
 import GroupInfo from '../../../wfc/model/groupInfo';
 import GroupType from '../../../wfc/model/groupType';
 import GroupMemberType from '../../../wfc/model/groupMemberType';
+import avenginekit from '../../../wfc/av/avenginekit';
 
 export default class MessageInput extends Component {
     static propTypes = {
@@ -154,6 +155,13 @@ export default class MessageInput extends Component {
         this.setState({ showEmoji: show });
     }
 
+    audioCall(show = !this.state.showEmoji) {
+        avenginekit.startCall(this.props.conversation, true);
+    }
+
+    videoCall(show = !this.state.showEmoji) {
+        avenginekit.startCall(this.props.conversation, false);
+    }
     async screenShot() {
         if (!isElectron()) {
             return;
@@ -364,9 +372,15 @@ export default class MessageInput extends Component {
                     />
 
                     <i
-                        className="icon-ion-android-attach"
-                        id="voip"
-                        onClick={e => canisend && this.toggleVoip()}
+                        className="icon-ion-android-camera"
+                        id="videoCall"
+                        onClick={e => canisend && this.videoCall()}
+                    />
+
+                    <i
+                        className="icon-ion-ios-telephone"
+                        id="audioCall"
+                        onClick={e => canisend && this.audioCall()}
                     />
 
                     <i
