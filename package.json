@@ -8,6 +8,7 @@
     "css-lint": "stylelint --fix src/**/*.css",
     "lint": "npm run css-lint && npm run js-lint",
     "build": "rm -rf dist && cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./config/webpack.config.production.js --progress --profile --colors",
+    "release": "rm -rf dist && cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./config/webpack.config.production.release.js --progress --profile --colors",
     "hot-server": "cross-env NODE_ENV=development node -r babel-register scripts/dev.js",
     "dev": "concurrently --kill-others \"npm run hot-server\""
   },
