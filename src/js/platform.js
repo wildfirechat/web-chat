@@ -60,6 +60,7 @@ export const ipcMain = null;
 export const fs = null;
 export const currentWindow = null;
 export const BrowserWindow = null;
+export const AppPath = null;
 
 // for web
 export const ContextMenuTrigger = require("react-contextmenu").ContextMenuTrigger;
