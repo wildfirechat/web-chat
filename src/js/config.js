@@ -1,8 +1,15 @@
 import { isElectron } from './platform'
 export default class Config {
-    // static APP_SERVER = 'http://wildfirechat.cn:8888';
+    // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
+    // WebSockets over SSL/TLS
+    static USE_WSS = false;
+    // WSS 的默认端口，其实是443
+    static WSS_PORT = 8084;
+
+    static STATIC_RESOURCE_PATH = 'https://static.wildfirechat.cn/'
+    static APP_SERVER = 'http://wildfirechat.cn:8888';
     // 用于本地打包验证
-    static APP_SERVER = 'http://localhost:8888';
+    // static APP_SERVER = 'http://localhost:8888';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
 
     static WEB_APP_ID = 'web_12345678';

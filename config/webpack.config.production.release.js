@@ -5,6 +5,7 @@ import config from './index';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import baseConfig from './webpack.config.base';
+import Config from '../src/js/config'
 
 export default {
 
@@ -19,7 +20,7 @@ export default {
     ],
 
     output: {
-        publicPath: 'http://static.wildfirechat.cn/',
+        publicPath: Config.STATIC_RESOURCE_PATH,
         path: `${config.dist}/src`,
         filename: 'wfc.[hash].js'
     },
