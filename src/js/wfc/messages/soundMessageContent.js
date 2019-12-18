@@ -4,8 +4,8 @@ import MessageContentType from './messageContentType';
 export default class SoundMessageContent extends MediaMessageContent {
     duration;
 
-    constructor(file, duration) {
-        super(MessageContentType.Voice, MessageContentMediaType.File, file);
+    constructor(fileOrLocalPath, remotePath, duration) {
+        super(MessageContentType.Voice, MessageContentMediaType.File, fileOrLocalPath, remotePath);
         this.duration = duration;
     }
 
@@ -18,7 +18,7 @@ export default class SoundMessageContent extends MediaMessageContent {
         payload.mediaType = MessageContentMediaType.Voice;
         let obj = {
             duration: this.duration,
-        }
+        };
         payload.content = JSON.stringify(obj);
         return payload;
     };
