@@ -11,6 +11,9 @@ export default class Config {
     // 用于本地打包验证
     // static APP_SERVER = 'http://localhost:8888';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
+    static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';
+    static ICE_USERNAME = 'wfchat';
+    static ICE_PASSWORD = 'wfchat';
 
     static WEB_APP_ID = 'web_12345678';
     static WEB_APP_KEY = '44889f61b0c4908761953fd178451b4e80308368';
