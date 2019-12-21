@@ -51,7 +51,12 @@ export default class MessageInput extends Component {
         if (!members) {
             return;
         }
-        mentionMenuItems.push({ key: "所有人", value: '@' + conversation.target, avatar: groupInfo.portrait, searchKey: '所有人' + pinyin.letter('所有人', '', null) });
+        mentionMenuItems.push({
+            key: "所有人",
+            value: '@' + conversation.target,
+            avatar: groupInfo.portrait,
+            searchKey: '所有人' + pinyin.letter('所有人', '', null)
+        });
         let userIds = [];
         members.forEach(e => {
             userIds.push(e.memberId);
@@ -59,7 +64,12 @@ export default class MessageInput extends Component {
 
         let userInfos = wfc.getUserInfos(userIds, groupInfo.target);
         userInfos.forEach((e) => {
-            mentionMenuItems.push({ key: e.displayName, value: '@' + e.uid, avatar: e.portrait, searchKey: e.displayName + pinyin.letter(e.displayName, '', null) });
+            mentionMenuItems.push({
+                key: e.displayName,
+                value: '@' + e.uid,
+                avatar: e.portrait,
+                searchKey: e.displayName + pinyin.letter(e.displayName, '', null)
+            });
         });
 
         this.tribute = new Tribute({
@@ -134,6 +144,11 @@ export default class MessageInput extends Component {
             || !message
             || e.charCode !== 13
         ) return;
+        if(e.ctrlKey && e.charCode === 13){
+            e.preventDefault();
+            this.refs.input.value = this.refs.input.value + "\n";
+            return;
+        }
 
         // TODO batch
         var batch = conversation.length > 1;
@@ -145,6 +160,7 @@ export default class MessageInput extends Component {
         let textMessageContent = this.handleMention(message);
         this.props.sendMessage(textMessageContent);
         this.refs.input.value = '';
+        e.preventDefault();
     }
 
     state = {
@@ -356,16 +372,6 @@ export default class MessageInput extends Component {
                     请先选择一个会话 或 已禁言。
                 </div>
 
-                <input
-                    id="messageInput"
-                    ref="input"
-                    type="text"
-                    placeholder="输入内容发送 ..."
-                    readOnly={!canisend}
-                    onPaste={e => this.handlePaste(e)}
-                    onKeyPress={e => this.handleEnter(e)}
-                />
-
                 <div className={classes.action}>
                     <i
                         className="icon-ion-android-attach"
@@ -420,6 +426,14 @@ export default class MessageInput extends Component {
                         show={this.state.showEmoji}
                     />
                 </div>
+                <textarea
+                    id="messageInput"
+                    ref="input"
+                    placeholder="输入内容发送，Ctrl + Enter 换行 ..."
+                    readOnly={!canisend}
+                    onPaste={e => this.handlePaste(e)}
+                    onKeyPress={e => this.handleEnter(e)}
+                />
             </div>
         );
     }
