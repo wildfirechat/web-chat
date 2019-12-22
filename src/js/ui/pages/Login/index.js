@@ -1,15 +1,14 @@
-
-import React, { Component } from 'react';
-import { observer, inject } from 'mobx-react';
+import React, {Component} from 'react';
+import {observer, inject} from 'mobx-react';
 
 import classes from './style.css';
 import Config from '../../../config';
 import jrQRCode from 'jr-qrcode'
 import wfc from '../../../wfc/client/wfc'
 import PCSession from '../../../wfc/model/pcsession';
-import { observable } from 'mobx';
+import {observable} from 'mobx';
 import axios from 'axios';
-import { connect } from '../../../platform'
+import {connect} from '../../../platform'
 
 @inject(stores => ({
     avatar: stores.sessions.avatar,
@@ -18,9 +17,11 @@ import { connect } from '../../../platform'
 @observer
 export default class Login extends Component {
     @observable qrCode;
-    token;
+    token = '';
     loginTimer;
     qrCodeTimer;
+
+    lastToken;
 
     componentDidMount() {
         axios.defaults.baseURL = Config.APP_SERVER;
@@ -42,7 +43,7 @@ export default class Login extends Component {
                 {
                     <img
                         className="disabledDrag"
-                        src={this.props.avatar} />
+                        src={this.props.avatar}/>
                 }
 
                 <p>Scan successful</p>
@@ -53,8 +54,8 @@ export default class Login extends Component {
 
     async getCode() {
         var response = await axios.post('/pc_session', {
-            token: '',
-            device_name: 'my mac',
+            token: this.token,
+            device_name: 'web',
             clientId: wfc.getClientId(),
             platform: Config.getWFCPlatform()
         });
@@ -74,13 +75,14 @@ export default class Login extends Component {
 
     async refreshQrCode() {
         this.qrCodeTimer = setInterval(() => {
+            this.token = '';
             this.getCode();
         }, 30 * 1000);
     }
 
     async login() {
-        if (!this.token) {
-            console.log('-------- t e');
+        if (this.token === '' || this.lastToken === this.token) {
+            console.log('-------- token is empty or invalid');
             return;
         }
         var response = await axios.post('/session_login/' + this.token);
@@ -88,11 +90,13 @@ export default class Login extends Component {
         if (response.data) {
             switch (response.data.code) {
                 case 0:
+                    this.lastToken = this.token;
                     let userId = response.data.result.userId;
                     let token = response.data.result.token;
                     connect(userId, token);
                     break;
                 default:
+                    this.lastToken = '';
                     console.log(response.data);
                     break
             }
@@ -104,7 +108,7 @@ export default class Login extends Component {
         return (
             <div className={classes.inner}>
                 {
-                    this.qrCode && (<img className="disabledDrag" src={this.qrCode} />)
+                    this.qrCode && (<img className="disabledDrag" src={this.qrCode}/>)
                 }
 
                 <a href={window.location.pathname + '?' + +new Date()}>刷新二维码</a>
