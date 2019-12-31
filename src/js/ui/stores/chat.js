@@ -21,6 +21,8 @@ import resizeImage from 'resize-image';
 import QuitGroupNotification from '../../wfc/messages/notification/quitGroupNotification';
 import DismissGroupNotification from '../../wfc/messages/notification/dismissGroupNotification';
 import KickoffGroupMemberNotification from '../../wfc/messages/notification/kickoffGroupMemberNotification';
+import MessageConfig from "../../wfc/client/messageConfig";
+import PersistFlag from "../../wfc/messages/persistFlag";
 
 async function resolveMessage(message) {
     var auth = await storage.get('auth');
@@ -509,23 +511,28 @@ class Chat {
         return list;
     }
 
-    @action async sendMessage(messgeContent, isForward = false) {
+    @action async sendMessage(messageContent, isForward = false) {
 
         let msg = new Message();
         msg.conversation = self.conversation;
-        msg.messageContent = messgeContent;
+        msg.messageContent = messageContent;
         let m;
+        let flag = MessageConfig.getMessageContentPersitFlag(messageContent.type);
         wfc.sendMessage(msg,
             (messageId, timestamp) => {
+                if (messageId > 0) {
                 m = wfc.getMessageById(messageId);
                 self.messageList.push(m);
+                }
             },
             null,
             (messageUid, timestamp) => {
+                if (PersistFlag.Persist === flag || PersistFlag.Persist_And_Count === flag) {
                 m.messageUid = messageUid;
                 m.status = 1;
                 m.timestamp = timestamp;
 
+                }
             },
             (errorCode) => {
                 console.log('send message failed', errorCode);
@@ -671,8 +678,10 @@ class Chat {
         var m;
         wfc.sendMessage(msg,
             function (messageId, timestamp) {
+                if(messageId > 0){
                 m = wfc.getMessageById(messageId);
                 self.messageList.push(m);
+                }
             },
             (current, total) => {
                 // progress

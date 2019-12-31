@@ -15,7 +15,7 @@ import Config from '../../../config.js';
 @observer
 export default class Voip extends Component {
 
-    static STATUS_IDEL = 0;
+    static STATUS_IDLE = 0;
     static STATUS_OUTGOING = 1;
     static STATUS_INCOMING = 2;
     static STATUS_CONNECTING = 3;
@@ -40,17 +40,17 @@ export default class Voip extends Component {
     callButton;
     hangupButton;
     toVoiceButton;
-    switchMicorphone;
+    switchMicrophone;
     localVideo;
     remoteVideo;
 
     events;
 
-    playIncommingRing() {
+    playIncomingRing() {
         //在界面初始化时播放来电铃声
     }
 
-    stopIncommingRing() {
+    stopIncomingRing() {
         //再接听/语音接听/结束媒体时停止播放来电铃声，可能有多次，需要避免出问题
     }
     voipEventEmit(event, args) {
@@ -90,10 +90,10 @@ export default class Voip extends Component {
             this.targetUserInfo = message.targetUserInfo;
             if (message.moCall) {
                 this.status = Voip.STATUS_OUTGOING;
-                this.starPreview(false, message.voiceOnly);
+                this.startPreview(false, message.voiceOnly);
             } else {
                 this.status = Voip.STATUS_INCOMING;
-                this.playIncommingRing();
+                this.playIncomingRing();
             }
         });
 
@@ -136,7 +136,7 @@ export default class Voip extends Component {
 
     }
 
-    async starPreview(continueStartMedia, audioOnly) {
+    async startPreview(continueStartMedia, audioOnly) {
         console.log('start preview');
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !audioOnly });
@@ -150,6 +150,7 @@ export default class Voip extends Component {
         } catch (e) {
             console.log('getUserMedia error', e);
             alert(`getUserMedia() error: ${e.name}`);
+            this.endCall();
         }
     }
 
@@ -159,7 +160,7 @@ export default class Voip extends Component {
         this.status = Voip.STATUS_CONNECTING;
         this.startTime = window.performance.now();
         if (!this.localStream) {
-            this.starPreview(true, audioOnly);
+            this.startPreview(true, audioOnly);
             return;
         } else {
             console.log('start pc');
@@ -247,7 +248,7 @@ export default class Voip extends Component {
 
     call() {
         console.log('voip on call button click');
-        this.stopIncommingRing();
+        this.stopIncomingRing();
 
         this.status = Voip.STATUS_CONNECTING;
         console.log('on call button call');
@@ -257,9 +258,10 @@ export default class Voip extends Component {
     onCreateSessionDescriptionError(error) {
         console.log('Failed to create session description');
         // console.log(`Failed to create session description: ${error.toString()}`);
+        this.endCall();
     }
 
-    drainOutSingnalingMessage() {
+    drainOutSignalingMessage() {
         console.log('drain pooled msg');
         console.log(this.pooledSignalingMsg.length);
         this.pooledSignalingMsg.forEach((message) => {
@@ -273,7 +275,7 @@ export default class Voip extends Component {
         console.log('pc setRemoteDescription start');
         try {
             await this.pc.setRemoteDescription(desc);
-            this.onSetRemoteSuccess(pc);
+            this.onSetRemoteSuccess(this.pc);
         } catch (e) {
             this.onSetSessionDescriptionError(e);
         }
@@ -297,7 +299,7 @@ export default class Voip extends Component {
             await this.pc.setLocalDescription(desc);
             this.onSetLocalSuccess(this.pc);
             this.pcSetuped = true;
-            this.drainOutSingnalingMessage();
+            this.drainOutSignalingMessage();
         } catch (e) {
             this.onSetSessionDescriptionError();
         }
@@ -316,6 +318,7 @@ export default class Voip extends Component {
 
     onSetSessionDescriptionError(error) {
         console.log(`Failed to set session description: ${error.toString()}`);
+        this.endCall();
     }
 
     gotRemoteStream = (e) => {
@@ -342,7 +345,7 @@ export default class Voip extends Component {
             await this.pc.setLocalDescription(desc);
             this.onSetLocalSuccess(this.pc);
             this.pcSetuped = true;
-            this.drainOutSingnalingMessage();
+            this.drainOutSignalingMessage();
         } catch (e) {
             this.onSetSessionDescriptionError(e);
         }
@@ -374,6 +377,7 @@ export default class Voip extends Component {
 
     onAddIceCandidateError(pc, error) {
         console.log(`failed to add ICE Candidate: ${error.toString()}`);
+        this.endCall();
     }
 
     @action onUpdateTime = () => {
@@ -415,14 +419,14 @@ export default class Voip extends Component {
 
     downToVoice() {
         console.log('down to voice');
-        this.stopIncommingRing();
+        this.stopIncomingRing();
         this.voipEventEmit('downToVoice');
     }
 
     endCall() {
         console.log('Ending media');
-        this.status = Voip.STATUS_IDEL;
-        this.stopIncommingRing();//可能没有接听就挂断了
+        this.status = Voip.STATUS_IDLE;
+        this.stopIncomingRing();//可能没有接听就挂断了
         if (this.callTimer) {
             clearInterval(this.callTimer);
         }
@@ -473,7 +477,7 @@ export default class Voip extends Component {
         this.callButton = this.refs.callButton;
         this.hangupButton = this.refs.hangupButton;
         this.toVoiceButton = this.refs.toVoiceButton;
-        this.switchMicorphone = this.refs.switchMicorphone;
+        this.switchMicrophone = this.refs.switchMicorphone;
         this.localVideo = this.refs.localVideo;
         this.remoteVideo = this.refs.remoteVideo;
 
@@ -723,7 +727,7 @@ export default class Voip extends Component {
     renderVideo() {
         let renderFn;
         switch (this.status) {
-            case Voip.STATUS_IDEL:
+            case Voip.STATUS_IDLE:
                 renderFn = this.renderIdle;
                 break;
             case Voip.STATUS_INCOMING:
@@ -759,7 +763,7 @@ export default class Voip extends Component {
     renderAudio() {
         let renderFn;
         switch (this.status) {
-            case Voip.STATUS_IDEL:
+            case Voip.STATUS_IDLE:
                 renderFn = this.renderIdle;
                 break;
             case Voip.STATUS_INCOMING:
