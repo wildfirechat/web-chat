@@ -9,6 +9,7 @@ import ConversationType from '../../../../wfc/model/conversationType';
 
 import scrollIntoView from 'scroll-into-view-if-needed'
 import smoothScrollIntoView from 'smooth-scroll-into-view-if-needed'
+import wfc from '../../../../wfc/client/wfc'
 
 moment.updateLocale('en', {
     relativeTime: {
@@ -24,7 +25,17 @@ moment.updateLocale('en', {
 
 @inject(stores => ({
     chats: stores.sessions.conversations,
-    chatTo: stores.chat.chatToN,
+    chatTo: (conversation) => {
+        // reload conversation target
+        if (conversation.type === ConversationType.Single) {
+            wfc.getUserInfo(conversation.target, true);
+        } else if (conversation.type === ConversationType.Group) {
+            wfc.getGroupInfo(conversation.target, true);
+            wfc.getGroupMembers(conversation.target, true);
+        }
+
+        stores.chat.chatToN(conversation);
+    },
     conversation: stores.chat.conversation,
     messages: stores.chat.messages,
     markedRead: stores.chat.markedRead,
@@ -114,7 +125,7 @@ export default class Chats extends Component {
         this.props.event.on(EventType.SendMessage, this.onSendMessage);
         this.props.event.on(EventType.ConversationInfoUpdate, this.onConversationInfoUpdate);
         this.props.event.on(EventType.RecallMessage, this.onRecallMessage);
-        this.props.event.on(EventType.DeleteMessage, this.onRecallMessage);
+        this.props.event.on(EventType.DeleteMessage, this.onDeleteMessage);
         this.props.event.on(EventType.SettingUpdate, this.onSettingUpdate);
         this.props.event.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
         this.props.event.on(EventType.UserInfosUpdate, this.onUserInfoUpdate);
@@ -132,7 +143,7 @@ export default class Chats extends Component {
         this.props.event.removeListener(EventType.SendMessage, this.onSendMessage);
         this.props.event.removeListener(EventType.ConversationInfoUpdate, this.onConversationInfoUpdate);
         this.props.event.removeListener(EventType.RecallMessage, this.onRecallMessage);
-        this.props.event.removeListener(EventType.DeleteMessage, this.onRecallMessage);
+        this.props.event.removeListener(EventType.DeleteMessage, this.onDeleteMessage);
         this.props.event.removeListener(EventType.SettingUpdate, this.onSettingUpdate);
         this.props.event.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
         this.props.event.removeListener(EventType.UserInfosUpdate, this.onUserInfoUpdate);
@@ -181,7 +192,10 @@ export default class Chats extends Component {
                         !searching && chats.map((e, index) => {
                             return (
                                 <div key={e.conversation.type + e.conversation.target + e.conversation.line}>
-                                    <ConversationItem key={e.conversation.target + e.conversation.type + e.conversation.line} chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat} currentConversation={conversation} conversationInfo={e} />
+                                    <ConversationItem
+                                        key={e.conversation.target + e.conversation.type + e.conversation.line}
+                                        chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat}
+                                        currentConversation={conversation} conversationInfo={e}/>
                                 </div>
                             )
                             // return <this.conversationItem key={e.conversation.target} chatTo={chatTo} currentConversation={conversation} conversationInfo={e} />

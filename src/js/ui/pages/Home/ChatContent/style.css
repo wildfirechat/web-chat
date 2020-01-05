@@ -179,6 +179,7 @@
         color: #777;
         line-height: 22.65px;
         user-select: text;
+        word-break:normal;
     }
 
     & .times {
@@ -547,6 +548,7 @@
 
     & p {
         padding: 10.82px 40px 8px 14.8px;
+        word-break:normal;
     }
 
     & .times {
@@ -762,6 +764,7 @@
             min-width: 37px;
             padding: 8.32px 11.3px 6px 26px;
             font-size: 13px;
+            word-break:normal;
             line-height: 16px;
         }
 
@@ -958,6 +961,7 @@
 
         & p {
             padding: 8.32px 30px 6px 11.3px;
+            word-break:normal;
         }
 
         & .times {
