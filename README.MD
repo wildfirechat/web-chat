@@ -56,6 +56,8 @@
 
 更多截图，请查看[wewechat readme](./README_wewechat.MD)
 
+## 开发、打包依赖
+1. node，目前我们使用的```node```版本为```v10.16.3```
 
 ## 开发
 ```
@@ -74,9 +76,9 @@ $ npm run build
 ```
 
 ## 本地部署测试
-0. 修改config.js#APP_SERVER为http://localhost:8888
-0. 打包
-1. 本地测试，需要配置nginx，参考配置如下：
+0. 修改```src/js/config.js```文件，将```APP_SERVER```修改为```http://localhost:8888```
+1. 打包
+2. 本地测试，需要配置nginx，参考配置如下：
 ```
     server {
         listen       8888 default_server;
@@ -99,9 +101,9 @@ $ npm run build
         }
     }
 ```
-2. 浏览器访问```http://localhost:8888```
+3. 浏览器访问```http://localhost:8888```
 
-
+   
 
 更多信息，请查看[wewechat readme](./README_wewechat.MD)
 
