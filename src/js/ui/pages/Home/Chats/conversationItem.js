@@ -64,6 +64,12 @@ export default class ConversationItem extends Component {
         return popMenu(templates, conversationInfo, menuId);
     }
 
+    handleError(e) {
+        if(!e.target.src.endsWith('assets/images/user-fallback.png')){
+            e.target.src = 'assets/images/user-fallback.png';
+        }
+    }
+
     render() {
         let e = this.props.conversationInfo;
         let conversation = this.props.currentConversation;
@@ -111,7 +117,7 @@ export default class ConversationItem extends Component {
                                 className="disabledDrag"
                                 // TODO portrait
                                 src={portrait}
-                                onError={e => (e.target.src = 'assets/images/user-fallback.png')}
+                                onError={this.handleError}
                             />
                         </div>
 
@@ -157,7 +163,7 @@ export default class ConversationItem extends Component {
                                         className="disabledDrag"
                                         // TODO portrait
                                         src={portrait}
-                                        onError={e => (e.target.src = 'assets/images/user-fallback.png')}
+                                        onError={this.handleError}
                                     />
                                 </div>
 

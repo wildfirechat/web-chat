@@ -8,8 +8,6 @@ export default class Config {
 
     static STATIC_RESOURCE_PATH = 'https://static.wildfirechat.cn/'
     static APP_SERVER = 'http://wildfirechat.cn:8888';
-    // 用于本地打包验证
-    // static APP_SERVER = 'http://localhost:8888';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
     static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';
     static ICE_USERNAME = 'wfchat';

@@ -11,7 +11,7 @@ export default {
     ...baseConfig,
 
     mode: 'development',
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'cheap-module-source-map',
 
     entry: [
         `webpack-hot-middleware/client?path=http://${host}:${port}/__webpack_hmr`,
@@ -33,6 +33,10 @@ export default {
 
         // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
         new webpack.HotModuleReplacementPlugin(),
+
+        new webpack.ProvidePlugin({
+            "React": "react",
+        }),
 
         new HtmlWebpackPlugin({
             filename: `${config.dist}/src/index.html`,
