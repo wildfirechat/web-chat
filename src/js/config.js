@@ -1,5 +1,6 @@
 import { isElectron } from './platform'
 export default class Config {
+    static DEFAULT_PORTRAIT_URL = 'https://static.wildfirechat.cn/user-fallback.png';
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
     // WebSockets over SSL/TLS
     static USE_WSS = false;
