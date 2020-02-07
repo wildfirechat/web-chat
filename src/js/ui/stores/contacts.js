@@ -62,7 +62,7 @@ class Contacts {
     contactItemName(item) {
         var name = '';
         if (item instanceof UserInfo) {
-            name = item.displayName;
+            name = wfc.getUserDisplayName(item.uid);
         } else if (item instanceof GroupInfo) {
             name = item.name;
         }
@@ -89,15 +89,15 @@ class Contacts {
             });
         }
 
-        if (self.showGroup) {
-            let groupList = wfc.getMyGroupList();
-            groupList.map(e => {
-                let g = wfc.getGroupInfo(e);
-                if (!(g instanceof NullGroupInfo)) {
-                    self.memberList.push(g);
-                }
-            });
-        }
+        // if (self.showGroup) {
+        //     let groupList = wfc.getMyGroupList();
+        //     groupList.map(e => {
+        //         let g = wfc.getGroupInfo(e);
+        //         if (!(g instanceof NullGroupInfo)) {
+        //             self.memberList.push(g);
+        //         }
+        //     });
+        // }
 
         console.log('contacts lenght', self.memberList.length);
         self.loading = false;
@@ -185,10 +185,10 @@ class Contacts {
 
         // Update contact in menu
         if (ipcRenderer) {
-        ipcRenderer.send('menu-update', {
-            contacts: JSON.stringify(self.memberList.filter(e => helper.isContact(e))),
-            cookies: await helper.getCookie(),
-        });
+            ipcRenderer.send('menu-update', {
+                contacts: JSON.stringify(self.memberList.filter(e => helper.isContact(e))),
+                cookies: await helper.getCookie(),
+            });
         }
     }
 

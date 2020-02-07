@@ -5,7 +5,6 @@ import clazz from 'classname';
 
 import classes from './style.css';
 import Loader from 'components/Loader';
-import SearchBar from '../SearchBar';
 import Chats from './Chats';
 import ChatContent from './ChatContent';
 import wfc from '../../../wfc/client/wfc';
@@ -67,7 +66,6 @@ export default class Home extends Component {
                     [classes.hideConversation]: !this.props.showConversation
                 })}>
                     <div className={classes.left}>
-                        <SearchBar />
                         <Chats />
 
                         {
