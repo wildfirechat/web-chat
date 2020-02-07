@@ -25,6 +25,8 @@ moment.updateLocale('en', {
 
 @inject(stores => ({
     chats: stores.sessions.conversations,
+    filtered: stores.sessions.filtered,
+    filter: stores.sessions.filter,
     chatTo: (conversation) => {
         // reload conversation target
         if (conversation.type === ConversationType.Single) {
@@ -121,6 +123,10 @@ export default class Chats extends Component {
         this.props.loadConversations();
     }
 
+    filter(text = '') {
+        text = text.trim();
+        this.props.filter(text);
+    }
     componentWillMount() {
         console.log('chats----------componentWillMount');
         this.props.loadConversations();
@@ -175,19 +181,25 @@ export default class Chats extends Component {
     }
 
     render() {
-        var { loading, chats, conversation, chatTo, searching, markedRead, sticky, removeChat } = this.props;
-
-
-        // if (loading) return false;
-        // var msg = {};
-        // msg.UserName = 'imndx';
-        // msg.from = 'from ';
-        // msg.content = {};
-        // msg.content.searchableContent = 'content';
-        // chats.push(msg);
+        var {chats, filtered, conversation, chatTo, searching, markedRead, sticky, removeChat} = this.props;
+        if (filtered.query) {
+            chats = filtered.result;
+        }
 
         return (
             <div className={classes.container}>
+                <div className={classes.searchBar}>
+                    <i className="icon-ion-ios-search-strong"/>
+                    <input
+                        id="search"
+                        onBlur={e => this.filter('')}
+                        // onFocus={e => this.filter(e.target.value)}
+                        onInput={e => this.filter(e.target.value)}
+                        // onKeyUp={e => this.navigation(e)}
+                        placeholder="搜索 ..."
+                        ref="search"
+                        type="text"/>
+                </div>
                 <div
                     className={classes.chats}
                     ref="container">

@@ -106,7 +106,7 @@ export default class ConversationItem extends Component {
                     onContextMenu={ev => this.showContextMenu(e)}
                     onClick={ev => {
                         chatTo(e.conversation)
-                        // wfc.clearConversationUnreadStatus(e.conversation);
+                        this.props.markedRead(e);
                     }}>
                     <div className={classes.inner}>
                         <div data-aftercontent={txtUnread} className={clazz(classes.dot, {
@@ -128,7 +128,7 @@ export default class ConversationItem extends Component {
 
                             <span
                                 className={classes.message}
-                                dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
+                                dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest(e.lastMessage) : '' }} />
                         </div>
                     </div>
 
@@ -174,7 +174,7 @@ export default class ConversationItem extends Component {
 
                                     <span
                                         className={classes.message}
-                                        dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest() : '' }} />
+                                        dangerouslySetInnerHTML={{ __html: e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest(e.la) : '' }} />
                                 </div>
                             </div>
 

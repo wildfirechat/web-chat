@@ -7,7 +7,7 @@ export default class Config {
     // WSS 的默认端口，其实是443
     static WSS_PORT = 8084;
 
-    static STATIC_RESOURCE_PATH = 'https://static.wildfirechat.cn/'
+    static STATIC_RESOURCE_PATH = 'https://static.wildfirechat.cn/';
     static APP_SERVER = 'http://wildfirechat.cn:8888';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
     static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';

@@ -126,7 +126,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 }))
 @observer
 export default class ChatContent extends Component {
-    latestMessage;
+    lastBottomMessage;
     isAudioPlaying = false;
     arm;
 
@@ -135,7 +135,7 @@ export default class ChatContent extends Component {
 
         if (message.messageContent instanceof UnsupportMessageContent) {
             let unsupportMessageContent = message.messageContent;
-            return emojiParse(unsupportMessageContent.digest());
+            return emojiParse(unsupportMessageContent.digest(message));
         }
 
         switch (MessageConfig.getMessageContentType(message.messageContent)) {
@@ -366,8 +366,8 @@ export default class ChatContent extends Component {
                 `;
             default:
                 let unknownMessageContent = message.messageContent;
-                console.log('unknown', unknownMessageContent.digest(), message);
-                return emojiParse(unknownMessageContent.digest());
+                console.log('unknown', unknownMessageContent.digest(message), message);
+                return emojiParse(unknownMessageContent.digest(message));
         }
     }
 
@@ -390,7 +390,7 @@ export default class ChatContent extends Component {
                     <div
                         key={message.messageUid}
                         className={clazz('unread', classes.message, classes.system)}
-                        dangerouslySetInnerHTML={{ __html: message.messageContent.formatNotification() }} />
+                        dangerouslySetInnerHTML={{__html: message.messageContent.formatNotification(message)}}/>
                 );
             }
 
@@ -435,7 +435,7 @@ export default class ChatContent extends Component {
                             <p
                                 className={classes.username}
                                 //dangerouslySetInnerHTML={{__html: user.DisplayName || user.RemarkName || user.NickName}}
-                                dangerouslySetInnerHTML={{ __html: user.displayName }}
+                                dangerouslySetInnerHTML={{__html: wfc.getUserDisplayName(user.uid)}}
                             />
 
                             {
@@ -713,7 +713,7 @@ export default class ChatContent extends Component {
 
         var templates = [
             {
-                label: `@${userInfo.displayName}`,
+                label: `@${wfc.getGroupMemberDisplayName(this.props.conversation.target, userInfo.uid)}`,
                 click: () => {
                     wfc.eventEmitter.emit('mention', userInfo);
                 }
@@ -856,84 +856,9 @@ export default class ChatContent extends Component {
         }
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     return true;
-    // }
 
     componentDidUpdate() {
-        var viewport = this.refs.viewport;
-        var tips = this.refs.tips;
-
-        if (this.props.conversation) {
-            wfc.clearConversationUnreadStatus(this.props.conversation);
-        }
-
-        if (viewport) {
-            let newestMessage = this.props.messages[this.props.messages.length - 1];
-            let images = viewport.querySelectorAll('img.unload');
-
-            let lastLatestMesage = this.latestMessage;
-            this.latestMessage = newestMessage;
-
-            // Scroll to bottom when you sent message
-            if (newestMessage && newestMessage.direction === 0) {
-                if (!lastLatestMesage || lastLatestMesage.messageId !== newestMessage.messageId) {
-                    viewport.scrollTop = viewport.scrollHeight;
-                    return;
-                }
-            }
-
-            // Scroll to bottom when you receive message and you alread at the bottom
-            if (viewport.clientHeight + viewport.scrollTop === viewport.scrollHeight) {
-                viewport.scrollTop = viewport.scrollHeight;
-                return;
-            }
-
-            /*
-            // Show the unread messages count
-            // TODO unread logic
-            if (viewport.scrollTop < this.scrollTop) {
-                let counter = viewport.querySelectorAll(`.${classes.message}.unread`).length;
-
-                if (counter) {
-                    tips.innerHTML = `You has ${counter} unread messages.`;
-                    tips.classList.add(classes.show);
-                }
-                return;
-            }
-
-            // Auto scroll to bottom when message has been loaded
-            Array.from(images).map(e => {
-                on(e, 'load', ev => {
-                    off(e, 'load');
-                    e.classList.remove('unload');
-                    // viewport.scrollTop = viewport.scrollHeight;
-                    // this.scrollTop = viewport.scrollTop;
-                });
-
-                on(e, 'error', ev => {
-                    var fallback = ev.target.dataset.fallback;
-
-                    if (fallback === 'undefined') {
-                        fallback = 'assets/images/broken.png';
-                    }
-
-                    ev.target.src = fallback;
-                    ev.target.removeAttribute('data-fallback');
-
-                    off(e, 'error');
-                });
-            });
-
-            // Hide the unread message count
-            tips.classList.remove(classes.show);
-            viewport.scrollTop = viewport.scrollHeight;
-            this.scrollTop = viewport.scrollTop;
-
-            // Mark message has been loaded
-            Array.from(viewport.querySelectorAll(`.${classes.message}.unread`)).map(e => e.classList.remove('unread'));
-            */
-        }
+        this.scrollToBottom();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -951,7 +876,7 @@ export default class ChatContent extends Component {
         var title;
         let target = this.props.target;
         if (target instanceof UserInfo) {
-            title = this.props.target.displayName;
+            title = wfc.getUserDisplayName(this.props.target.uid);
         } else if (target instanceof GroupInfo) {
             title = target.name;
         } else {
@@ -1006,11 +931,13 @@ export default class ChatContent extends Component {
                             <div
                                 className={classes.messages}
                                 // onScroll={e => this.handleScroll(e)}
-                                ref="viewport">
+                                ref={(div) => {
+                                    this.messageList = div;
+                                }}>
                                 <InfiniteScroll
                                     pageStart={0}
                                     loadMore={this.loadFunc}
-                                    initialLoad={false}
+                                    initialLoad={true}
                                     isReverse={true}
                                     hasMore={true}
                                     loader={<div className="loader" key={0}>Loading ...</div>}
@@ -1043,6 +970,25 @@ export default class ChatContent extends Component {
                 <PreviewImage onRef={ref => (this.previewImage = ref)} />
             </div>
         );
+    }
+
+    scrollToBottom = () => {
+        if (this.props.messages && this.props.messages.length > 0) {
+            let currentBottomMessage = this.props.messages[this.props.messages.length - 1];
+            if (this.lastBottomMessage && this.lastBottomMessage.messageId === currentBottomMessage.messageId) {
+                console.log('not scroll to bottom', this.lastBottomMessage.messageId, currentBottomMessage.messageId);
+                return;
+            }
+            console.log('scroll to bottom');
+            this.lastBottomMessage = currentBottomMessage;
+        }
+
+        if (this.messageList) {
+            const scrollHeight = this.messageList.scrollHeight;
+            const height = this.messageList.clientHeight;
+            const maxScrollTop = scrollHeight - height;
+            this.messageList.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+        }
     }
 
     loadFunc = () => {
