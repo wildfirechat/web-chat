@@ -140,8 +140,8 @@ export default class ConversationItem extends Component {
                 </div>
             );
         } else {
-            let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.linei : '';
-            let menuId = `conversation_item_${conversationKey}`
+            let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.line : '';
+            let menuId = `conversation_item_${conversationKey}`;
             return (
                 <div>
                     <ContextMenuTrigger id={menuId} >
@@ -151,7 +151,7 @@ export default class ConversationItem extends Component {
                                 [classes.active]: this.active,
                             })}
                             onClick={ev => {
-                                chatTo(e.conversation)
+                                chatTo(e.conversation);
                                 this.props.markedRead(e);
                             }}>
                             <div className={classes.inner}>
