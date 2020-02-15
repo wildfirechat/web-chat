@@ -13,7 +13,6 @@ import AddFriend from './AddFriend';
 import NewChat from './NewChat';
 import Members from './Members';
 import AddMember from './AddMember';
-import BatchSend from './BatchSend';
 import Forward from './Forward';
 import ConfirmImagePaste from './ConfirmImagePaste';
 import Loader from 'components/Loader';
@@ -47,7 +46,6 @@ export default class Layout extends Component {
 
     componentDidMount() {
         if (isElectron()) {
-
             var templates = [
                 {
                     label: 'Undo',
@@ -105,6 +103,7 @@ export default class Layout extends Component {
         //         offline: false,
         //     });
         // });
+
 
         if (window.process && window.process.platform === 'win32') {
             document.body.classList.add('isWin');
@@ -211,7 +210,6 @@ export default class Layout extends Component {
                 <AddFriend />
                 <NewChat />
                 <Members />
-                <BatchSend />
                 <AddMember />
                 <ConfirmImagePaste />
                 <Forward />

@@ -183,8 +183,8 @@ class WfcControlAdaper {
         {
           width: 360,
           height: 640 + 15,
-          resizable: false,
-          maximizable: false,
+          resizable: true,
+          maximizable: true,
           webPreferences: {
             scrollBounce: true,
             nativeWindowOpen: true,
@@ -206,7 +206,6 @@ class WfcControlAdaper {
           self.destory();
         }
       });
-
 
       win.loadURL(path.join('file://', AppPath, 'src/index.html?voip'));
       win.show();

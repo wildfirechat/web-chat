@@ -163,6 +163,7 @@ export default class MessageInput extends Component {
         let textMessageContent = this.handleMention(message);
         this.props.sendMessage(textMessageContent);
         this.refs.input.value = '';
+        wfc.setConversationDraft(conversation, '');
         e.preventDefault();
     }
 
@@ -317,17 +318,22 @@ export default class MessageInput extends Component {
 
     componentWillReceiveProps(nextProps) {
         var input = this.refs.input;
+        if(!input){
+            return;
+        }
 
         if (
-            true
-            && input
-            && input.value
-            && this.props.conversation
+            this.props.conversation
             && !this.props.conversation.equal(nextProps.conversation)
         ) {
-            // When user has changed clear the input
-            // TODO save draft
-            input.value = '';
+            let text = input.value.trim();
+            let conversationInfo = wfc.getConversationInfo(this.props.conversation);
+            if(text !== conversationInfo.draft){
+                wfc.setConversationDraft(this.props.conversation, text)
+            }
+
+            conversationInfo = wfc.getConversationInfo(nextProps.conversation);
+            input.value = conversationInfo.draft ? conversationInfo.draft : '';
             if (this.tribute) {
                 this.tribute.detach(document.getElementById('messageInput'));
                 this.tribute = null;
@@ -337,6 +343,8 @@ export default class MessageInput extends Component {
                 this.initMention(nextProps.conversation);
             }
         } else if (nextProps.conversation) {
+            let conversationInfo = wfc.getConversationInfo(nextProps.conversation);
+            input.value = conversationInfo.draft ? conversationInfo.draft : '';
             if (!this.tribute && this.shouldHandleMention(nextProps.conversation)) {
                 this.initMention(nextProps.conversation);
             }

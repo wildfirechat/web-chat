@@ -6,6 +6,7 @@ import CallAnswerMessageContent from './messages/callAnswerMessageContent';
 import CallAnswerTMessageContent from './messages/callAnswerTMessageContent';
 import CallStartMessageContent from './messages/callStartMessageContent';
 import CallModifyMessageContent from './messages/callModifyMessageContent';
+import ConversationType from '../model/conversationType';
 import AVEngineState from './avEngineState';
 import AVEngineEvent from './avEngineEvent';
 import AVCallEndReason from './avCallEndReason';
@@ -120,7 +121,7 @@ export class WfcAVEngineKit {
     onReceiveMessage = (msg) => {
         console.log('reveive message ', msg);
         var now = (new Date()).valueOf();
-        if (msg.timestamp - now < 90 * 1000) { // 需要处理deltatime
+        if (msg.conversation.type  === ConversationType.Single && msg.timestamp - now < 90 * 1000) { // 需要处理deltatime
             var content = msg.messageContent;
             if (msg.direction === 1 || msg.messageContent.type === MessageContentType.VOIP_CONTENT_TYPE_ACCEPT) {
                 if (msg.messageContent.type === MessageContentType.VOIP_CONTENT_TYPE_SIGNAL) {
@@ -132,14 +133,12 @@ export class WfcAVEngineKit {
                     if (msg.from !== self.currentSession.clientId || signal.callId !== self.currentSession.callId) {
                         self.rejectOtherCall(content.callId, msg.fromUser);
                     } else {
-                        if (self.currentSession && (self.currentSession.state === AVEngineState.kWFAVEngineStateConnecting || self.currentSession.state === AVEngineState.kWFAVEngineStateConnected)) {
+                        if (self.currentSession && (self.currentSession.state === AVEngineState.kWFAVEngineStateConnecting || self.currentSession.state === AVEngineState.kWFAVEngineStateConnected || self.currentSession.state === AVEngineState.kWFAVEngineStateOutgoing)) {
                             self.onReceiveData(signal.payload);
-                        } else if (self.currentSession && self.currentSession.state === AVEngineState.kWFAVEngineStateOutgoing) {
-                            console.log('signal message come too early!');
                         }
                     }
                 } else if (msg.messageContent.type === MessageContentType.VOIP_CONTENT_TYPE_START) {
-                    if (content.targetId !== wfc.getUserId()) {
+                    if (content.targetIds[0] !== wfc.getUserId()) {
                         return;
                     }
                     if (self.currentSession && self.currentSession.state !== AVEngineState.kWFAVEngineStateIdle) {
@@ -167,7 +166,7 @@ export class WfcAVEngineKit {
                                 self.rejectOtherCall(content.callId, msg.fromUser);
                             } else {
                                 if (self.currentSession.state === AVEngineState.kWFAVEngineStateIncomming) {
-                                    self.currentSession.endCall(AVCallEndReason.AVCallEndReason.kWFAVCallEndReasonAcceptByOtherClient);
+                                    self.currentSession.endCall(AVCallEndReason.kWFAVCallEndReasonAcceptByOtherClient);
                                 }
                             }
                         } else if (self.currentSession.state === AVEngineState.kWFAVEngineStateConnecting || self.currentSession.state === AVEngineState.kWFAVEngineStateConnected) {
@@ -239,7 +238,7 @@ export class WfcAVEngineKit {
     }
 
     onIceCandidate(candidate) {
-        console.log("send engine candidate");
+        console.log("send engine candidate", candidate);
         self.sendSignalingMessage(candidate, true);
     }
 
@@ -267,7 +266,7 @@ export class WfcAVEngineKit {
         }
     }
     showCallUI(isMoCall, audioOnly) {
-        //   controlAdapter.setOnCallWindowsClose(self.onCallWindowClose);
+          controlAdapter.setOnCallWindowsClose(self.onCallWindowClose);
         controlAdapter.setOnReceiveOffer(self.onReceiveOffer);
         controlAdapter.setOnCreateAnswerOffer(self.onCreateAnswerOffer);
         controlAdapter.setOnIceCandidate(self.onIceCandidate);
@@ -301,12 +300,13 @@ export class WfcAVEngineKit {
         let startMessage = new CallStartMessageContent();
         startMessage.audioOnly = audioOnly;
         startMessage.callId = callId;
-        startMessage.targetId = conversation.target;
+        startMessage.targetIds = [conversation.target];
 
         this.sendSignalMessage(startMessage, conversation.target, true);
     }
 
     sendSignalMessage(msg, targetId, keyMsg) {
+        console.log('send signal message', msg);
         wfc.sendConversationMessage(self.currentSession.conversation, msg, [], function (messageId, timestamp) {
 
         }, function (uploaded, total) {

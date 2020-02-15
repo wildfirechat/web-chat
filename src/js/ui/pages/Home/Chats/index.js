@@ -1,7 +1,6 @@
-
-import { inject, observer } from 'mobx-react';
+import {inject, observer} from 'mobx-react';
 import moment from 'moment';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import EventType from '../../../../wfc/client/wfcEvent';
 import ConversationItem from './conversationItem';
 import classes from './style.css';
@@ -44,7 +43,6 @@ moment.updateLocale('en', {
     sticky: stores.sessions.sticky,
     removeChat: stores.sessions.removeConversation,
     loading: stores.sessions.loading,
-    searching: stores.search.searching,
     event: stores.wfc.eventEmitter,
     loadConversations: stores.sessions.loadConversations,
     reloadConversation: stores.sessions.reloadConversation,
@@ -109,12 +107,12 @@ export default class Chats extends Component {
     }
 
     onUserInfoUpdate = (userInfos) => {
-        userInfos.forEach((userInfo)=>{
+        userInfos.forEach((userInfo) => {
             let userId = userInfo.uid;
             this.props.chats.forEach((c) => {
-            if (c.conversation.type === ConversationType.Single && c.conversation.target === userId) {
-                this.props.reloadConversation(c.conversation);
-            }
+                if (c.conversation.type === ConversationType.Single && c.conversation.target === userId) {
+                    this.props.reloadConversation(c.conversation);
+                }
             });
         });
     }
@@ -127,6 +125,7 @@ export default class Chats extends Component {
         text = text.trim();
         this.props.filter(text);
     }
+
     componentWillMount() {
         console.log('chats----------componentWillMount');
         this.props.loadConversations();
@@ -170,21 +169,26 @@ export default class Chats extends Component {
             // Keep the conversation always in the viewport
             if (!(rect4active.top >= rect4viewport.top
                 && rect4active.bottom <= rect4viewport.bottom)) {
-
                 const scrollIntoViewSmoothly =
                     'scrollBehavior' in document.documentElement.style
                         ? scrollIntoView
                         : smoothScrollIntoView
-                scrollIntoViewSmoothly(active, { behavior: 'smooth' })
+                scrollIntoViewSmoothly(active, {behavior: 'smooth'})
             }
         }
     }
 
     render() {
-        var {chats, filtered, conversation, chatTo, searching, markedRead, sticky, removeChat} = this.props;
+        var {chats, filtered, conversation, chatTo, markedRead, sticky, removeChat} = this.props;
         if (filtered.query) {
             chats = filtered.result;
         }
+        let chatToEx = (c) => {
+            if (filtered.query) {
+                this.filter('');
+            }
+            chatTo(c);
+        };
 
         return (
             <div className={classes.container}>
@@ -192,11 +196,11 @@ export default class Chats extends Component {
                     <i className="icon-ion-ios-search-strong"/>
                     <input
                         id="search"
-                        onBlur={e => this.filter('')}
                         // onFocus={e => this.filter(e.target.value)}
                         onInput={e => this.filter(e.target.value)}
                         // onKeyUp={e => this.navigation(e)}
-                        placeholder="搜索 ..."
+                        placeholder={filtered.query ? '' : '搜索 ...'}
+                        value={filtered.query ? filtered.query : ''}
                         ref="search"
                         type="text"/>
                 </div>
@@ -204,13 +208,16 @@ export default class Chats extends Component {
                     className={classes.chats}
                     ref="container">
                     {
-                        !searching && chats.map((e, index) => {
+                        chats.map((e, index) => {
                             return (
                                 <div key={e.conversation.type + e.conversation.target + e.conversation.line}>
                                     <ConversationItem
                                         key={e.conversation.target + e.conversation.type + e.conversation.line}
-                                        chatTo={chatTo} markedRead={markedRead} sticky={sticky} removeChat={removeChat}
-                                        currentConversation={conversation} conversationInfo={e}/>
+                                        chatTo={chatToEx} markedRead={markedRead} sticky={sticky}
+                                        removeChat={removeChat}
+                                        currentConversation={conversation} conversationInfo={e}
+                                        isSearching={!!filtered.query}
+                                    />
                                 </div>
                             )
                             // return <this.conversationItem key={e.conversation.target} chatTo={chatTo} currentConversation={conversation} conversationInfo={e} />

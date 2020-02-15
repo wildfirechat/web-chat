@@ -7,7 +7,6 @@ import classes from './style.css';
 import { ipcRenderer, isElectron, currentWindow, PostMessageEventEmitter } from '../../../platform'
 import { observable, action } from 'mobx';
 import Config from '../../../config.js';
-import wfc from '../../../wfc/client/wfc'
 
 @inject(stores => ({
     avatar: stores.sessions.avatar,
@@ -33,6 +32,7 @@ export default class Voip extends Component {
     moCall; // true, outgoing; false, incoming
     isInitiator;
     pcSetuped;
+    queuedOffer;
     pooledSignalingMsg = [];
     startTime;
     localStream;
@@ -47,6 +47,18 @@ export default class Voip extends Component {
     remoteVideo;
 
     events;
+    drainOfferMessage() {
+        if (!this.queuedOffer) {
+            return false;
+        }
+
+        this.onReceiveRemoteCreateOffer(queuedOffer);
+        this.queuedOffer = null;
+    }
+
+    queueOfferMessage(desc) {
+        this.queuedOffer = desc;
+    }
 
     playIncomingRing() {
         //在界面初始化时播放来电铃声
@@ -90,7 +102,7 @@ export default class Voip extends Component {
             this.moCall = message.moCall;
             this.audioOnly = message.audioOnly;
             this.targetUserInfo = message.targetUserInfo;
-            this.targetUserDisplayName = wfc.getUserDisplayName(message.targetUserInfo.uid);
+            this.targetUserDisplayName = message.targetUserDisplayName;
             
             if (message.moCall) {
                 this.status = Voip.STATUS_OUTGOING;
@@ -218,11 +230,14 @@ export default class Voip extends Component {
                     offerToReceiveVideo: !audioOnly
                 }
                 const offer = await this.pc.createOffer(offerOptions);
+                var mutableOffer = JSON.parse(JSON.stringify(offer));
+                mutableOffer.type = 'offer';
                 await this.onCreateOfferSuccess(offer);
             } catch (e) {
                 this.onCreateSessionDescriptionError(e);
             }
         }
+        this.drainOfferMessage();
     }
 
     downgrade2Voice() {
@@ -276,6 +291,10 @@ export default class Voip extends Component {
 
     async onReceiveRemoteCreateOffer(desc) {
         console.log('pc setRemoteDescription start');
+        if (this.status !== Voip.STATUS_CONNECTING && this.status !== Voip.STATUS_CONNECTED) {
+            this.queueOfferMessage(desc);
+            return;
+        }
         try {
             await this.pc.setRemoteDescription(desc);
             this.onSetRemoteSuccess(this.pc);
@@ -289,6 +308,8 @@ export default class Voip extends Component {
         // accept the incoming offer of audio and video.
         try {
             const answer = await this.pc.createAnswer();
+            var mutableAnswer = JSON.parse(JSON.stringify(answer));
+            mutableAnswer.type = 'answer';
             await this.onCreateAnswerSuccess(answer);
         } catch (e) {
             this.onCreateSessionDescriptionError(e);
@@ -366,7 +387,13 @@ export default class Voip extends Component {
             return;
         }
         try {
-            this.voipEventEmit('onIceCandidate', JSON.stringify(event.candidate));
+            let candidate = {
+                type: 'candidate',
+                label: event.candidate.sdpMLineIndex,
+                id: event.candidate.sdpMid,
+                candidate: event.candidate.candidate
+            };
+            this.voipEventEmit('onIceCandidate', JSON.stringify(candidate));
             this.onAddIceCandidateSuccess(pc);
         } catch (e) {
             this.onAddIceCandidateError(pc, e);
