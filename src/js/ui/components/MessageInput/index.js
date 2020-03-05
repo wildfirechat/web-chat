@@ -1,6 +1,8 @@
 
 import React, { Component } from 'react';
+import Popup from "reactjs-popup";
 import PropTypes from 'prop-types';
+import Checkbox from 'rc-checkbox';
 import { ipcRenderer, isElectron } from '../../../platform';
 import clazz from 'classname';
 
@@ -16,7 +18,8 @@ import EventType from '../../../wfc/client/wfcEvent';
 import GroupInfo from '../../../wfc/model/groupInfo';
 import GroupType from '../../../wfc/model/groupType';
 import GroupMemberType from '../../../wfc/model/groupMemberType';
-import avenginekit from '../../../wfc/av/avenginekit';
+import avenginekitProxy from '../../../wfc/av/engine/avenginekitproxy';
+import CheckBox from "rc-checkbox";
 
 export default class MessageInput extends Component {
     static propTypes = {
@@ -176,11 +179,11 @@ export default class MessageInput extends Component {
     }
 
     audioCall(show = !this.state.showEmoji) {
-        avenginekit.startCall(this.props.conversation, true);
+        avenginekitProxy.startCall(this.props.conversation, true, [this.props.conversation.target]);
     }
 
     videoCall(show = !this.state.showEmoji) {
-        avenginekit.startCall(this.props.conversation, false);
+        avenginekitProxy.startCall(this.props.conversation, false, [this.props.conversation.target]);
     }
 
     async screenShot() {
@@ -362,9 +365,61 @@ export default class MessageInput extends Component {
         }
     }
 
+    pickGroupMemberToVoip(audioOnly, close) {
+        let groupMemberIds = wfc.getGroupMemberIds(this.props.conversation.target);
+        let userInfos = wfc.getUserInfos(groupMemberIds, this.props.conversation.target);
+
+        let checkedIds = new Set();
+        let onChange = (e) => {
+            if (e.target.checked) {
+                checkedIds.add(e.target.name);
+            } else {
+                checkedIds.delete(e.target.name);
+            }
+        };
+
+        let startCall = () => {
+            if (checkedIds.size > 0) {
+                avenginekitProxy.startCall(this.props.conversation, audioOnly, [...checkedIds])
+            }
+
+            close();
+        }
+
+        let selfUid = wfc.getUserId();
+
+        return (
+            <div style={{margin: 20}}>
+                <div className={classes.voipTargetList}>
+                    {
+                        userInfos.map(u => {
+                            return (
+                                <p key={u.uid}>
+                                    <label>
+                                        <Checkbox
+                                            type="checkbox"
+                                            defaultChecked={u.uid === selfUid}
+                                            disabled={u.uid === selfUid}
+                                            onChange={onChange}
+                                            name={u.uid}
+                                        />
+                                        {u.displayName}
+                                    </label>
+                                </p>
+                            )
+                        })
+
+                    }
+                </div>
+
+                <button onClick={startCall}>start call</button>
+            </div>
+        )
+    }
     render() {
         var canisend = this.canisend();
         let canStartVoip = this.props.conversation && this.props.conversation.type === ConversationType.Single;
+        let isGroup = this.props.conversation && this.props.conversation.type === ConversationType.Group;
 
         return (
             <div
@@ -391,17 +446,60 @@ export default class MessageInput extends Component {
                         onClick={e => canisend && this.refs.uploader.click()}
                     />
 
+                    {
+                        isGroup ? (
+                            <Popup key={'voip-video'}
+                                   trigger={
+                                       <i
+                                           className="icon-ion-android-camera"
+                                           id="videoCall"
+                                       />
+                                   }
+                                   modal
+                                   closeOnDocumentClick
+                                   position={"top center"}
+                            >
+                                {close => (
+                                    this.pickGroupMemberToVoip(false, close)
+                                )
+                                }
+                            </Popup>
+
+                        ) : (
                     <i
                         className="icon-ion-android-camera"
                         id="videoCall"
                         onClick={e => canisend && canStartVoip && this.videoCall()}
                     />
+                        )
+                    }
 
+                    {
+                        isGroup ? (
+                            <Popup key={'voip-audio'}
+                                   trigger={
+                                       <i
+                                           className="icon-ion-ios-telephone"
+                                           id="audioCall"
+                                       />
+                                   }
+                                   modal
+                                   closeOnDocumentClick={true}
+                            >
+                                {close => (
+                                    this.pickGroupMemberToVoip(true, close)
+                                )
+                                }
+                            </Popup>
+
+                        ) : (
                     <i
                         className="icon-ion-ios-telephone"
                         id="audioCall"
                         onClick={e => canisend && canStartVoip && this.audioCall()}
                     />
+                        )
+                    }
 
                     <i
                         className="icon-ion-ios-heart"

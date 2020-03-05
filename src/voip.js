@@ -6,23 +6,22 @@ import './global.css';
 import './assets/fonts/icomoon/style.css';
 import 'utils/albumcolors';
 import stores from './js/ui/stores';
-import Voip from './js/ui/components/Voip';
+import MultiVoip from './js/ui/pages/Voip/multi';
+import SingleVoip from './js/ui/pages/Voip/single';
 
 export default class VoipApp extends Component {
-    async componentWillMount() {
-    }
 
     componentDidMount() {
 
     }
 
     render() {
+        let type = this.props.type;
         return (
             <Provider {...stores}>
-                {/* <HashRouter ref="navigator">
-                    {getRoutes()}
-                </HashRouter> */}
-                <Voip />
+                {
+                    type === 'single' ? <SingleVoip/> : <MultiVoip/>
+                }
             </Provider>
         );
     }
