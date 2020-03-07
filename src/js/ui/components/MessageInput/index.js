@@ -420,6 +420,7 @@ export default class MessageInput extends Component {
         var canisend = this.canisend();
         let canStartVoip = this.props.conversation && this.props.conversation.type === ConversationType.Single;
         let isGroup = this.props.conversation && this.props.conversation.type === ConversationType.Group;
+        let enableMultiCall = false;
 
         return (
             <div
@@ -448,6 +449,7 @@ export default class MessageInput extends Component {
 
                     {
                         isGroup ? (
+                            !enableMultiCall ? '' :
                             <Popup key={'voip-video'}
                                    trigger={
                                        <i
@@ -476,6 +478,7 @@ export default class MessageInput extends Component {
 
                     {
                         isGroup ? (
+                            !enableMultiCall ? '' :
                             <Popup key={'voip-audio'}
                                    trigger={
                                        <i

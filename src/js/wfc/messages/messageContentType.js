@@ -26,7 +26,6 @@ export default class MessageContentType {
     static ChangeGroupName_Notification = 110;
     static ModifyGroupAlias_Notification = 111;
     static ChangeGroupPortrait_Notification = 112;
-
     static MuteGroupMember_Notification = 113;
     static ChangeJoinType_Notification = 114;
     static ChangePrivateChat_Notification = 115;
@@ -39,4 +38,6 @@ export default class MessageContentType {
     static VOIP_CONTENT_TYPE_MODIFY = 404;
     static VOIP_CONTENT_TYPE_ACCEPT_T = 405;
     static VOIP_CONTENT_TYPE_ADD_PARTICIPANT = 406;
+    static VOIP_CONTENT_TYPE_MUTE_VIDEO = 407;
+
 }

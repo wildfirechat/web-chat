@@ -85,6 +85,9 @@ export default class Voip extends Component {
             this.participantUserInfos.push(userInfo);
         };
 
+        sessionCallback.didVideoMuted = (userId, muted) => {
+            console.log('video muted', userId, muted);
+        }
         sessionCallback.didParticipantLeft = (userId, callEndReason) => {
             this.participantUserInfos = this.participantUserInfos.filter(u => u.uid !== userId);
         };

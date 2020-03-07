@@ -31,6 +31,7 @@ import CallByeMessageContent from '../av/messages/callByeMessageContent';
 import CallSignalMessageContent from '../av/messages/callSignalMessageContent';
 import CallModifyMessageContent from '../av/messages/callModifyMessageContent';
 import AddParticipantsMessageContent from "../av/messages/addParticipantsMessageContent";
+import MuteVideoMessageContent from "../av/messages/muteVideoMessageContent";
 export default class MessageConfig {
     static getMessageContentClazz(type) {
         for (const content of MessageConfig.MessageContents) {
@@ -55,7 +56,6 @@ export default class MessageConfig {
         }
         return flag;
     }
-
     static getMessageContentPersitFlag(type) {
         for (const content of MessageConfig.MessageContents) {
             if (content.type === type) {
@@ -261,6 +261,12 @@ export default class MessageConfig {
             flag: PersistFlag.Persist,
             type: MessageContentType.VOIP_CONTENT_TYPE_ADD_PARTICIPANT,
             contentClazz: AddParticipantsMessageContent,
+        },
+        {
+            name: 'callMuteVideo',
+            flag: PersistFlag.No_Persist,
+            type: MessageContentType.VOIP_CONTENT_TYPE_MUTE_VIDEO,
+            contentClazz: MuteVideoMessageContent,
         },
     ];
 }
