@@ -204,8 +204,8 @@ export default class Voip extends Component {
                 <div>
                     <p style={{visibility: 'hidden'}}>holder</p>
                     <img ref="toVoiceButton"
-                         src='assets/images/av_phone.png'
-                         onClick={() => this.session.downgrade2Voice()}
+                         src='assets/images/av_video_answer.png'
+                         onClick={() => this.session.setVideoEnabled(!this.session.videoMuted)}
                     />
                     <p>关闭/打开摄像头</p>
                 </div>
