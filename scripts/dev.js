@@ -1,4 +1,3 @@
-
 /**
  * Setup and run the development server for Hot-Module-Replacement
  * https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
@@ -25,6 +24,7 @@ app.use(
     })
 );
 app.use(webpackHotMiddleware(compiler));
+app.use(express.static(__dirname + '/../src'));
 
 app.listen(config.server.port, config.server.host, err => {
     if (err) {
