@@ -75,11 +75,11 @@ $ npm run build
 ```
 
 ## 服务器部署
+0. 修改```config/index.js```文件里面的```STATIC_RESOURCE_PATH```，让其指向打算部署```web-chat```的服务器
 1. ``` npm run release```
 2. 将dist目录传到服务器
-3. 配置nginx
+3. 配置nginx，可参考[nginx参考配置](nginx/web.conf)
 
-   
 
 更多信息，请查看[wewechat readme](./README_wewechat.MD)
 

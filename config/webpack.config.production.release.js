@@ -1,4 +1,3 @@
-
 import path from 'path';
 import webpack from 'webpack';
 import config from './index';
@@ -19,7 +18,7 @@ export default {
     ],
 
     output: {
-        publicPath: 'https://static.wildfirechat.cn/',
+        publicPath: config.STATIC_RESOURCE_PATH,
         path: `${config.dist}/src`,
         filename: 'wfc.[hash].js'
     },
