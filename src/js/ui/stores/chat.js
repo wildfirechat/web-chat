@@ -392,7 +392,7 @@ class Chat {
             'doc': MessageContentMediaType.File,
         }[mediaType];
 
-        var messageContent;
+        let messageContent;
         switch (messageContentmediaType) {
             case MessageContentMediaType.Image:
                 let imageThumbnail = await self.imageThumbnail(file);
