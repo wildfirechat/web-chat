@@ -1,5 +1,5 @@
 import Conversation from '../model/conversation';
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
 import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
 import atob from 'atob';
@@ -8,6 +8,7 @@ import btoa from 'btoa';
 import impl from '../proto/proto.min';
 import Config from "../../config";
 import avenginekit from "../av/engine/avenginekitproxy";
+import UserSettingScope from "./userSettingScope";
 
 // 其实就是imclient，后续可能需要改下名字
 export class WfcManager {
@@ -51,7 +52,10 @@ export class WfcManager {
     }
 
     getMyGroupList() {
-        return impl.getMyGroupList();
+        let settings = this.getUserSettings(UserSettingScope.FavoriteGroup);
+        let groupInfos = settings.filter(setting => setting.value === '1')
+            .map(setting => this.getGroupInfo(setting.key, false));
+        return groupInfos;
     }
 
     getUserDisplayName(userId) {
@@ -85,8 +89,8 @@ export class WfcManager {
 
     getUserInfos(userIds, groupId) {
         let userInfos = impl.getUserInfos(userIds, groupId);
-        userInfos.forEach((u)=>{
-            if(!u.portrait){
+        userInfos.forEach((u) => {
+            if (!u.portrait) {
                 u.portrait = Config.DEFAULT_PORTRAIT_URL;
             }
         });
@@ -156,6 +160,7 @@ export class WfcManager {
     async setFriendAlias(userId, alias, successCB, failCB) {
         impl.setFriendAlias(userId, alias, successCB, failCB);
     }
+
     async createGroup(groupId, groupType, name, portrait, memberIds = [], lines = [0], notifyContent, successCB, failCB) {
         impl.createGroup(groupId, groupType, name, portrait, memberIds, lines, notifyContent, successCB, failCB);
     }
@@ -366,17 +371,25 @@ export class WfcManager {
         return impl.isMyFriend(userId);
     }
 
+    /**
+     *
+     * @param {string} userId 目标用户的uid
+     * @param {string} reason 添加好友的理由
+     * @param {function} successCB 回调的话，没有参数
+     * @param {function} failCB 回调里面包含errorCode
+     * @returns {Promise<void>}
+     */
     async sendFriendRequest(userId, reason, successCB, failCB) {
         impl.sendFriendRequest(userId, reason, successCB, failCB);
     }
 
     /**
-     * 
+     *
      * @param {Conversation} conversation
-     * @param {number} fromIndex 
-     * @param {boolean} before 
-     * @param {number} count 
-     * @param {string} withUser 
+     * @param {number} fromIndex
+     * @param {boolean} before
+     * @param {number} count
+     * @param {string} withUser
      */
     getMessages(conversation, fromIndex, before = true, count = 20, withUser = '') {
         return impl.getMessages(conversation, fromIndex, before, count, withUser);
@@ -425,10 +438,10 @@ export class WfcManager {
     }
 
     /**
-     * 
-     * @param {Conversation} conversation 
-     * @param {MessageContent} messageContent 
-     * @param {MessageStatus} status 
+     *
+     * @param {Conversation} conversation
+     * @param {MessageContent} messageContent
+     * @param {MessageStatus} status
      * @param {boolean} notify 是否触发onReceiveMessage
      * @param {Number} serverTime 服务器时间，精度到毫秒
      */
@@ -450,19 +463,22 @@ export class WfcManager {
 
     _getStore() {
         return impl._getStore();
-}
+    }
+
     init(args = []) {
         impl.init(args);
         avenginekit.setup(self);
     }
+
     utf8_to_b64(str) {
         return btoa(unescape(encodeURIComponent(str)));
-}
+    }
 
     b64_to_utf8(str) {
         return decodeURIComponent(escape(atob(str)));
     }
 }
+
 const self = new WfcManager();
 export default self;
 
