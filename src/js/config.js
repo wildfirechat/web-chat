@@ -9,7 +9,7 @@ export default class Config {
     static WSS_PORT = 8084;
 
     // APP SERVER的地址，启用https时，APP SERVER也需要支持https
-    static APP_SERVER = 'https://web.wildfirechat.cn';
+    static APP_SERVER = 'https://app.wildfirechat.cn';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
     static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';
     static ICE_USERNAME = 'wfchat';
