@@ -4,11 +4,14 @@ export default class Config {
     static DEFAULT_PORTRAIT_URL = 'https://static.wildfirechat.cn/user-fallback.png';
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
     // WebSockets over SSL/TLS
-    static USE_WSS = false;
-    // WSS 的默认端口，其实是443
+    static USE_WSS = true;
+    // WSS 端口
     static WSS_PORT = 8084;
 
-    static APP_SERVER = 'http://wildfirechat.cn:8888';
+    // APP SERVER的地址
+    static APP_SERVER = 'https://web.wildfirechat.cn';
+    // APP SERVER未配置https
+    //static APP_SERVER = 'http://wildfirechat.cn:8888';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
     static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';
     static ICE_USERNAME = 'wfchat';
