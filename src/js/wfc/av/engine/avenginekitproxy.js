@@ -6,6 +6,7 @@ import wfc from "../../client/wfc";
 import MessageConfig from "../../client/messageConfig";
 import CallByeMessageContent from "../messages/callByeMessageContent";
 import DetectRTC from 'detectrtc';
+import Config from "../../../config";
 
 const path = require('path');
 
@@ -68,6 +69,10 @@ export class AvEngineKitProxy {
             console.log('not support voip, just ignore voip message')
             return;
         }
+        if (!Config.ENABLE_MULTI_VOIP_CALL && msg.conversation.type === ConversationType.Group) {
+            console.log('not enable multi call ');
+            return;
+        }
         let now = (new Date()).valueOf();
         let delta = wfc.getServerDeltaTime();
         if ((msg.conversation.type === ConversationType.Single || msg.conversation.type === ConversationType.Group) && now - (msg.timestamp - delta) < 90 * 1000) {
@@ -82,10 +87,10 @@ export class AvEngineKitProxy {
                 || content.type === MessageContentType.VOIP_CONTENT_TYPE_MUTE_VIDEO
             ) {
                 console.log("receive voip message", msg);
-                if(msg.direction === 0
+                if (msg.direction === 0
                     && content.type !== MessageContentType.VOIP_CONTENT_TYPE_END
                     && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT
-                    && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT){
+                    && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT) {
                     return;
                 }
 

@@ -1,6 +1,8 @@
 import {isElectron} from './platform'
 
 export default class Config {
+    // 是否支持多人音视频通话
+    static ENABLE_MULTI_VOIP_CALL = false;
     static DEFAULT_PORTRAIT_URL = 'https://static.wildfirechat.cn/user-fallback.png';
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
     // WebSockets over SSL/TLS，启用https时，一定为true；不启用https，为false

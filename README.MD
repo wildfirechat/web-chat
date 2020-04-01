@@ -81,6 +81,9 @@ $ npm run build
 3. 配置nginx，可参考[nginx参考配置](nginx/web.conf)
 
 
+## 音视频通话
+0. 可修改```config.js```文件下的```ENABLE_MULTI_VOIP_CALL```，打开多人音视频支持，该功能目前正在开发中，遇到问题，请向我们反馈
+
 更多信息，请查看[wewechat readme](./README_wewechat.MD)
 
 
