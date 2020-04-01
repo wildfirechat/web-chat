@@ -31,9 +31,22 @@ export class AvEngineKitProxy {
 
         if (isElectron()) {
             ipcRenderer.on('voip-message', this.sendVoipListener);
+            ipcRenderer.on('update-call-start-message', this.updateCallStartMessageContentListener)
         }
     }
 
+    updateCallStartMessageContentListener = (event, message) => {
+        let messageUid = message.messageUid;
+        let content = message.content;
+
+        let msg = wfc.getMessageByUid(messageUid);
+        let orgContent = msg.messageContent;
+        orgContent.connectTime = content.connectTime ? content.connectTime : orgContent.connectTime;
+        orgContent.endTime = content.endTime ? content.endTime : orgContent.endTime;
+        orgContent.status = content.status;
+        orgContent.audioOnly = content.audioOnly;
+        wfc.updateMessageContent(msg.messageId, orgContent);
+    }
     sendVoipListener = (event, msg) => {
 
         let contentClazz = MessageConfig.getMessageContentClazz(msg.content.type);
@@ -57,7 +70,12 @@ export class AvEngineKitProxy {
         }, (uploaded, total) => {
 
         }, (messageUid, timestamp) => {
-            this.emitToVoip('sendMessageResult', {error: 0, sendMessageId: msg.sendMessageId, timestamp: timestamp})
+            this.emitToVoip('sendMessageResult', {
+                error: 0,
+                sendMessageId: msg.sendMessageId,
+                messageUid: messageUid,
+                timestamp: timestamp
+            })
         }, (errorCode) => {
             this.emitToVoip('sendMessageResult', {error: errorCode, sendMessageId: msg.sendMessageId})
         });
@@ -73,6 +91,11 @@ export class AvEngineKitProxy {
             console.log('not enable multi call ');
             return;
         }
+        if (!Config.ENABLE_SINGLE_VOIP_CALL && msg.conversation.type === ConversationType.Single) {
+            console.log('not enable multi call ');
+            return;
+        }
+
         let now = (new Date()).valueOf();
         let delta = wfc.getServerDeltaTime();
         if ((msg.conversation.type === ConversationType.Single || msg.conversation.type === ConversationType.Group) && now - (msg.timestamp - delta) < 90 * 1000) {
@@ -138,7 +161,7 @@ export class AvEngineKitProxy {
 
                 if (msg.conversation.type === ConversationType.Group
                     && (content.type === MessageContentType.VOIP_CONTENT_TYPE_START
-                        || content === MessageContentType.VOIP_CONTENT_TYPE_ADD_PARTICIPANT
+                        || content.type === MessageContentType.VOIP_CONTENT_TYPE_ADD_PARTICIPANT
                     )) {
                     let memberIds = wfc.getGroupMemberIds(msg.conversation.target);
                     msg.groupMemberUserInfos = wfc.getUserInfos(memberIds, msg.conversation.target);
@@ -280,6 +303,7 @@ export class AvEngineKitProxy {
         if (!isElectron()) {
             this.events = new PostMessageEventEmitter(win, window.location.origin)
             this.events.on('voip-message', this.sendVoipListener)
+            this.events.on('update-call-start-message', this.updateCallStartMessageContentListener)
         }
         if (this.queueEvents.length > 0) {
             this.queueEvents.forEach((eventArgs) => {

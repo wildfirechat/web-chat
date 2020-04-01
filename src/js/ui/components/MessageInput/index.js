@@ -1,9 +1,8 @@
-
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import Popup from "reactjs-popup";
 import PropTypes from 'prop-types';
 import Checkbox from 'rc-checkbox';
-import { ipcRenderer, isElectron } from '../../../platform';
+import {ipcRenderer, isElectron} from '../../../platform';
 import clazz from 'classname';
 
 import classes from './style.css';
@@ -67,8 +66,8 @@ export default class MessageInput extends Component {
         });
 
         let userInfos = wfc.getUserInfos(userIds, groupInfo.target);
-        userInfos.forEach(e =>{
-           e.groupDisplayName = wfc.getGroupMemberDisplayNameEx(e);
+        userInfos.forEach(e => {
+            e.groupDisplayName = wfc.getGroupMemberDisplayNameEx(e);
         });
         userInfos.forEach((e) => {
             mentionMenuItems.push({
@@ -87,7 +86,7 @@ export default class MessageInput extends Component {
                 // if (this.range.isContentEditable(this.current.element)) {
                 //     return '<span contenteditable="false"><a href="http://zurb.com" target="_blank" title="' + item.original.email + '">' + item.original.value + '</a></span>';
                 // }
-                this.mentions.push({ key: item.original.key, value: item.original.value });
+                this.mentions.push({key: item.original.key, value: item.original.value});
 
                 return '@' + item.original.key;
             },
@@ -151,7 +150,7 @@ export default class MessageInput extends Component {
             || !message
             || e.charCode !== 13
         ) return;
-        if(e.ctrlKey && e.charCode === 13){
+        if (e.ctrlKey && e.charCode === 13) {
             e.preventDefault();
             this.refs.input.value = this.refs.input.value + "\n";
             return;
@@ -176,7 +175,7 @@ export default class MessageInput extends Component {
     };
 
     toggleEmoji(show = !this.state.showEmoji) {
-        this.setState({ showEmoji: show });
+        this.setState({showEmoji: show});
     }
 
     audioCall(show = !this.state.showEmoji) {
@@ -200,7 +199,7 @@ export default class MessageInput extends Component {
                 }
 
                 let parts = [
-                    new window.Blob([new window.Uint8Array(args.raw)], { type: 'image/png' })
+                    new window.Blob([new window.Uint8Array(args.raw)], {type: 'image/png'})
                 ];
                 let file = new window.File(parts, args.filename, {
                     lastModified: new Date(),
@@ -251,7 +250,7 @@ export default class MessageInput extends Component {
             }
 
             let parts = [
-                new window.Blob([new window.Uint8Array(args.raw)], { type: 'image/png' })
+                new window.Blob([new window.Uint8Array(args.raw)], {type: 'image/png'})
             ];
             let file = new window.File(parts, args.filename, {
                 lastModified: new Date(),
@@ -261,8 +260,9 @@ export default class MessageInput extends Component {
             this.batchProcess(file);
         }
     }
+
     readClipImage(event) {
-        let result = { hasImage: false, file: null };
+        let result = {hasImage: false, file: null};
         if (event.clipboardData || event.originalEvent) {
             const clipboardData = (event.clipboardData || event.originalEvent.clipboardData);
             if (clipboardData.items) {
@@ -322,7 +322,7 @@ export default class MessageInput extends Component {
 
     componentWillReceiveProps(nextProps) {
         var input = this.refs.input;
-        if(!input){
+        if (!input) {
             return;
         }
 
@@ -332,7 +332,7 @@ export default class MessageInput extends Component {
         ) {
             let text = input.value.trim();
             let conversationInfo = wfc.getConversationInfo(this.props.conversation);
-            if(text !== conversationInfo.draft){
+            if (text !== conversationInfo.draft) {
                 wfc.setConversationDraft(this.props.conversation, text)
             }
 
@@ -417,10 +417,10 @@ export default class MessageInput extends Component {
             </div>
         )
     }
+
     render() {
         var canisend = this.canisend();
         let isGroup = this.props.conversation && this.props.conversation.type === ConversationType.Group;
-        let enableMultiCall = Config.ENABLE_MULTI_VOIP_CALL;
 
         return (
             <div
@@ -449,58 +449,59 @@ export default class MessageInput extends Component {
 
                     {
                         isGroup ? (
-                            !enableMultiCall ? '' :
-                            <Popup key={'voip-video'}
-                                   trigger={
-                                       <i
-                                           className="icon-ion-android-camera"
-                                           id="videoCall"
-                                       />
-                                   }
-                                   modal
-                                   closeOnDocumentClick
-                                   position={"top center"}
-                            >
-                                {close => (
-                                    this.pickGroupMemberToVoip(false, close)
-                                )
-                                }
-                            </Popup>
+                            !Config.ENABLE_MULTI_VOIP_CALL ? '' :
+                                <Popup key={'voip-video'}
+                                       trigger={
+                                           <i
+                                               className="icon-ion-android-camera"
+                                               id="videoCall"
+                                           />
+                                       }
+                                       modal
+                                       closeOnDocumentClick
+                                       position={"top center"}
+                                >
+                                    {close => (
+                                        this.pickGroupMemberToVoip(false, close)
+                                    )
+                                    }
+                                </Popup>
 
                         ) : (
-                    <i
-                        className="icon-ion-android-camera"
-                        id="videoCall"
-                        onClick={e => canisend && canStartVoip && this.videoCall()}
-                    />
+                            !Config.ENABLE_SINGLE_VOIP_CALL ? '' :
+                                <i
+                                    className="icon-ion-android-camera"
+                                    id="videoCall"
+                                    onClick={e => canisend && this.videoCall()}
+                                />
                         )
                     }
 
                     {
                         isGroup ? (
-                            !enableMultiCall ? '' :
-                            <Popup key={'voip-audio'}
-                                   trigger={
-                                       <i
-                                           className="icon-ion-ios-telephone"
-                                           id="audioCall"
-                                       />
-                                   }
-                                   modal
-                                   closeOnDocumentClick={true}
-                            >
-                                {close => (
-                                    this.pickGroupMemberToVoip(true, close)
-                                )
-                                }
-                            </Popup>
+                            !Config.ENABLE_MULTI_VOIP_CALL ? '' :
+                                <Popup key={'voip-audio'}
+                                       trigger={
+                                           <i
+                                               className="icon-ion-ios-telephone"
+                                               id="audioCall"
+                                           />
+                                       }
+                                       modal
+                                       closeOnDocumentClick={true}
+                                >
+                                    {close => (
+                                        this.pickGroupMemberToVoip(true, close)
+                                    )
+                                    }
+                                </Popup>
 
-                        ) : (
-                    <i
-                        className="icon-ion-ios-telephone"
-                        id="audioCall"
-                        onClick={e => canisend && canStartVoip && this.audioCall()}
-                    />
+                        ) : (!Config.ENABLE_SINGLE_VOIP_CALL ? '' :
+                                <i
+                                    className="icon-ion-ios-telephone"
+                                    id="audioCall"
+                                    onClick={e => canisend && this.audioCall()}
+                                />
                         )
                     }
 

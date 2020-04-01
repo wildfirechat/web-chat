@@ -918,7 +918,7 @@ export class WfcManager {
 
     /**
      * 获取消息
-     * @param {Long} messageUid
+     * @param {Long|string|number} messageUid
      * @returns {null|Message}
      */
     getMessageByUid(messageUid) {
