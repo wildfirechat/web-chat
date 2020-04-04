@@ -161,7 +161,7 @@ export class WfcManager {
      * @param {string} keyword 搜索关键字
      * @param {number} searchType 搜索类型，可选值参考{@link SearchType}
      * @param {number} page 页数，如果searchType是0，每次搜索20个，可以指定page。如果searchType非0，只能搜索一个，page无意义
-     * @param {function ([UserInfo])} successCB
+     * @param {function (keyword, [UserInfo])} successCB
      * @param {function (number)}failCB
      * @returns {Promise<void>}
      */
@@ -693,10 +693,11 @@ export class WfcManager {
     /**
      * 搜索频道
      * @param {string} keyword 关键字
-     * @param {function ([ChannelInfo])} successCB
+     * @param {boolean} fuzzy 是否模糊搜索
+     * @param {function (keyword, [ChannelInfo])} successCB
      * @param {function (number)} failCB
      */
-    searchChannel(keyword, successCB, failCB) {
+    searchChannel(keyword, fuzzy, successCB, failCB) {
         impl.searchChannel(keyword, successCB, failCB);
     }
 
