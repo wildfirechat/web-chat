@@ -332,6 +332,9 @@ export default class MessageInput extends Component {
         ) {
             let text = input.value.trim();
             let conversationInfo = wfc.getConversationInfo(this.props.conversation);
+            if(!conversationInfo){
+                return;
+            }
             if (text !== conversationInfo.draft) {
                 wfc.setConversationDraft(this.props.conversation, text)
             }
@@ -348,6 +351,9 @@ export default class MessageInput extends Component {
             }
         } else if (nextProps.conversation) {
             let conversationInfo = wfc.getConversationInfo(nextProps.conversation);
+            if(!conversationInfo){
+                return;
+            }
             input.value = conversationInfo.draft ? conversationInfo.draft : '';
             if (!this.tribute && this.shouldHandleMention(nextProps.conversation)) {
                 this.initMention(nextProps.conversation);
