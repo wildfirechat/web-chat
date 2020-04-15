@@ -5,6 +5,8 @@ export default class Config {
     static ENABLE_MULTI_VOIP_CALL = false;
     // 是否支持1对1音视频通话
     static ENABLE_SINGLE_VOIP_CALL = true;
+    // 打开voip调试模式时，voip window不会自动关闭，方便分析控制台日志，需要手动关闭。
+    static ENABLE_VOIP_DEBUG_MODE = false;
 
     static DEFAULT_PORTRAIT_URL = 'https://static.wildfirechat.cn/user-fallback.png';
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
