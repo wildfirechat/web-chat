@@ -1,5 +1,5 @@
 import Conversation from '../model/conversation';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
 import {atob, btoa }from '../util/base64.min.js';
@@ -38,11 +38,40 @@ export class WfcManager {
     }
 
     /**
+     * 获取host
+     */
+    getHost(){
+        return impl.getHost();
+    }
+
+    /**
      * 获取clientId，获取用户token时，一定要通过调用此方法获取clientId，否则会连接失败。
      * @returns {string} clientId
      */
     getClientId() {
         return impl.getClientId();
+    }
+
+    getEncodedClientId(){
+        return impl.getEncodedClientId();
+    }
+
+    /**
+     *
+     * @param {string} data 将要编码的数据
+     * @returns {string} 编码结果，base64格式
+     */
+    encodeData(data){
+        return impl.encodeData(data);
+    }
+
+    /**
+     *
+     * @param {string} encodedData 将要解码的数据，base64格式
+     * @returns {null | string} 解码之后的数据
+     */
+    decodeData(encodedData){
+        return impl.decodeData(encodedData);
     }
 
     /**
@@ -86,10 +115,19 @@ export class WfcManager {
     }
 
     /**
-     * 获取我保存到通讯录的群组信息
+     * 已废弃，请使用{@link getFavGroupList}
+     * 获取我保存到通讯录的群组信息列表
      * @returns {[GroupInfo]} 参考{@link GroupInfo}
      */
     getMyGroupList() {
+        return impl.getMyGroupList();
+    }
+
+    /**
+     * 获取我保存到通讯录的群组信息列表
+     * @returns {[GroupInfo]} 参考{@link GroupInfo}
+     */
+    getFavGroupList(){
         return impl.getMyGroupList();
     }
 
@@ -124,7 +162,6 @@ export class WfcManager {
     getGroupMemberDisplayNameEx(userInfo) {
         return userInfo.groupAlias ? userInfo.groupAlias : (userInfo.friendAlias ? userInfo.friendAlias : (userInfo.displayName ? userInfo.displayName : '<' + userInfo.uid + '>'))
     }
-
     /**
      * 获取用户信息
      * @param {string} userId 用户id
@@ -148,8 +185,8 @@ export class WfcManager {
      */
     getUserInfos(userIds, groupId) {
         let userInfos = impl.getUserInfos(userIds, groupId);
-        userInfos.forEach((u) => {
-            if (!u.portrait) {
+        userInfos.forEach((u)=>{
+            if(!u.portrait){
                 u.portrait = Config.DEFAULT_PORTRAIT_URL;
             }
         });
@@ -307,6 +344,7 @@ export class WfcManager {
      * @param {function (number)} failCB
      * @returns {Promise<void>}
      */
+
     async setFriendAlias(userId, alias, successCB, failCB) {
         impl.setFriendAlias(userId, alias, successCB, failCB);
     }
@@ -886,26 +924,81 @@ export class WfcManager {
     /**
      * 获取会话消息
      * @param {Conversation} conversation 目标会话
-     * @param {number} fromIndex messageId，表示从那一条消息开始获取
-     * @param {boolean} before  true, 获取fromIndex之前的消息，即更旧的消息；false，获取fromIndex之后的消息，即更新的消息。都不包含fromIndex对应的消息
-     * @param {number} count 获取多少条消息
+     * @param {number} fromIndex 本参数暂时无效! messageId，表示从那一条消息开始获取
+     * @param {boolean} before 本参数暂时无效! true, 获取fromIndex之前的消息，即更旧的消息；false，获取fromIndex之后的消息，即更新的消息。都不包含fromIndex对应的消息
+     * @param {number} count 本参数暂时无效! 获取多少条消息
      * @param {string} withUser 只有会话类型为{@link ConversationType#Channel}时生效, channel主用来查询和某个用户的所有消息
-     * @return
+     * @return {[Message]} 会话消息列表，参考{@link Message}
      */
-    getMessages(conversation, fromIndex, before = true, count = 20, withUser = '') {
+    getMessages(conversation, fromIndex= 0, before = true, count = 20, withUser = '') {
         return impl.getMessages(conversation, fromIndex, before, count, withUser);
     }
 
     /**
-     * 加载远程历史消息
+     * 获取消息
+     * @param {[number]} conversationTypes 会话类型列表，可选值参考{@link  ConversationType}
+     * @param {[number]} lines 会话线路列表
+     * @param {[number]} contentTypes 消息类型列表，可选值参考{@link MessageContentType}
+     * @param {number} fromIndex 本参数暂时无效! messageId，表示从那一条消息开始获取
+     * @param {boolean} before 本参数暂时无效! true, 获取fromIndex之前的消息，即更旧的消息；false，获取fromIndex之后的消息，即更新的消息。都不包含fromIndex对应的消息
+     * @param {number} count 本参数暂时无效! 获取多少条消息
+     * @param {string} withUser 只有会话类型为{@link ConversationType#Channel}时生效, channel主用来查询和某个用户的所有消息
+     * @return {[Message]} 会话消息列表，参考{@link Message}
+     */
+    getMessagesEx(conversationTypes, lines, contentTypes, fromIndex= 0, before= true, count = 20, withUser = '') {
+        return impl.getMessagesEx(conversationTypes, lines, contentTypes, fromIndex, before, count, withUser);
+    }
+
+    /**
+     *
+     * @param {[number]} conversationTypes 会话类型列表，可选值参考{@link  ConversationType}
+     * @param {[number]} lines 会话线路列表
+     * @param messageStatus 消息状态，可选值参考{@link MessageStatus}
+     * @param {number} fromIndex 本参数暂时无效! messageId，表示从那一条消息开始获取
+     * @param {boolean} before 本参数暂时无效! true, 获取fromIndex之前的消息，即更旧的消息；false，获取fromIndex之后的消息，即更新的消息。都不包含fromIndex对应的消息
+     * @param {number} count 本参数暂时无效! 获取多少条消息
+     * @param {string} withUser 只有会话类型为{@link ConversationType#Channel}时生效, channel主用来查询和某个用户的所有消息
+     * @return {[Message]} 会话消息列表，参考{@link Message}
+     */
+    getMessagesEx2(conversationTypes, lines, messageStatus, fromIndex= 0, before= true, count= 20, withUser= '') {
+        return impl.getMessagesEx2(conversationTypes, lines, messageStatus, fromIndex, before, count, withUser);
+    }
+
+    /**
+     * 已废弃，请使用{@link loadRemoteConversationMessages}
+     * 获取会还的远程历史消息
      * @param {Conversation} conversation 目标会话
-     * @param {number} beforeUid 消息uid，表示拉取本条消息之前的消息
+     * @param {number | Long} beforeUid 消息uid，表示拉取本条消息之前的消息
      * @param {number} count
      * @param {function (Message)} successCB
      * @param failCB
      */
     loadRemoteMessages(conversation, beforeUid, count, successCB, failCB) {
         impl.loadRemoteMessages(conversation, beforeUid, count, successCB, failCB);
+    }
+
+    /**
+     * 获取会话的远程历史消息
+     * @param {Conversation} conversation 目标会话
+     * @param {number | Long} beforeUid 消息uid，表示拉取本条消息之前的消息
+     * @param {number} count
+     * @param {function (Message)} successCB
+     * @param failCB
+     */
+     loadRemoteConversationMessages(conversation, beforeUid, count, successCB, failCB) {
+        impl.loadRemoteMessages(conversation, beforeUid, count, successCB, failCB);
+    }
+
+    /**
+     * 根据会话线路，获取远程历史消息
+     * @param {number} line 会话线路
+     * @param {number | Long} beforeUid 消息uid，表示拉取本条消息之前的消息
+     * @param {number} count
+     * @param {function (Message)} successCB
+     * @param failCB
+     */
+    loadRemoteLineMessages(line, beforeUid, count, successCB, failCB){
+        impl.loadRemoteLineMessages(line, beforeUid, count, successCB, failCB)
     }
 
     /**
