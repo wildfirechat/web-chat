@@ -11,7 +11,7 @@ const config = {
     dist: path.resolve(__dirname, '../dist'),
 
     //  请仔细阅读注释!!!
-    // 部署到服务器时，下面需要改成你们自己的服务器地址
+    // 部署到服务器时，下面需要改成你们自己的服务器地址，!!!最后一定是以/结尾!!!
     // 如果未配置https，请使用http
     // 如果需要使用非80端，一定要带上端口信息, 如:
     //STATIC_RESOURCE_PATH: 'http://static.wildfirechat.cn:8080/',
