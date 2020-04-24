@@ -275,6 +275,10 @@ export class AvEngineKitProxy {
             win.show();
         } else {
             let win = window.open(window.location.origin + '?' + type, 'target', 'width=360,height=640,left=200,top=200,toolbar=no,menubar=no,resizable=no,location=no, maximizable');
+            if(!win){
+                console.log('can not open voip window');
+                return;
+            }
             win.addEventListener('load', () => {
                 this.onVoipWindowReady(win);
             }, true);
