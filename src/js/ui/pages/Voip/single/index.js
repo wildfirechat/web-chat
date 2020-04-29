@@ -134,6 +134,16 @@ export default class Voip extends Component {
                     />
                     <p>切换到语音聊天</p>
                 </div>
+                <div>
+                    <p style={{visibility: 'hidden'}}>holder</p>
+                    <img ref="toVoiceButton"
+                         src='assets/images/av_phone.png'
+                         onClick={() =>{
+                             this.session.isScreenSharing() ? this.session.stopScreenShare() : this.session.startScreenShare();
+                         } }
+                    />
+                    <p>屏幕共享</p>
+                </div>
             </div>
         )
     }

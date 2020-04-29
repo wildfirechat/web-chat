@@ -209,6 +209,15 @@ export default class Voip extends Component {
                     />
                     <p>关闭/打开摄像头</p>
                 </div>
+
+                <div>
+                    <p style={{visibility: 'hidden'}}>holder</p>
+                    <img ref="tovoicebutton"
+                         src='assets/images/av_share.png'
+                         onClick={e => this.session.isScreenSharing() ? this.session.stopScreenShare() : this.session.startScreenShare()}
+                    />
+                    <p>屏幕共享</p>
+                </div>
                 <Popup key={'voip-invite'}
                        trigger={
                            <div>
