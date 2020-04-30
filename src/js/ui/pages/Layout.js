@@ -33,7 +33,6 @@ import ConnectionStatus from '../../wfc/client/connectionStatus';
     reconnect: stores.sessions.checkTimeout,
     close: () => stores.snackbar.toggle(false),
     canidrag: () => !!stores.chat.conversation && !stores.batchsend.show,
-    connectionStatus: stores.wfc.connectionStatus,
 }))
 @observer
 export default class Layout extends Component {
@@ -148,6 +147,12 @@ export default class Layout extends Component {
     }
 
     onConnectionStatusChange = (status) => {
+        console.log('layout connection status', status)
+        this.updateConnectionStatus(status)
+    }
+
+    @action
+    updateConnectionStatus(status){
         this.connectionStatus = status;
     }
 
@@ -158,6 +163,7 @@ export default class Layout extends Component {
     }
 
     componentWillUnmount() {
+        console.log('layout', 'will unmount')
         wfc.eventEmitter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
     }
 
@@ -177,6 +183,7 @@ export default class Layout extends Component {
             || this.connectionStatus === ConnectionStatus.ConnectionStatusLogout
             || this.connectionStatus === ConnectionStatus.ConnectionStatusSecretKeyMismatch
             || this.connectionStatus === ConnectionStatus.ConnectionStatusTokenIncorrect
+            || this.connectionStatus === ConnectionStatus.ConnectionStatusUnconnected
             || wfc.getUserId() === '') {
             return <Login />;
         }
