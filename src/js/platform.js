@@ -61,6 +61,7 @@ export const fs = null;
 export const currentWindow = null;
 export const BrowserWindow = null;
 export const AppPath = null;
+export const desktopCapturer = null;
 
 // for web
 export const ContextMenuTrigger = require("react-contextmenu").ContextMenuTrigger;

@@ -290,7 +290,7 @@ export class AvEngineKitProxy {
     }
 
     onVoipWindowClose(event) {
-        if(event.srcElement.URL === 'about:blank'){
+        if(event && event.srcElement && event.srcElement.URL === 'about:blank'){
             // fix safari bug: safari 浏览器，页面刚打开的时候，也会走到这个地方
             return;
         }
