@@ -81,6 +81,9 @@ import nodePath from 'path';
     deleteMessage: (messageId) => {
         stores.chat.deleteMessage(messageId);
     },
+    onMessageDeleted: (messageId) =>{
+        stores.chat.onMessageDeleted(messageId);
+    },
     showMembers: (target) => {
         // TODO show channel members
         if (target instanceof GroupInfo) {
@@ -807,10 +810,15 @@ export default class ChatContent extends Component {
         }
     }
 
+    onDeleteMessage = (messageId) => {
+        this.props.onMessageDeleted(messageId);
+    }
+
     componentWillMount() {
         console.log('componentWillMount');
-        wfc.eventEmitter.on(EventType.UserInfoUpdate, this.onUserInfoUpdate);
-        wfc.eventEmitter.on(EventType.GroupInfoUpdate, this.onGroupInfoUpdate);
+        wfc.eventEmitter.on(EventType.UserInfosUpdate, this.onUserInfoUpdate);
+        wfc.eventEmitter.on(EventType.GroupInfosUpdate, this.onGroupInfoUpdate);
+        wfc.eventEmitter.on(EventType.DeleteMessage, this.onDeleteMessage);
     }
 
     componentWillUnmount() {
@@ -818,8 +826,8 @@ export default class ChatContent extends Component {
         !this.props.rememberConversation && this.props.reset();
         this.stopAudio();
 
-        wfc.eventEmitter.removeListener(EventType.UserInfoUpdate, this.onUserInfoUpdate);
-        wfc.eventEmitter.removeListener(EventType.GroupInfoUpdate, this.onGroupInfoUpdate);
+        wfc.eventEmitter.removeListener(EventType.UserInfosUpdate, this.onUserInfoUpdate);
+        wfc.eventEmitter.removeListener(EventType.GroupInfosUpdate, this.onGroupInfoUpdate);
     }
 
     stopAudio() {
@@ -968,15 +976,15 @@ export default class ChatContent extends Component {
         this.props.loadOldMessages();
     }
 
-    onUserInfoUpdate = (userId) => {
-        this.props.messages.map((c, index) => {
-            if (c.conversation.conversationType === ConversationType.Single && c.conversation.target === userId) {
-                // Todo update user info
-            }
-        });
+    onUserInfoUpdate = (userInfos) => {
+        // this.props.messages.map((c, index) => {
+        //     if (c.conversation.conversationType === ConversationType.Single && c.conversation.target === userId) {
+        //         // Todo update user info
+        //     }
+        // });
     }
 
-    onGroupInfoUpdate = (groupId) => {
+    onGroupInfoUpdate = (groupInfos) => {
         // Todo update group info
     }
 

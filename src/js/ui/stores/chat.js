@@ -478,6 +478,11 @@ class Chat {
         }
     }
 
+    @action onMessageDeleted(messageId){
+        var list = self.messageList;
+        self.messageList = list.filter(e => e.messageId !== messageId);
+    }
+
     @action markedRead(userid) {
         var list = self.messages.get(userid);
 
