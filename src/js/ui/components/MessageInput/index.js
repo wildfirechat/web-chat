@@ -340,7 +340,7 @@ export default class MessageInput extends Component {
             }
 
             conversationInfo = wfc.getConversationInfo(nextProps.conversation);
-            input.value = conversationInfo.draft ? conversationInfo.draft : '';
+            input.value = conversationInfo ? conversationInfo.draft : '';
             if (this.tribute) {
                 this.tribute.detach(document.getElementById('messageInput'));
                 this.tribute = null;

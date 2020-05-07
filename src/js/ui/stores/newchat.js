@@ -12,6 +12,7 @@ class NewChat {
     @observable show = false;
     @observable query = '';
     @observable list = [];
+    @observable alreadySelected='';
 
     // Defaults
     defaultOptions = {
@@ -22,8 +23,9 @@ class NewChat {
         Canvas: undefined
     };
 
-    @action toggle(show = !self.show) {
+    @action toggle(show = !self.show,alreadySelected = [] ) {
         self.show = show;
+        self.alreadySelected = alreadySelected.join(',');
     }
 
     @action search(text) {
@@ -106,7 +108,6 @@ class NewChat {
                 // Resolve source and img when loaded
                 const img = new Image();
                 img.setAttribute('crossOrigin', 'anonymous');
-
                 //img.onerror = () => reject(new Error('Couldn\'t load image'));
                 img.onerror = () => resolve(null);
                 img.onload = () => resolve(Object.assign({}, source, { data: resizeImage.resize(img, size, size, resizeImage.PNG) }));

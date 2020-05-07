@@ -6,6 +6,7 @@
     height: 180px;
     align-items: center;
     justify-content: space-between;
+    background: #fff;
 
     & > textarea {
         height: 100px;
@@ -41,7 +42,10 @@
     width: 180px;
     margin-right: 17px;
     display: flex;
-    justify-content: space-between;
+    & i{
+        margin-right: 20px;
+    }
+    /* justify-content: space-between; */
 }
 
 .voipTargetList {
@@ -49,6 +53,7 @@
     overflow-x: hidden;
     overflow-y: auto;
 }
+
 .tips {
     position: absolute;
     height: 32px;
@@ -90,7 +95,7 @@
     & .action {
           margin-top: 10px;
           margin-left: 20px;
-        width: 120px;
+          width: 120px;
     }
 
     .tips {

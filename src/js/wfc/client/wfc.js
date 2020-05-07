@@ -528,7 +528,7 @@ export class WfcManager {
      *  判断群是否保存到了通讯录
      * @param {string} groupId
      * @returns {boolean}
-     /
+     */
     isFavGroup(groupId) {
         return impl.isFavGroup(groupId);
     }
