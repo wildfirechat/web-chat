@@ -146,7 +146,7 @@ export default class ChatContent extends Component {
         setTimeout(()=>{
             this.props.OverallUserCard.toggle(true, user, { top: top, left: left }, isMyFriend)
         },200)
-        ev.preventDefault(); 
+        ev.preventDefault();
         ev.stopPropagation();
         return false;
         // this.setState({
@@ -414,7 +414,7 @@ export default class ChatContent extends Component {
             if (message.messageContent instanceof NotificationMessageContent) {
                 return (
                     <div
-                        key={message.messageUid}
+                        key={message.messageId}
                         className={clazz('unread', classes.message, classes.system)}
                         dangerouslySetInnerHTML={{ __html: message.messageContent.formatNotification(message) }} />
                 );
@@ -855,11 +855,6 @@ export default class ChatContent extends Component {
     render() {
         var { loading, showConversation, messages, conversation, target } = this.props;
 
-        var signature = '点击查看群成员';
-        if (target instanceof UserInfo) {
-            signature = '';
-        }
-
         // maybe userName, groupName, ChannelName or ChatRoomName
         let title = this.title();
 
@@ -870,7 +865,7 @@ export default class ChatContent extends Component {
                 })}>
                 <UserCard showCard={this.state.isShowUserCard}
                     user={this.state.user} config={this.state.config} isCurrentUser={!this.state.isMyFriend}
-                    hideCard={() => this.hideUserCard(false)} ></UserCard>
+                    hideCard={() => this.hideUserCard(false)} />
                 {
                     conversation ? (
                         <div>
@@ -888,7 +883,8 @@ export default class ChatContent extends Component {
                                         className={classes.signature}
                                         // dangerouslySetInnerHTML={{__html: signature || '...'}}
                                         onClick={e => this.showMembers(target)}
-                                        title={signature}><i className="icon-ion-android-more-vertical" />
+                                        >
+                                        <i className="icon-ion-android-more-vertical" />
                                     </span>
                                 }
 
