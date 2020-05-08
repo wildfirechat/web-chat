@@ -713,6 +713,7 @@ export default class ChatContent extends Component {
         }
     }
 
+    // electron only
     showFileAction(path) {
         var templates = [
             {
