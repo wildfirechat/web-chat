@@ -47,6 +47,7 @@ export class AvEngineKitProxy {
         orgContent.audioOnly = content.audioOnly;
         wfc.updateMessageContent(msg.messageId, orgContent);
     }
+
     sendVoipListener = (event, msg) => {
 
         let contentClazz = MessageConfig.getMessageContentClazz(msg.content.type);
@@ -95,7 +96,6 @@ export class AvEngineKitProxy {
             console.log('not enable multi call ');
             return;
         }
-
         let now = (new Date()).valueOf();
         let delta = wfc.getServerDeltaTime();
         if ((msg.conversation.type === ConversationType.Single || msg.conversation.type === ConversationType.Group) && now - (msg.timestamp - delta) < 90 * 1000) {
@@ -109,11 +109,11 @@ export class AvEngineKitProxy {
                 || content.type === MessageContentType.VOIP_CONTENT_TYPE_ADD_PARTICIPANT
                 || content.type === MessageContentType.VOIP_CONTENT_TYPE_MUTE_VIDEO
             ) {
-                console.log("receive voip message", msg);
-                if (msg.direction === 0
+                console.log("receive voip message", msg.messageContent.type, msg.messageUid.toString(), msg);
+                if(msg.direction === 0
                     && content.type !== MessageContentType.VOIP_CONTENT_TYPE_END
                     && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT
-                    && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT) {
+                    && content.type !== MessageContentType.VOIP_CONTENT_TYPE_ACCEPT){
                     return;
                 }
 
@@ -223,6 +223,10 @@ export class AvEngineKitProxy {
     };
 
     startCall(conversation, audioOnly, participants) {
+        if(!this.isSupportVoip){
+            console.log('not support voip');
+            return;
+        }
         let callId = conversation.target + Math.random();
         this.conversation = conversation;
         this.participants.push(...participants)
@@ -259,6 +263,7 @@ export class AvEngineKitProxy {
                     webPreferences: {
                         scrollBounce: true,
                         nativeWindowOpen: true,
+                        nodeIntegration: true,
                     },
                 }
             );
