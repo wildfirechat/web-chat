@@ -1,6 +1,6 @@
-import {observable, action} from 'mobx';
+import { observable, action } from 'mobx';
 import axios from 'axios';
-import {ipcRenderer, isElectron} from '../../platform'
+import { ipcRenderer, isElectron } from '../../platform'
 
 import helper from 'utils/helper';
 import contacts from './contacts';
@@ -47,7 +47,7 @@ function hasUnreadMessage(messages) {
     }
 }
 
-async function updateMenus({conversations = [], contacts = []}) {
+async function updateMenus({ conversations = [], contacts = [] }) {
     ipcRenderer.send('menu-update', {
         conversations: conversations.map(e => ({
             id: e.UserName,
@@ -75,6 +75,7 @@ class Chat {
     @observable target = false;
 
     @observable conversation;
+    @observable conversationInfo;
 
     initialized = false;
 
@@ -99,7 +100,7 @@ class Chat {
                 }
                 // when in electron, can not load local path
                 let src = imageMsgs[i].messageContent.remotePath;
-                imgs.push({src: src});
+                imgs.push({ src: src });
             }
 
             self.toPreivewImageOption.images = imgs;
@@ -167,6 +168,10 @@ class Chat {
             }
         }
     }
+    @action
+    changeConversationInfo(conversation) {
+        self.conversationInfo = wfc.getConversationInfo(conversation);
+    }
 
     @action
     async chatToN(conversation) {
@@ -187,8 +192,8 @@ class Chat {
         self.conversation = conversation;
         self.loading = false;
         self.hasMore = true;
-
-        self.loadConversationMessages(conversation, 10000000);
+        self.conversationInfo = wfc.getConversationInfo(conversation);
+        self.loadConversationMessages(conversation, 0);
 
         // TODO update observable for chat content
         switch (conversation.type) {
@@ -231,6 +236,7 @@ class Chat {
         }
 
         if (isElectron()) {
+            self.loading = true;
             let fromIndex = self.messageList[0].messageId;
             let msgs = wfc.getMessages(self.conversation, fromIndex);
             if (msgs.length > 0) {
@@ -243,9 +249,13 @@ class Chat {
         } else {
             // TODO has more
             self.loading = true;
-            let fromUid = self.messageList[0].messageUid;
+            let fromUid = self.messageList.length > 0 ? self.messageList[0].messageUid : 0;
             wfc.loadRemoteMessages(self.conversation, fromUid, 20, (msgs) => {
-                self.messageList.unshift(...msgs);
+                if(msgs.length > 0){
+                    self.messageList = wfc.getMessages(self.conversation);
+                }else {
+                    self.hasMore = false;
+                }
                 self.loading = false;
             }, (errorCode) => {
                 self.loading = false;
@@ -476,11 +486,6 @@ class Chat {
             var list = self.messageList;
             self.messageList = list.filter(e => e.messageId !== messageId);
         }
-    }
-
-    @action onMessageDeleted(messageId){
-        var list = self.messageList;
-        self.messageList = list.filter(e => e.messageId !== messageId);
     }
 
     @action markedRead(userid) {
