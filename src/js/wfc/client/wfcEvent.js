@@ -3,6 +3,10 @@ export default class EventType {
     static SendMessage = 'sendMsg';
     // function (message) {}
     static ReceiveMessage = 'receiveMsg';
+    // function (Map(userId, receiveTime)) {}
+    static MessageReceived = 'msgReceived';
+    // function ([readEntry]) {}
+    static MessageRead = 'msgRead';
     // function (operator, messageUid) {}
     static RecallMessage = 'recallMsg';
     // function (messageId) {}

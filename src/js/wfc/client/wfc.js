@@ -970,7 +970,7 @@ export class WfcManager {
      * @param {Conversation} conversation 目标会话
      * @param {number | Long} beforeUid 消息uid，表示拉取本条消息之前的消息
      * @param {number} count
-     * @param {function ([Message])} successCB
+     * @param {function (Message)} successCB
      * @param failCB
      */
     loadRemoteMessages(conversation, beforeUid, count, successCB, failCB) {
@@ -1145,6 +1145,38 @@ export class WfcManager {
     connect(userId, token) {
         impl.connect(userId, token);
     }
+
+    getVersion(){
+        return impl.getVersion();
+    }
+
+    /**
+     * 微信小程序切到前台时调用应用切到了前台
+     *
+     */
+    onForeground(){
+        impl.onForeground();
+    }
+
+    /**
+     *
+     * @param conversation
+     * @return {Map<string, Long>}
+     */
+    getConversationDelivery(conversation){
+        return impl.getConversationDelivery(conversation);
+    }
+
+    /**
+     *
+     * @param conversation
+     * @return {Map<string, Long>}
+     */
+    getConversationRead(conversation){
+        return impl.getConversationRead(conversation);
+    }
+
+
 
     _getStore() {
         return impl._getStore();
