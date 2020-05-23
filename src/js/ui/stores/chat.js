@@ -151,15 +151,6 @@ class Chat {
         }
     }
 
-    onMessageReceived(deliveries){
-        console.log('onMessage received', deliveries)
-    }
-
-    onMessageRead(readEntries){
-        console.log('onMessage read', readEntries)
-
-    }
-
     onUserInfosUpdate(userInfos) {
         for (const userInfo of userInfos) {
             if (self.conversation && self.conversation.type === ConversationType.Single && self.conversation.target === userInfo.uid) {
@@ -192,8 +183,6 @@ class Chat {
         // 第一次进入的时候订阅
         if (!self.initialized) {
             wfc.eventEmitter.on(EventType.ReceiveMessage, self.onReceiveMessage);
-            wfc.eventEmitter.on(EventType.MessageReceived, self.onMessageReceived);
-            wfc.eventEmitter.on(EventType.MessageRead, self.onMessageRead);
             wfc.eventEmitter.on(EventType.RecallMessage, self.onRecallMessage);
             wfc.eventEmitter.on(EventType.UserInfosUpdate, self.onUserInfosUpdate);
             wfc.eventEmitter.on(EventType.GroupInfosUpdate, self.onGroupInfosUpdate);
