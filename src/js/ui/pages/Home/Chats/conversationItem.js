@@ -41,9 +41,6 @@ export default class ConversationItem extends Component {
                 }
             },
             {
-                type: 'separator'
-            },
-            {
                 label: conversationInfo.isTop ? 'Unsticky' : 'Sticky on Top',
                 click: () => {
                     this.props.sticky(conversationInfo);
@@ -209,7 +206,7 @@ export default class ConversationItem extends Component {
                 </div>
             );
         } else {
-            let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.linei : '';
+            let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.line : '';
             let menuId = `conversation_item_${conversationKey}`
             return (
                 <div style={{

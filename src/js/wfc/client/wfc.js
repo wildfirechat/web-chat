@@ -970,7 +970,7 @@ export class WfcManager {
      * @param {Conversation} conversation 目标会话
      * @param {number | Long} beforeUid 消息uid，表示拉取本条消息之前的消息
      * @param {number} count
-     * @param {function (Message)} successCB
+     * @param {function ([Message])} successCB
      * @param failCB
      */
     loadRemoteMessages(conversation, beforeUid, count, successCB, failCB) {

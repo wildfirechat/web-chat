@@ -383,7 +383,7 @@ export default class ChatContent extends Component {
 
                 return `
                     <div >
-                        <i class="icon-ion-android-volume-up"></i>
+                        <i class="icon-ion-android-call"></i>
                         <span>
                             ${desc}
                         </span>
@@ -450,7 +450,7 @@ export default class ChatContent extends Component {
                         [classes.isVoice]: type === MessageContentType.Voice,
                         [classes.isVideo]: type === MessageContentType.Video,
                         [classes.isFile]: type === MessageContentType.File,
-                        [classes.isVoip]: type >= MessageContentType.VOIP_CONTENT_TYPE_START
+                        [classes.isVoip]: type === MessageContentType.VOIP_CONTENT_TYPE_START
                     })}>
 
                         <div>
@@ -692,9 +692,9 @@ export default class ChatContent extends Component {
             && target.classList.contains('is-download')) {
             let message = this.props.getMessage(e.target.parentElement.dataset.id);
             let file = message.messageContent;
-            let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
             // eslint-disable-next-line
             if (isElectron()) {
+                let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
                 let base64 = Buffer.from(response.data, 'binary').toString('base64');
                 let filename = ipcRenderer.sendSync(
                     'file-download',
@@ -708,11 +708,26 @@ export default class ChatContent extends Component {
                 wfc.updateMessageContent(message.messageId, file);
                 this.props.forceRerenderMessage(message.messageId);
             } else {
-                FileSaver.saveAs(new Blob([response.data]), file.name);
+                let varExt = file.remotePath.split('.');
+                if (varExt[varExt.length - 1] === "txt" || varExt[varExt.length -1] === "log") {
+                    window.open(file.remotePath);
+                }
+                else {
+                    let iframe;
+                    iframe = document.getElementById("hiddenDownloader");
+                    if (iframe == null) {
+                        iframe = document.createElement('iframe');
+                        iframe.id = "hiddenDownloader";
+                        iframe.style.visibility = 'hidden';
+                        document.body.appendChild(iframe);
+                    }
+                    iframe.src = file.remotePath;
+                }
             }
         }
     }
 
+    // electron only
     showFileAction(path) {
         var templates = [
             {

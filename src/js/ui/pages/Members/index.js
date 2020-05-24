@@ -17,7 +17,6 @@ import ConversationInfo from '../../../wfc/model/conversationInfo';
 import axios from 'axios';
 
 import MessageConfig from '../../../wfc/client/messageConfig';
-import conversationInfo from "../../../wfc/model/conversationInfo";
 
 @inject(stores => ({
     show: stores.members.show,

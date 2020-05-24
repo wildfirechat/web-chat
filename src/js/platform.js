@@ -35,7 +35,7 @@ export function popMenu(templates, data, menuId) {
 export function showBrowserMenu(menuTemplates = [], data, menuId) {
     let items = menuTemplates.map((template) => {
         return (
-            <MenuItem data={{ data: data }} onClick={template.click}>
+            <MenuItem key={template.label} data={{ data: data }} onClick={template.click}>
                 {template.label}
             </MenuItem>
         );

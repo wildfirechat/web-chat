@@ -193,7 +193,7 @@ class Chat {
         self.loading = false;
         self.hasMore = true;
         self.conversationInfo = wfc.getConversationInfo(conversation);
-        self.loadConversationMessages(conversation, 10000000);
+        self.loadConversationMessages(conversation, 0);
 
         // TODO update observable for chat content
         switch (conversation.type) {
@@ -236,6 +236,7 @@ class Chat {
         }
 
         if (isElectron()) {
+            self.loading = true;
             let fromIndex = self.messageList[0].messageId;
             let msgs = wfc.getMessages(self.conversation, fromIndex);
             if (msgs.length > 0) {
@@ -248,9 +249,13 @@ class Chat {
         } else {
             // TODO has more
             self.loading = true;
-            let fromUid = self.messageList[0].messageUid;
+            let fromUid = self.messageList.length > 0 ? self.messageList[0].messageUid : 0;
             wfc.loadRemoteMessages(self.conversation, fromUid, 20, (msgs) => {
-                self.messageList.unshift(...msgs);
+                if(msgs.length > 0){
+                    self.messageList = wfc.getMessages(self.conversation);
+                }else {
+                    self.hasMore = false;
+                }
                 self.loading = false;
             }, (errorCode) => {
                 self.loading = false;
