@@ -9,6 +9,9 @@ import { isElectron, popMenu, ContextMenuTrigger, hideMenu } from '../../../../p
 
 export default class ConversationItem extends Component {
     active = false;
+    state = {
+        menu: false
+    }
 
     // 1. 原来是空的
     // 2. 绑定新的数据(新会话，会话更新了, 会话的target更新了)
@@ -45,7 +48,7 @@ export default class ConversationItem extends Component {
             },
             {
                 label: 'Delete',
-                click: () => {
+                click: (conversationInfo) => {
                     this.props.removeChat(conversationInfo);
                 }
             },
@@ -55,9 +58,10 @@ export default class ConversationItem extends Component {
                     this.props.markedRead(conversationInfo);
                 }
             },
-        ];
-
-        return popMenu(templates, conversationInfo, menuId);
+        ]
+        let _pop = popMenu(templates, conversationInfo, menuId);
+        console.warn(_pop);
+        return _pop;
     }
 
     handleError(e) {
@@ -65,7 +69,69 @@ export default class ConversationItem extends Component {
             e.target.src = 'assets/images/user-fallback.png';
         }
     }
-
+    showMenu(e, id) {
+        // var _pop = this.showContextMenu(e, id);
+        this.setState({
+            menu: true
+        })
+    }
+    getMenus(conversationInfo) {
+        return [
+            {
+                label: 'Send Message',
+                click: () => {
+                    this.props.chatTo(conversationInfo.conversation);
+                    this.setState({
+                        menu: false
+                    })
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: conversationInfo.isTop ? 'Unsticky' : 'Sticky on Top',
+                click: () => {
+                    this.props.sticky(conversationInfo);
+                    this.setState({
+                        menu: false
+                    })
+                }
+            },
+            {
+                label: 'Delete',
+                click: (conversationInfo) => {
+                    this.props.removeChat(conversationInfo);
+                    this.setState({
+                        menu: false
+                    })
+                }
+            },
+            {
+                label: 'Mark as Read',
+                click: () => {
+                    this.props.markedRead(conversationInfo);
+                    this.setState({
+                        menu: false
+                    })
+                }
+            },
+        ]
+    }
+    componentWillMount() {
+        var bodyDom = document.body;
+        bodyDom.addEventListener('click', e => { this.clickEvent(e) });
+        bodyDom.addEventListener('contextmenu', e => { this.clickEvent(e) });
+    }
+    clickEvent(e) {
+        if (!e.target.closest('.' + classes.alertMenus) && e.target.className != classes.alertMenus) {
+            if (this.state.menu) {
+                this.setState({
+                    menu: false,
+                })
+            }
+        }
+    }
     render() {
         let e = this.props.conversationInfo;
         let conversation = this.props.currentConversation;
@@ -107,7 +173,7 @@ export default class ConversationItem extends Component {
                         chatTo(e.conversation);
                         this.props.markedRead(e);
                     }}>
-                    <div className={clazz(classes.inner,classes.fristchat)}>
+                    <div className={clazz(classes.inner, classes.fristchat)}>
                         <div data-aftercontent={txtUnread} className={clazz(classes.dot, {
                             [classes.green]: muted && hasUnread,
                             [classes.red]: !muted && hasUnread
@@ -143,13 +209,17 @@ export default class ConversationItem extends Component {
             let conversationKey = e.conversation ? e.conversation.type + e.conversation.target + e.conversation.line : '';
             let menuId = `conversation_item_${conversationKey}`
             return (
-                <div>
+                <div style={{
+                    position: "relative"
+                }}>
                     <ContextMenuTrigger id={menuId}>
                         <div
                             className={clazz(classes.chat, {
                                 [classes.sticky]: isTop,
                                 [classes.active]: this.active,
                             })}
+
+                            onContextMenu={ev => this.showMenu(e, menuId)}
                             onClick={ev => {
                                 chatTo(e.conversation)
                                 this.props.markedRead(e);
@@ -174,7 +244,7 @@ export default class ConversationItem extends Component {
 
                                     <span
                                         className={classes.message}
-                                        dangerouslySetInnerHTML={{__html: e.draft ? '[草稿]' + e.draft : (e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest(e.lastMessage) : '')}}/>
+                                        dangerouslySetInnerHTML={{ __html: e.draft ? '[草稿]' + e.draft : (e.lastMessage && e.lastMessage.messageContent ? e.lastMessage.messageContent.digest(e.lastMessage) : '') }} />
                                 </div>
                             </div>
 
@@ -185,9 +255,26 @@ export default class ConversationItem extends Component {
                             </span>
                         </div>
                     </ContextMenuTrigger>
-                    {
-                        this.showContextMenu(e, menuId)
-                    }
+                    <div style={{
+                        display: this.state.menu ? 'block' : 'none',
+                    }} className={classes.alertMenus}>
+                        {
+                            this.getMenus(e).map(e => {
+                                return <div onClick={e.click} style={{
+                                    background: '0 0',
+                                    border: '0',
+                                    color: '#373a3c',
+                                    cursor: 'pointer',
+                                    fontWeight: '400',
+                                    lineHeight: '1.5',
+                                    padding: '3px 20px',
+                                    textAlign: 'inherit',
+                                    whiteSpace: 'nowrap',
+
+                                }}>{e.label}</div>
+                            })
+                        }
+                    </div>
                 </div>
             )
         }
