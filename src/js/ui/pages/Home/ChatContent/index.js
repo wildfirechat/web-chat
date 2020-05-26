@@ -26,7 +26,6 @@ import ConversationType from '../../../../wfc/model/conversationType';
 
 import GroupType from '../../../../wfc/model/groupType';
 import GroupMemberType from '../../../../wfc/model/groupMemberType';
-import FileSaver from 'file-saver';
 import InfiniteScroll from 'react-infinite-scroller';
 import nodePath from 'path';
 
