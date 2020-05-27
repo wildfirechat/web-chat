@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import MessageStatus from '../messages/messageStatus';
 import MessageContent from '../messages/messageContent';
 import {atob, btoa }from '../util/base64.min.js';
+import Long from 'long';
 
 import impl from '../proto/proto.min';
 import Config from "../../config";
@@ -244,7 +245,7 @@ export class WfcManager {
      * 从服务端加载好友请求，如果有更新，会通过{@link eventEmitter}通知
      */
     loadFriendRequestFromRemote() {
-        impl.loadFriendRequestFromRemote();
+        impl.loadFriendRequestFromRemote(Long.ZERO);
     }
 
     /**
@@ -859,6 +860,15 @@ export class WfcManager {
     }
 
     /**
+     * 设置会话时间错，当会话不存在时，会创建一个新的会话。
+     * @param {Conversation} conversation
+     * @param {number} timestamp
+     */
+    setConversationTimestamp(conversation, timestamp){
+        impl.setConversationTimestamp(conversation, timestamp)
+    }
+
+    /**
      * 获取未读消息数
      * @param {[number]} types 获取未读数时，包含哪些类型的会话，可选值参考{@link ConversationType}
      * @param {[number]} lines 获取未读数时，包含哪些会话线路，默认传[0]即可
@@ -1156,6 +1166,15 @@ export class WfcManager {
      */
     onForeground(){
         impl.onForeground();
+    }
+
+    /**
+     *
+     * 是否开启了已送达报告和已读报告功能
+     * @return {boolean}
+     */
+    isReceiptEnabled(){
+        return impl.isReceiptEnabled();
     }
 
     /**
