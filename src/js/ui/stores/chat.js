@@ -462,6 +462,19 @@ class Chat {
         return true;
     }
 
+    updateFileMessageDownloadProgress(messageId, progress, total){
+        // TODO
+        console.log('download progress', messageId, progress, total)
+    }
+
+    updateFileMessageContent(messageId, filePath){
+        let message = wfc.getMessageById(messageId);
+        let content = message.messageContent;
+        content.localPath = filePath;
+        wfc.updateMessageContent(messageId, content)
+        self.forceRerenderMessage(messageId);
+    }
+
     @action forceRerenderMessage(messageId) {
         let msg = self.messageList.find(m => m.messageId === messageId);
         if (msg) {

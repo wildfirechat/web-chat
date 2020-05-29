@@ -865,7 +865,7 @@ export class WfcManager {
      * @param {number} timestamp
      */
     setConversationTimestamp(conversation, timestamp){
-        impl.setConversationTimestamp(conversation, timestamp)
+        impl.setConversationTimestamp(conversation, timestamp);
     }
 
     /**

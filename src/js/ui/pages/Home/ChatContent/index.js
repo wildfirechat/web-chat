@@ -41,7 +41,6 @@ import {numberValue}  from '../../../../wfc/util/longUtil'
     loadOldMessages: stores.chat.loadOldMessages,
     conversation: stores.chat.conversation,
     target: stores.chat.target,
-    forceRerenderMessage: stores.chat.forceRerenderMessage,
     togglePreviewImage: stores.chat.togglePreviewImage,
     getTimePanel: (messageTime) => {
         // 当天的消息，以每5分钟为一个跨度显示时间；
@@ -109,7 +108,6 @@ import {numberValue}  from '../../../../wfc/util/longUtil'
     showForward: (message) => stores.forward.toggle(true, message),
     showAddFriend: (user) => stores.addfriend.toggle(true, user),
     recallMessage: stores.chat.recallMessage,
-    downloads: stores.settings.downloads,
     rememberConversation: stores.settings.rememberConversation,
     showConversation: stores.chat.showConversation,
     toggleConversation: stores.chat.toggleConversation,
@@ -694,19 +692,20 @@ export default class ChatContent extends Component {
             let file = message.messageContent;
             // eslint-disable-next-line
             if (isElectron()) {
-                let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
-                let base64 = Buffer.from(response.data, 'binary').toString('base64');
-                let filename = ipcRenderer.sendSync(
-                    'file-download',
-                    {
-                        filename: `${message.messageId}_${file.name}`,
-                        raw: base64,
-                    },
-                );
-                file.localPath = filename;
-
-                wfc.updateMessageContent(message.messageId, file);
-                this.props.forceRerenderMessage(message.messageId);
+                // let response = await axios.get(file.remotePath, { responseType: 'arraybuffer' });
+                // let base64 = Buffer.from(response.data, 'binary').toString('base64');
+                // let filename = ipcRenderer.sendSync(
+                //     'file-download',
+                //     {
+                //         filename: `${message.messageId}_${file.name}`,
+                //         raw: base64,
+                //     },
+                // );
+                // file.localPath = filename;
+                //
+                // wfc.updateMessageContent(message.messageId, file);
+                // this.props.forceRerenderMessage(message.messageId);
+                ipcRenderer.send('file-download', {messageId : message.messageId, remotePath : file.remotePath});
             } else {
                 let varExt = file.remotePath.split('.');
                 if (varExt[varExt.length - 1] === "txt" || varExt[varExt.length -1] === "log") {

@@ -106,7 +106,7 @@ export default class Layout extends Component {
         // });
 
 
-        if (window.process && window.process.platform === 'win32') {
+        if (window.process && window.process.platform != 'darwin') {
             document.body.classList.add('isWin');
         }
 
