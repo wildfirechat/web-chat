@@ -61,4 +61,10 @@ export default class Config {
             return 5;
         }
     }
+
+    static config(options){
+        Object.keys(options).forEach(key =>{
+            Config[key] = options[key];
+        });
+    }
 }

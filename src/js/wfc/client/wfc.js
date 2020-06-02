@@ -1160,6 +1160,9 @@ export class WfcManager {
         return impl.getVersion();
     }
 
+    getAuthorizedMediaUrl(mediaType, mediaUrl, successCB, failCB){
+        impl.getAuthorizedMediaUrl(mediaType, mediaUrl, successCB, failCB)
+    }
     /**
      * 微信小程序切到前台时调用应用切到了前台
      *
@@ -1203,7 +1206,7 @@ export class WfcManager {
 
     /**
      * 初始化，请参考本demo的用法
-     * @param {[]} args 请参考本demo的用法，第一个参数必须为marswrapper.node导出的对象
+     * @param {[]} args，当采用script标签的方式引入，可传入Config配置对象，配置项，请参考{@link Config}
      */
     init(args = []) {
         impl.init(args);
