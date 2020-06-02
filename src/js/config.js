@@ -12,7 +12,9 @@ export default class Config {
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
     // WebSockets over SSL/TLS，启用https时，一定要配置为true；不启用https，可为false
     static USE_WSS = true;
-    // WSS 端口
+    // WebSocket连接端口，需要和服务端对应，不能随意修改
+    static WS_PORT = 8083;
+    // Secure WebSocket连接端口，需要和服务端对应，不能随意修改
     static WSS_PORT = 8084;
 
     // APP SERVER的地址，启用https时，APP SERVER也需要支持https
