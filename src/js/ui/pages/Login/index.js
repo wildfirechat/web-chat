@@ -27,7 +27,7 @@ export default class Login extends Component {
         axios.defaults.baseURL = Config.APP_SERVER;
 
         this.getCode();
-        this.keepLogin();
+        // this.keepLogin();
         this.refreshQrCode();
     }
 
@@ -58,20 +58,21 @@ export default class Login extends Component {
             device_name: 'web',
             clientId: wfc.getClientId(),
             platform: Config.getWFCPlatform()
-        });
+        } );
         console.log('----------- getCode', response.data);
         if (response.data) {
             let session = Object.assign(new PCSession(), response.data.result);
             this.token = session.token;
             this.qrCode = jrQRCode.getQrBase64(Config.QR_CODE_PREFIX_PC_SESSION + session.token);
+            this.login();
         }
     }
 
-    async keepLogin() {
-        this.loginTimer = setInterval(() => {
-            this.login();
-        }, 1 * 1000);
-    }
+    // async keepLogin() {
+    //     this.loginTimer = setInterval(() => {
+    //         this.login();
+    //     }, 1 * 1000);
+    // }
 
     async refreshQrCode() {
         this.qrCodeTimer = setInterval(() => {
@@ -94,8 +95,8 @@ export default class Login extends Component {
                     let userId = response.data.result.userId;
                     let token = response.data.result.token;
                     connect(userId, token);
-                    WildFireIM.config.loginUser= wfc.getUserInfo(wfc.getUserId());
-                    WildFireIM.config.token= this.token;
+                    WildFireIM.config.loginUser = wfc.getUserInfo(wfc.getUserId());
+                    WildFireIM.config.token = this.token;
                     break;
                 default:
                     this.lastToken = '';
