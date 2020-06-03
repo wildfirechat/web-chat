@@ -9,9 +9,11 @@ import Conversation from '../../../../wfc/model/conversation';
 import ConversationType from '../../../../wfc/model/conversationType';
 import UserInfo from '../../../../wfc/model/userInfo';
 import GroupInfo from '../../../../wfc/model/groupInfo';
+import stores from "../../../stores";
 import wfc from '../../../../wfc/client/wfc'
 
 import classes from './userStyle.css';
+import EventType from "../../../../wfc/client/wfcEvent";
 
 @inject(stores => ({
 
@@ -79,6 +81,21 @@ class UserContactInfo extends Component {
             console.warn('修改备注失败！')
         })
     }
+
+    onUserInfosUpdate = (userInfos) =>{
+        userInfos.forEach(userInfo => {
+            stores.contactInfo.onUserInfoUpdate(userInfo)
+        })
+    }
+
+    componentWillMount() {
+        wfc.eventEmitter.on(EventType.UserInfosUpdate, this.onUserInfosUpdate)
+    }
+
+    componentWillUnmount() {
+        wfc.eventEmitter.removeListener(EventType.UserInfosUpdate, this.onUserInfosUpdate)
+    }
+
     render() {
         var user = this.props.user;
         var gradient = 'none';
@@ -113,7 +130,7 @@ class UserContactInfo extends Component {
                                 </div>
                                 <div className={classes.bottom} >
                                     <div className={classes.area}><span>备注:</span>
-                                    <span className={!user.friendAlias && classes.editbtn} 
+                                    <span className={!user.friendAlias && classes.editbtn}
                                     onClick={(ev) => { this.editDesc(ev, user) }}
                                     onBlur={(e) => { this.editChange(e, user) }}
                                     > {user.friendAlias}</span></div>
@@ -132,7 +149,7 @@ class UserContactInfo extends Component {
                                 </div>
                             </div>
                         </div>
-                        {/* 
+                        {/*
                         <div
                             className={classes.username}
                             dangerouslySetInnerHTML={{ __html: wfc.getUserDisplayName(user.uid) }} /> */}
