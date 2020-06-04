@@ -6,7 +6,7 @@ import Config from '../../../config';
 import jrQRCode from 'jr-qrcode'
 import wfc from '../../../wfc/client/wfc'
 import PCSession from '../../../wfc/model/pcsession';
-import {action, observable} from 'mobx';
+import { observable } from 'mobx';
 import axios from 'axios';
 import {connect} from '../../../platform'
 
