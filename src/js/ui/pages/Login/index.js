@@ -6,7 +6,7 @@ import Config from '../../../config';
 import jrQRCode from 'jr-qrcode'
 import wfc from '../../../wfc/client/wfc'
 import PCSession from '../../../wfc/model/pcsession';
-import {observable} from 'mobx';
+import {action, observable} from 'mobx';
 import axios from 'axios';
 import {connect} from '../../../platform'
 
@@ -17,11 +17,12 @@ import {connect} from '../../../platform'
 @observer
 export default class Login extends Component {
     @observable qrCode;
+    @observable desc = '扫码登录野火IM'
     token = '';
     loginTimer;
     qrCodeTimer;
-
     lastToken;
+
 
     componentDidMount() {
         axios.defaults.baseURL = Config.APP_SERVER;
@@ -64,6 +65,7 @@ export default class Login extends Component {
             let session = Object.assign(new PCSession(), response.data.result);
             this.token = session.token;
             this.qrCode = jrQRCode.getQrBase64(Config.QR_CODE_PREFIX_PC_SESSION + session.token);
+            this.desc = '扫码登录野火IM'
             this.login();
         }
     }
@@ -98,6 +100,13 @@ export default class Login extends Component {
                     WildFireIM.config.loginUser = wfc.getUserInfo(wfc.getUserId());
                     WildFireIM.config.token = this.token;
                     break;
+                case 9:
+                    console.log('qrcode scaned', response.data);
+                    this.desc = response.data.result.userName + ' 已扫码，等待确认';
+                    this.qrCode = response.data.result.portrait;
+                    // update login status ui
+                    this.login();
+                    break;
                 default:
                     this.lastToken = '';
                     console.log(response.data);
@@ -116,7 +125,7 @@ export default class Login extends Component {
 
                 <a href={window.location.pathname + '?' + +new Date()}>刷新二维码</a>
 
-                <p>扫码登录野火IM</p>
+                <p>{this.desc}</p>
             </div>
         );
     }
