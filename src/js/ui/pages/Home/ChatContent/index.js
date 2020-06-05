@@ -1025,7 +1025,7 @@ export default class ChatContent extends Component {
         //single
         if(this.props.conversation.type === 0){
             for (const readEntry of readEntries) {
-                if(readEntry.userId === this.props.conversation.target){
+                if(readEntry.fromUser === this.props.conversation.target){
                     this.forceUpdate();
                 }
             }

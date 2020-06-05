@@ -1,5 +1,5 @@
 export default class ReadEntry {
-    userId;
+    fromUser;
     conversation;
     readTime;
 }
