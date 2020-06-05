@@ -120,6 +120,8 @@ export default class ChatContent extends Component {
     lastBottomMessage;
     isAudioPlaying = false;
     arm;
+    deliveries;
+    readEntries;
     state = {
         isShowMembers: false,
         isShowUserCard: false,
@@ -508,11 +510,13 @@ export default class ChatContent extends Component {
     messageContentLayout(message) {
         if (isElectron()) {
             return (
+                <div>
                 <div className={classes.content} data-message-id={message.messageId}
                     onClick={e => this.handleClick(e)}>
                     <p
                         onContextMenu={e => this.showMessageAction(message)}
                         dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
+                    </div>
                     {
                         message.direction === 0 ?
                             <p style={{
@@ -886,6 +890,10 @@ export default class ChatContent extends Component {
         // }
     }
     render() {
+        if(this.props.conversation){
+            this.deliveries = wfc.getConversationDelivery(this.props.conversation);
+            this.readEntries = wfc.getConversationRead(this.props.conversation);
+        }
         var { loading, showConversation, messages, conversation, target } = this.props;
 
         // maybe userName, groupName, ChannelName or ChatRoomName
@@ -1008,6 +1016,9 @@ export default class ChatContent extends Component {
     }
 
     onMessageDelivered = (deliveries) => {
+        if(!this.props.conversation){
+            return ;
+        }
         //single
         if(this.props.conversation.type === 0){
             let recvDt = deliveries.get(this.props.conversation.target);
@@ -1022,10 +1033,13 @@ export default class ChatContent extends Component {
     }
 
     onMessageRead = (readEntries) => {
+        if(!this.props.conversation){
+            return ;
+        }
         //single
         if(this.props.conversation.type === 0){
             for (const readEntry of readEntries) {
-                if(readEntry.fromUser === this.props.conversation.target){
+                if(readEntry.userId === this.props.conversation.target){
                     this.forceUpdate();
                 }
             }
@@ -1038,11 +1052,9 @@ export default class ChatContent extends Component {
 
     formatReceiptMessage(timestamp){
         let receiptDesc = '';
-        let deliveries = wfc.getConversationDelivery(this.props.conversation);
-        let readEntries = wfc.getConversationRead(this.props.conversation);
         if(this.props.conversation.type === 0){
-            let recvDt = deliveries ? deliveries.get(this.props.conversation.target) : 0;
-            let readDt = readEntries ? readEntries.get(this.props.conversation.target) : 0;
+            let recvDt = this.deliveries ? this.deliveries.get(this.props.conversation.target) : 0;
+            let readDt = this.readEntries ? this.readEntries.get(this.props.conversation.target) : 0;
             if(readDt && gte(readDt, timestamp)){
                 receiptDesc = '已读';
             }else if(recvDt && gte(recvDt, timestamp)){
@@ -1060,8 +1072,8 @@ export default class ChatContent extends Component {
                 let readCount = 0;
 
                 groupMembers.forEach(memberId => {
-                    let recvDt = deliveries ? deliveries.get(memberId) : 0;
-                    let readDt = readEntries ? readEntries.get(memberId) : 0;
+                    let recvDt = this.deliveries ? this.deliveries.get(memberId) : 0;
+                    let readDt = this.readEntries ? this.readEntries.get(memberId) : 0;
                     if(readDt && gte(readDt, timestamp)){
                         readCount ++;
                         recvCount ++;
