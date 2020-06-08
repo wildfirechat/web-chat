@@ -418,9 +418,9 @@
   }
 
   & .content {
-    position: absolute;
     left: 48px;
     top: 20px;
+    margin-bottom: 3px;
     display: flex;
     height: 32px;
     min-width: 120px;
