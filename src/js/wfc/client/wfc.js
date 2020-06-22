@@ -1181,6 +1181,24 @@ export class WfcManager {
     }
 
     /**
+     * 当前用户是否开启消息回执
+     * @return {boolean}
+     */
+    isUserReceiptEnabled(){
+        return impl.isUserReceiptEnabled();
+    }
+
+    /**
+     * 设置当前用户是否开启消息回执
+     * @param enable
+     * @param successCB
+     * @param failCB
+     */
+    setUserEnableReceipt(enable, successCB, failCB){
+        impl.setUserEnableReceipt(enable, successCB, failCB);
+    }
+
+    /**
      *
      * @param conversation
      * @return {Map<string, Long>}
