@@ -1,5 +1,6 @@
 import clazz from 'classname';
 import React, { Component } from 'react';
+import { parser as emojiParse } from 'utils/emoji';
 import helper from 'utils/helper';
 import ConversationType from '../../../../wfc/model/conversationType';
 import classes from './style.css';
@@ -127,7 +128,7 @@ export default class ConversationItem extends Component {
 
                             <span
                                 className={classes.message}
-                                dangerouslySetInnerHTML={{ __html: e.draft ? '[草稿]' + e.draft : (e.lastMessage && e.lastMessage.messageContent ? userName + e.lastMessage.messageContent.digest(e.lastMessage) : '') }} />
+                                dangerouslySetInnerHTML={{ __html: e.draft ? '[草稿]' + e.draft : (e.lastMessage && e.lastMessage.messageContent ? userName + emojiParse(e.lastMessage.messageContent.digest(e.lastMessage)) : '') }} />
                             {e.isSilent ? isSilent : ''}
                         </div>
                     </div>

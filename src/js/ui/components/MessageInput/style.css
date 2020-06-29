@@ -8,7 +8,18 @@
     justify-content: space-between;
     background: #fff;
 
-    & > textarea {
+    & i {
+        font-size: 24px;
+        color: #000;
+        cursor: pointer;
+    }
+
+    & i:hover {
+        color: #34b7f1;
+    }
+}
+
+.test{
         height: 100px;
         width: 100%;
         margin-left: 24px;
@@ -21,17 +32,6 @@
         resize: none;
         font-size: 14px;
         outline: 0;
-    }
-
-    & i {
-        font-size: 24px;
-        color: #000;
-        cursor: pointer;
-    }
-
-    & i:hover {
-        color: #34b7f1;
-    }
 }
 
 .action {

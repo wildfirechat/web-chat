@@ -80,6 +80,7 @@ import MessageConfig from '../../../wfc/client/messageConfig';
     quitGroup: async () => {
         wfc.quitGroup(stores.chat.target.target, [0], null, (e) => {
 
+            stores.members.toggle(false)
         }, (e) => {
             console.warn(e);
         })
