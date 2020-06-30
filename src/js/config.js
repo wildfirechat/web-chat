@@ -10,7 +10,7 @@ export default class Config {
 
     static DEFAULT_PORTRAIT_URL = 'https://static.wildfirechat.cn/user-fallback.png';
     // 如果需要支持音视频通话功能，必须全站使用https(包括app server和im server) + wss，
-    // WebSockets over SSL/TLS，启用https时，一定要配置为true；不启用https，可为false
+    // WebSockets over SSL/TLS，启用https时，一定要配置为true；不启用https，一定要为false
     static USE_WSS = true;
     // WebSocket连接端口，需要和服务端对应，不能随意修改
     static WS_PORT = 8083;
