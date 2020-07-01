@@ -71,10 +71,10 @@ export default class Voip extends Component {
         };
 
         sessionCallback.didReceiveRemoteVideoTrack = (userId, stream) => {
-            if (!this.audioOnly) {
+            // if (!this.audioOnly) {
                 let video = this.remoteVideoMap.get(userId);
                 video.current.srcObject = stream;
-            }
+            // }
         };
 
         sessionCallback.didVideoMuted = (userId, muted) => {
@@ -103,7 +103,7 @@ export default class Voip extends Component {
             this.timer = setInterval(this.onUpdateTime, 1000);
         }
 
-        console.log(this.duration);
+        // console.log(this.duration);
     };
 
     checkedIds = new Set();
@@ -453,7 +453,7 @@ export default class Voip extends Component {
 
     renderVideo() {
         let renderFn;
-        console.log('render video ', this.status);
+        // console.log('render video ', this.status);
         switch (this.status) {
             case CallState.STATUS_IDLE:
                 renderFn = this.renderIdle;
@@ -480,7 +480,7 @@ export default class Voip extends Component {
                             let ref = React.createRef();
                             this.remoteVideoMap.set(u.uid, ref);
                             return (
-                                <video key={u.uid} ref={ref} playsInline autoPlay muted/>
+                                <video key={u.uid} ref={ref} playsInline autoPlay hidden={false}/>
                             );
                         })
                     }
