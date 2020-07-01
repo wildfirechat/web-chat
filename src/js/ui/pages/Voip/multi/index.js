@@ -31,6 +31,7 @@ export default class Voip extends Component {
     toVoiceButton;
     switchMicrophone;
     localVideo;
+    testremoteVideo;
     remoteVideoMap = new Map();
 
     events;
@@ -75,6 +76,7 @@ export default class Voip extends Component {
                 let video = this.remoteVideoMap.get(userId);
                 video.current.srcObject = stream;
             }
+            this.testremoteVideo.srcObject = stream;
         };
 
         sessionCallback.didVideoMuted = (userId, muted) => {
@@ -166,6 +168,7 @@ export default class Voip extends Component {
         this.toVoiceButton = this.refs.toVoiceButton;
         this.switchMicrophone = this.refs.switchMicorphone;
         this.localVideo = this.refs.localVideo;
+        this.testremoteVideo = this.refs.testremoteVideo;
     }
 
     componentWillUnmount() {
@@ -487,6 +490,8 @@ export default class Voip extends Component {
                 </div>
 
                 <video ref="localVideo" className={classes.localVideo} playsInline autoPlay muted>
+                <video ref="testremoteVideo" className={classes.remoteVideo} playsInline autoPlay hidden={false}>
+                </video>
                 </video>
                 {
                     renderFn.bind(this)()
