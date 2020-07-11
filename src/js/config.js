@@ -2,7 +2,7 @@ import {isElectron} from './platform'
 
 export default class Config {
     // 是否支持多人音视频通话
-    static ENABLE_MULTI_VOIP_CALL = false;
+    static ENABLE_MULTI_VOIP_CALL = true;
     // 是否支持1对1音视频通话
     static ENABLE_SINGLE_VOIP_CALL = true;
     // 打开voip调试模式时，voip window不会自动关闭，方便分析控制台日志，需要手动关闭。
@@ -45,6 +45,16 @@ export default class Config {
     static SDK_PLATFORM_OSX = 4;
     static SDK_PLATFORM_WEB = 5;
     static SDK_PLATFORM_WX = 6;
+
+    // 向服务端发送ping的间隔，单位是秒。没有特殊需求，不建议修改
+    static KEEP_ALIVE_INTERNAL = 180;
+
+    /**
+     * 配合{@link wfc.onForeground}使用，切换到前台时，如果多少时间没有活动，将进行重连，单位是秒
+     * 需要大于{@link KEEP_ALIVE_INTERNAL}
+     * 没有特殊需求，不建议修改
+     */
+    static KEEP_ALIVE_TIMEOUT = 200;
 
     static getWFCPlatform() {
         if (isElectron()) {
