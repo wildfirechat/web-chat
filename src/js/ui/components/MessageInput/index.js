@@ -153,7 +153,21 @@ export default class MessageInput extends Component {
         ) return;
         if (e.ctrlKey && e.charCode === 13) {
             e.preventDefault();
-            this.refs.input.innerHTML= this.refs.input.innerHTML+ "\n";
+            // this.refs.input.innerHTML = this.refs.input.innerHTML+ "<div><br></div>";
+            document.execCommand('InsertHTML', true, '<br>');
+            if (window.getSelection) {
+                let selection = window.getSelection(),
+                    range = selection.getRangeAt(0),
+                    br = document.createElement("br");
+                range.deleteContents();
+                range.insertNode(br);
+                range.setStartAfter(br);
+                range.setEndAfter(br);
+                // range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                // return false;
+            }
             return;
         }
 
@@ -164,6 +178,10 @@ export default class MessageInput extends Component {
         // await this.props.sendMessage(
         //     new TextMessageContent(message)
         // )
+
+        if(!message.startsWith('<')){
+            message = message.replace(/<br>/g, '\n').trim()
+        }
         // TODO 处理表情路径变化
         message = message.replace(/<img class="emoji" draggable="false" alt="/g, '')
             .replace(/" src="assets\/twemoji\/72x72\/[0-9a-z-]+\.png">/g, '')
@@ -370,6 +388,7 @@ export default class MessageInput extends Component {
             && !this.props.conversation.equal(nextProps.conversation)
         ) {
             let text = input.innerHTML.trim();
+            text = text.replace(/<br>/g, '\n').trim()
             let conversationInfo = wfc.getConversationInfo(this.props.conversation);
             if(!conversationInfo){
                 return;
@@ -390,7 +409,7 @@ export default class MessageInput extends Component {
             }
         } else if (nextProps.conversation) {
             let conversationInfo = wfc.getConversationInfo(nextProps.conversation);
-            if(!conversationInfo){
+            if(!conversationInfo || (this.props.conversation && this.props.conversation.equal(nextProps.conversation))) {
                 return;
             }
             input.innerHTML = conversationInfo.draft ? conversationInfo.draft : '';
@@ -590,7 +609,7 @@ export default class MessageInput extends Component {
                     />
                 </div>
                 <div contentEditable={true}
-                    className={classes.test}
+                    className={classes.messageInput}
                     id="messageInput"
                     ref="input"
                     placeholder="输入内容发送，Ctrl + Enter 换行 ..."
