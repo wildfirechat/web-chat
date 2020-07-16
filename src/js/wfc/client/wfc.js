@@ -1220,6 +1220,10 @@ export class WfcManager {
         return impl.isUserReceiptEnabled();
     }
 
+    isCommercialServer() {
+        return true;
+    }
+
     /**
      * 设置当前用户是否开启消息回执
      * @param enable
