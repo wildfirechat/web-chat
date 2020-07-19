@@ -223,7 +223,7 @@ export default class ChatContent extends Component {
                         </span>
 
                         <audio controls="controls">
-                            <source src="${voice.remotePath}"  type="audio/AMR" />
+                            <source src="${voice.remotePath}"  type="audio/mp4" />
                         </audio>
                     </div>
                 `;
@@ -635,32 +635,18 @@ export default class ChatContent extends Component {
                 }
             }
 
-            audio.onplay = () => {
-                this.amr = new BenzAMRRecorder();
-                this.amr.initWithUrl(voiceUrl).then(() => {
-                    this.isAudioPlaying = true;
-                    this.amr.play();
-                });
-                this.amr.onEnded(() => {
-                    this.isAudioPlaying = false;
-                    // do not uncomment the following line
-                    // this.amr = null;
-                    target.classList.remove(classes.playing)
-                    audio.pause();
-                    audio.currentTime = 0;
-                })
+            this.amr = new BenzAMRRecorder();
+            this.amr.initWithUrl(voiceUrl).then(() => {
                 target.classList.add(classes.playing)
-            };
-            // audio不支持amr，所以下面两个回调不会走
-            // audio.onended = () => {
-            //     console.log('onended');
-            //     target.classList.remove(classes.playing)
-            // };
-            audio.onerror = (e) => {
+                this.isAudioPlaying = true;
+                this.amr.play();
+            });
+            this.amr.onEnded(() => {
+                this.isAudioPlaying = false;
                 target.classList.remove(classes.playing)
-                console.log('on error', e);
-            }
-            audio.play();
+                audio.pause();
+                audio.currentTime = 0;
+            })
 
             return;
         }
