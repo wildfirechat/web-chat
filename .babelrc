@@ -8,6 +8,10 @@
   "presets": ["es2015", "react", "stage-0"],
   "plugins": ["babel-polyfill", "transform-decorators-legacy"],
   "env": {
+      "modules": "commonjs",
+      "targets": {
+        "browsers": ["last 2 versions", "ie >= 11"]
+      },
       "production": {
           "presets": ["react-optimize"]
       },
