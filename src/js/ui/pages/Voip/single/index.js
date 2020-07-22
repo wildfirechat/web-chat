@@ -62,6 +62,9 @@ export default class Voip extends Component {
             this.remoteVideo.srcObject = stream;
         };
 
+        sessionCallback.didCallEndWithReason = (reason) =>{
+            console.log('callEndWithReason', reason)
+        }
         sessionCallback.didVideoMuted = (userId, muted) => {
             this.muted = muted;
         };
