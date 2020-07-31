@@ -448,6 +448,16 @@ export class WfcManager {
     }
 
     /**
+     * 根据群成员类型获取群成员列表
+     * @param {string} groupId
+     * @param {number} memberType，可选值参考{@link GroupMemberType}
+     * @return {[GroupMember]} 群成员列表
+     */
+    getGroupMembersByType(groupId, memberType){
+        return impl.getGroupMembersByType(groupId, memberType);
+    }
+
+    /**
      * 获取群成员信息
      * @param {string} groupId 群id
      * @param {boolean} fresh 是否强制从服务器更新，如果不刷新则从本地缓存中读取
