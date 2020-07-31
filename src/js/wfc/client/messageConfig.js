@@ -37,6 +37,8 @@ import GroupJoinTypeNotificationContent from "../messages/notification/groupJoin
 import GroupMuteNotificationContent from "../messages/notification/groupMuteNotificationContent";
 import GroupSetManagerNotificationContent from "../messages/notification/groupSetManagerNotificationContent";
 import GroupPrivateChatNotificationContent from "../messages/notification/groupPrivateChatNotificationContent";
+import LocationMessageContent from "../messages/locationMessageContent";
+import MuteGroupMemberNotification from '../messages/notification/muteGroupMemberNotification'
 export default class MessageConfig {
     static getMessageContentClazz(type) {
         for (const content of MessageConfig.MessageContents) {
@@ -129,6 +131,7 @@ export default class MessageConfig {
             name: 'location',
             flag: PersistFlag.Persist_And_Count,
             type: MessageContentType.Location,
+            contentClazz:LocationMessageContent,
         },
         {
             name: 'file',
@@ -228,7 +231,7 @@ export default class MessageConfig {
         {
             name: 'groupMuteNotificationContent',
             flag: PersistFlag.Persist,
-            type: MessageContentType.MuteGroupMember_Notification,
+            type: MessageContentType.MuteGroup_Notification,
             contentClazz: GroupMuteNotificationContent,
         },
         {
@@ -242,6 +245,12 @@ export default class MessageConfig {
             flag: PersistFlag.Persist,
             type: MessageContentType.SetGroupManager_Notification,
             contentClazz: GroupSetManagerNotificationContent,
+        },
+        {
+            name: 'muteGroupMemberNotificationContent',
+            flag: PersistFlag.Persist,
+            type: MessageContentType.MuteGroupMember_Notification,
+            contentClazz: MuteGroupMemberNotification,
         },
         {
             name: 'recall',
