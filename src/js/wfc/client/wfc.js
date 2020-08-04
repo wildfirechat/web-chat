@@ -181,7 +181,7 @@ export class WfcManager {
     /**
      * 获取用户信息
      * @param {string} userId 用户ID
-     * @param {boolean} refresh 是否刷新用户
+     * @param {boolean} refresh 是否强制从服务器更新，如果本地没有或者强制，会从服务器刷新，然后发出通知UserInfosUpdate
      * @param {function (UserInfo)} success 成功回调
      * @param {function (number)} fail 失败回调
      */
@@ -501,7 +501,7 @@ export class WfcManager {
      * @param {function ()} successCB 成功回调
      * @param {function (number)} failCB 失败回调
      */
-    muteGroupMembers(groupId, isSet, memberIds, notifyLines, notifyMsg, successCB, failCB){
+    muteGroupMembers(groupId, isSet, memberIds= [], notifyLines = [], notifyMsg, successCB, failCB){
         impl.muteGroupMembers(groupId, isSet, memberIds, notifyLines, notifyMsg, successCB, failCB);
     }
 
@@ -921,7 +921,7 @@ export class WfcManager {
      * @param {number} timestamp
      */
     setConversationTimestamp(conversation, timestamp){
-        impl.setConversationTimestamp(conversation, timestamp);
+        impl.setConversationTimestamp(conversation, timestamp)
     }
 
     /**
@@ -1176,7 +1176,7 @@ export class WfcManager {
      * @param {Number} serverTime 服务器时间，精度到毫秒
      */
     insertMessage(conversation, messageContent, status, notify = false, serverTime = 0) {
-        impl.insertMessage(conversation, messageContent, status, notify, serverTime);
+        impl.insertMessage(conversation, messageContent, this.getUserId(), status, notify, serverTime);
     }
 
     /**
@@ -1216,8 +1216,8 @@ export class WfcManager {
         return impl.getVersion();
     }
 
-    getAuthorizedMediaUrl(mediaType, mediaUrl, successCB, failCB){
-        impl.getAuthorizedMediaUrl(mediaType, mediaUrl, successCB, failCB)
+    getAuthorizedMediaUrl(messageUid, mediaType, mediaPath, successCB, failCB){
+        impl.getAuthorizedMediaUrl(messageUid, mediaType, mediaPath, successCB, failCB)
     }
     /**
      * 微信小程序切到前台时调用应用切到了前台
@@ -1276,7 +1276,38 @@ export class WfcManager {
         return impl.getConversationRead(conversation);
     }
 
+    /**
+     * 获取会话中的文件记录
+     * @param {Conversation} conversation 会话
+     * @param {Long} beforeMessageUid 消息uid，表示获取此消息uid之前的文件记录
+     * @param {number} count 数量
+     * @param {function ([FileRecord])} successCB 成功回调
+     * @param {function (number)} failCB 失败回调
+     */
+    getConversationFileRecords(conversation, beforeMessageUid, count, successCB, failCB){
+        impl.getConversationFileRecords(conversation, beforeMessageUid, count, successCB, failCB);
+    }
 
+    /**
+     * 获取我发送的文件记录
+     * @param {Long} beforeMessageUid 消息uid，表示获取此消息uid之前的文件记录
+     * @param {number} count 数量
+     * @param {function ([FileRecord])} successCB 成功回调
+     * @param {function (number)} failCB 失败回调
+     */
+    getMyFileRecords(beforeMessageUid, count, successCB, failCB){
+        impl.getMyFileRecords(beforeMessageUid, count, successCB, failCB);
+    }
+
+    /**
+     * 删除文件记录
+     * @param {Long} messageUid 文件对应的消息的uid
+     * @param {function ()} successCB 成功回调
+     * @param {function (number)} failCB 失败回调
+     */
+    deleteFileRecord(messageUid, successCB, failCB){
+        impl.deleteFileRecord(messageUid, successCB, failCB);
+    }
 
     _getStore() {
         return impl._getStore();
