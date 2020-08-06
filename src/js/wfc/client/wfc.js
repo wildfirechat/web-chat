@@ -502,7 +502,21 @@ export class WfcManager {
      * @param {function (number)} failCB 失败回调
      */
     muteGroupMembers(groupId, isSet, memberIds= [], notifyLines = [], notifyMsg, successCB, failCB){
-        impl.muteGroupMembers(groupId, isSet, memberIds, notifyLines, notifyMsg, successCB, failCB);
+        impl.muteOrAllowGroupMembers(groupId, isSet, false, memberIds, notifyLines, notifyMsg, successCB, failCB);
+    }
+
+    /**
+     * 群全局禁言之后，允许白名单成员发言
+     * @param {string} groupId 群id
+     * @param {boolean} isSet true，加入白名单，允许发言；false，移除白名单，禁止发言
+     * @param {[string]} memberIds 群成员id列表
+     * @param {[number]} notifyLines 默认传[0]即可
+     * @param {MessageContent} notifyMsg 默认传null即可
+     * @param {function ()} successCB 成功回调
+     * @param {function (number)} failCB 失败回调
+     */
+    allowGroupMembers(groupId, isSet, memberIds= [], notifyLines = [], notifyMsg, successCB, failCB){
+        impl.muteOrAllowGroupMembers(groupId, isSet, true, memberIds, notifyLines, notifyMsg, successCB, failCB);
     }
 
     /**

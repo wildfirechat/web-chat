@@ -34,6 +34,10 @@ export default class MessageContentType {
     static SetGroupManager_Notification = 117;
     //禁言/取消禁言群成员的通知消息
     static MuteGroupMember_Notification = 118;
+    // 全局禁言之后，允许群成员发言的通知消息
+    static AllowGroupMember_Notification = 119;
+
+
     static VOIP_CONTENT_TYPE_START = 400;
     static VOIP_CONTENT_TYPE_END = 402;
     static VOIP_CONTENT_TYPE_ACCEPT = 401;
