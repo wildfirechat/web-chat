@@ -32,7 +32,7 @@ export default class MuteGroupMemberNotification extends GroupNotificationConten
                     memberId)
             })
         }
-        if (this.type === 0) {
+        if (this.type === 1) {
             notifyStr += '设置了禁言'
         } else {
             notifyStr += '取消了禁言'
