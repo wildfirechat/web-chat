@@ -64,7 +64,7 @@
 ```
 $ npm install
 $ npm run dev
-浏览器访问: http://localhost:3000
+浏览器访问: http://localhost:5000
 
 ```
 
