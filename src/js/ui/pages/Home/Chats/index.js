@@ -1,6 +1,6 @@
-import { inject, observer } from 'mobx-react';
+import {inject, observer} from 'mobx-react';
 import moment from 'moment';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import EventType from '../../../../wfc/client/wfcEvent';
 import ConversationItem from './conversationItem';
 import classes from './style.css';
@@ -11,6 +11,7 @@ import ConversationType from '../../../../wfc/model/conversationType';
 import wfc from '../../../../wfc/client/wfc'
 import DismissGroupNotification from "../../../../wfc/messages/notification/dismissGroupNotification";
 import QuitGroupNotification from "../../../../wfc/messages/notification/quitGroupNotification";
+import KickoffGroupMemberNotification from "../../../../wfc/messages/notification/kickoffGroupMemberNotification";
 
 moment.updateLocale('en', {
     relativeTime: {
@@ -82,7 +83,9 @@ export default class Chats extends Component {
 
     onReceiveMessage = (msg) => {
         // this.props.reloadConversation(msg.conversation);
-        if(msg.messageContent instanceof DismissGroupNotification || msg.messageContent instanceof QuitGroupNotification){
+        if (msg.messageContent instanceof DismissGroupNotification
+            || msg.messageContent instanceof QuitGroupNotification
+            || msg.messageContent instanceof KickoffGroupMemberNotification) {
             wfc.removeConversation(msg.conversation, true);
         }
         this.props.loadConversations();
@@ -186,7 +189,7 @@ export default class Chats extends Component {
     }
 
     render() {
-        var { chats, filtered, conversation, chatTo, markedRead, sticky, removeChat } = this.props;
+        var {chats, filtered, conversation, chatTo, markedRead, sticky, removeChat} = this.props;
         if (filtered.query) {
             chats = filtered.result;
         }
@@ -201,7 +204,7 @@ export default class Chats extends Component {
             <div className={classes.container}>
                 <div className={classes.searchBar}>
                     <div className="searchBar-bg">
-                        <i className="icon-ion-ios-search-strong" />
+                        <i className="icon-ion-ios-search-strong"/>
                         <input
                             id="search"
                             // onFocus={e => this.filter(e.target.value)}
@@ -210,7 +213,7 @@ export default class Chats extends Component {
                             placeholder={filtered.query ? '' : '搜索 ...'}
                             // value={filtered.query ? filtered.query : ''}
                             ref="search"
-                            type="text" />
+                            type="text"/>
                     </div>
                 </div>
                 <div
