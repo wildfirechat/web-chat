@@ -713,7 +713,7 @@ export default class ChatContent extends Component {
                 //
                 // wfc.updateMessageContent(message.messageId, file);
                 // this.props.forceRerenderMessage(message.messageId);
-                ipcRenderer.send('file-download', {messageId : message.messageId, remotePath : file.remotePath});
+                ipcRenderer.send('file-download', {messageId : message.messageId, remotePath : file.remotePath, fileName: file.name});
             } else {
                 // let varExt = file.remotePath.split('.');
                 // if (varExt[varExt.length - 1] === "txt" || varExt[varExt.length -1] === "log") {
@@ -743,9 +743,9 @@ export default class ChatContent extends Component {
                     xhr.open("GET", fileHref, true);
                     xhr.send();
                 }else {
-                    let anchor = document.createElement('a');
-                    anchor.setAttribute("download", true);
-                    anchor.setAttribute("href", fileHref);
+                    var anchor = document.createElement('a');
+                    anchor.download =  filename;
+                    anchor.href = fileHref;
                     anchor.click();
                 }
             }
