@@ -21,9 +21,8 @@ export default class Config {
     // 默认的app server使用端口是8888
     static APP_SERVER = 'https://app.wildfirechat.cn';
     static QR_CODE_PREFIX_PC_SESSION = "wildfirechat://pcsession/";
-    static ICE_ADDRESS = 'turn:turn.wildfirechat.cn:3478';
-    static ICE_USERNAME = 'wfchat';
-    static ICE_PASSWORD = 'wfchat';
+    // turn server 配置，可以添加多个
+    static ICE_SERVERS = [{uri: 'turn:turn.wildfirechat.cn:3478', userName: 'wfchat', password: 'wfchat'}];
     static LANGUAGE = 'zh_CN';
 
     // appId和appKey和专业版im server是绑定的，一定要做对应修改
