@@ -25,6 +25,8 @@ import { observable, action } from 'mobx';
 import EventType from '../../wfc/client/wfcEvent';
 import ConnectionStatus from '../../wfc/client/connectionStatus';
 import clazz from 'classname';
+import Screenshot from "react-screenshots";
+import html2canvas from "html2canvas";
 
 @inject(stores => ({
     isLogin: () => !!stores.sessions.auth,
@@ -43,6 +45,8 @@ export default class Layout extends Component {
 
     state = {
         offline: false,
+        showScreenshot: false,
+        image: null
     };
 
     componentDidMount() {
@@ -110,6 +114,11 @@ export default class Layout extends Component {
             document.body.classList.add('isWin');
         }
 
+        window.ondragstart = e => {
+            e.dataTransfer.setData('text/plain', '')
+            console.log('drag start.......');
+        }
+
         window.ondragover = e => {
             if (this.props.canidrag()) {
                 this.refs.holder.classList.add(classes.show);
@@ -122,6 +131,7 @@ export default class Layout extends Component {
         };
 
         window.ondragleave = () => {
+            console.log('drag leave.......');
             if (!this.props.canidrag()) return false;
 
             this.refs.holder.classList.remove(classes.show);
@@ -129,11 +139,12 @@ export default class Layout extends Component {
         };
 
         window.ondragend = e => {
+            console.log('drag end.......');
             return false;
         };
 
         window.ondrop = e => {
-            console.log('on drop');
+            console.log('on drop......');
             var files = e.dataTransfer.files;
             e.preventDefault();
             e.stopPropagation();
@@ -146,6 +157,43 @@ export default class Layout extends Component {
             this.refs.viewport.classList.remove(classes.blur);
             return false;
         };
+    }
+
+    dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    onStartScreenshot = ()=>{
+        html2canvas(document.body).then((canvas) => {
+            let img = canvas.toDataURL("image/png");
+            this.setState({showScreenshot: true, image: img})
+        });
+    }
+
+    onScreenshotOk = (data)=>{
+        this.setState({showScreenshot: false, image: null})
+        wfc.eventEmitter.emit('screenshot-ok')
+        console.log('screenshotOK', data)
+        let blob = this.dataURLtoBlob(data.dataURL);
+        navigator.clipboard.write([
+            new ClipboardItem({
+                [blob.type]: blob
+            })]);
+    }
+
+    onScreenshotSave = (data)=>{
+        this.setState({showScreenshot: false, image: null})
+        wfc.eventEmitter.emit('screenshot-end')
+        // TODO save
+    }
+
+    onScreenshotCancel = ()=>{
+        this.setState({showScreenshot: false, image: null})
     }
 
     onConnectionStatusChange = (status) => {
@@ -161,12 +209,21 @@ export default class Layout extends Component {
     componentWillMount() {
         console.log('lyaout--------------wfc', wfc);
         wfc.eventEmitter.on(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+
+        if (!isElectron()){
+            wfc.eventEmitter.on('screenshot-start', this.onStartScreenshot);
+        }
     }
 
     componentWillUnmount() {
         console.log('layout', 'will unmount')
         wfc.eventEmitter.removeListener(EventType.ConnectionStatusChanged, this.onConnectionStatusChange);
+
+        if (!isElectron()) {
+            wfc.eventEmitter.removeAllListeners('screenshot-start')
+        }
     }
+
     isMac(){
         // var agent = navigator.userAgent.toLowerCase();
         // var isMac = /macintosh|mac os x/i.test(navigator.userAgent);
@@ -186,6 +243,18 @@ export default class Layout extends Component {
         //         }} />
         //     );
         // }
+        if(this.state.showScreenshot){
+           return (
+               <Screenshot
+                image={this.state.image}
+                width={window.innerWidth}
+                height={window.innerHeight}
+                onSave={this.onScreenshotSave}
+                onCancel={this.onScreenshotCancel}
+                onOk={this.onScreenshotOk}
+            />
+           )
+        }
 
         if (this.connectionStatus === ConnectionStatus.ConnectionStatusRejected
             || this.connectionStatus === ConnectionStatus.ConnectionStatusLogout
@@ -216,7 +285,7 @@ export default class Layout extends Component {
                     ref="viewport">
                     {this.props.children}
                 </div>
-                <Footer 
+                <Footer
                     className={classes.footer}
                     location={location}
                     isMac={this.isMac}
