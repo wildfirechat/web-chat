@@ -15,7 +15,6 @@ import GroupType from "../../../wfc/model/groupType";
 @inject(stores => ({
     show: stores.newchat.show,
     searching: stores.newchat.query,
-    mergeImages: stores.newchat.mergeImages,
     getList: () => {
         var { newchat, contacts } = stores;
 
@@ -67,11 +66,8 @@ export default class NewChat extends Component {
                 let userInfo = wfc.getUserInfo(selected[i]);
                 portraits.push(userInfo.portrait);
             }
-            let dataUri = await this.props.mergeImages(portraits);
 
-            wfc.uploadMedia('', dataUri, MessageContentMediaType.Portrait,
-                (remoteUrl) => {
-                    wfc.createGroup(null, GroupType.Restricted, groupName, remoteUrl, selected, [0], null,
+            wfc.createGroup(null, GroupType.Restricted, groupName, '', selected, [0], null,
                         (groupId) => {
                             let conversation = new Conversation(ConversationType.Group, groupId, 0);
                             this.props.chatTo(conversation);
@@ -79,14 +75,7 @@ export default class NewChat extends Component {
                         (errorCode) => {
                             console.log('create group error', errorCode);
                         });
-                },
-                (errorCode) => {
-                    console.log('upload media error', errorCode);
-                },
-                (current, total) => {
-                    // do nothing
-                });
-        };
+            }
 
         this.close();
         setTimeout(() => {
