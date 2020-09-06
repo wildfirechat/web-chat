@@ -55,9 +55,10 @@ export default class Login extends Component {
         let response = await axios.post('/pc_session', {
             flag: 1,
             device_name: 'web',
+            userId: userId,
             clientId: wfc.getClientId(),
             platform: Config.getWFCPlatform()
-        } );
+        }, { withCredentials:true });
         console.log('----------- createPCLoginSession', response.data);
         if (response.data) {
             let session = Object.assign(new PCSession(), response.data.result);
@@ -88,7 +89,7 @@ export default class Login extends Component {
             console.log('-------- token is empty or invalid');
             return;
         }
-        var response = await axios.post('/session_login/' + this.appToken);
+        var response = await axios.post('/session_login/' + this.appToken, "", { withCredentials:true });
         console.log('---------- login', response.data);
         if (response.data) {
             switch (response.data.code) {
