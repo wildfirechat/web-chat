@@ -4,22 +4,22 @@
  */
 
 import MessageContent from './messageContent'
-import MessageContentType from './messageContentType'
+import MessageContentType from "./messageContentType";
 import wfc from '../client/wfc'
 
 export default class CardMessageContent extends MessageContent{
     /**
      * 0，用户；1，群组；2，聊天室；3，频道
      */
-    type;
+    cardType;
     target;
     name;
     displayName;
     portrait;
 
-    constructor (type, target, displayName, portrait) {
+    constructor (cardType, target, displayName, portrait) {
         super(MessageContentType.UserCard);
-        this.type = type;
+        this.cardType = cardType;
         this.target = target;
         this.displayName = displayName;
         this.portrait = portrait;
@@ -29,7 +29,7 @@ export default class CardMessageContent extends MessageContent{
         let payload = super.encode()
         payload.content = this.target;
         let obj = {
-            t:this.type,
+            t:this.cardType,
             n:this.name,
             d:this.displayName,
             p:this.portrait
@@ -42,7 +42,7 @@ export default class CardMessageContent extends MessageContent{
         super.decode(payload)
         this.target = payload.content;
         let obj = JSON.parse(wfc.b64_to_utf8(payload.binaryContent));
-        this.type = obj.t;
+        this.cardType = obj.t;
         this.name = obj.n;
         this.displayName = obj.d;
         this.portrait = obj.p;
@@ -50,7 +50,7 @@ export default class CardMessageContent extends MessageContent{
 
     digest () {
         let msg = '[名片]';
-        switch (this.type){
+        switch (this.cardType){
             case 0:
                 msg = '[个人名片]'
                 break;
