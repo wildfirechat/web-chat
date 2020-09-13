@@ -261,8 +261,8 @@ export default class ChatContent extends Component {
                         <img src="${contact.portrait}" class="unload disabledDrag" />
 
                         <div>
-                            <p>${contact.name}</p>
                             <p>${contact.displayName}</p>
+                            <p>${contact.name}</p>
                         </div>
                 `;
 
