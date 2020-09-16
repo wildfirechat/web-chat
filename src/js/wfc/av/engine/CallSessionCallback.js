@@ -20,6 +20,10 @@ export default class CallSessionCallback {
 
     }
 
+    didParticipantConnected(userId) {
+
+    }
+
     didParticipantLeft(userId, callEndReason) {
 
     }
