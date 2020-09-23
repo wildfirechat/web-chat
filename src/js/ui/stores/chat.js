@@ -1,11 +1,7 @@
 import { observable, action } from 'mobx';
-import axios from 'axios';
 import { ipcRenderer, isElectron } from '../../platform'
 
 import helper from 'utils/helper';
-import contacts from './contacts';
-import settings from './settings';
-import members from './members';
 import sessions from './sessions';
 import snackbar from './snackbar';
 import wfc from '../../wfc/client/wfc'
@@ -16,53 +12,11 @@ import MessageContentMediaType from '../../wfc/messages/messageContentMediaType'
 import ImageMessageContent from '../../wfc/messages/imageMessageContent';
 import VideoMessageContent from '../../wfc/messages/videoMessageContent';
 import FileMessageContent from '../../wfc/messages/fileMessageContent';
-import MessageStatus from '../../wfc/messages/messageStatus';
 import resizeImage from 'resize-image';
 import QuitGroupNotification from '../../wfc/messages/notification/quitGroupNotification';
 import DismissGroupNotification from '../../wfc/messages/notification/dismissGroupNotification';
 import KickoffGroupMemberNotification from '../../wfc/messages/notification/kickoffGroupMemberNotification';
-import MessageConfig from "../../wfc/client/messageConfig";
-import PersistFlag from "../../wfc/messages/persistFlag";
-import MediaMessageContent from "../../wfc/messages/mediaMessageContent";
 import {eq} from "../../wfc/util/longUtil";
-
-function hasUnreadMessage(messages) {
-    var counter = 0;
-
-    Array.from(messages.keys()).map(
-        e => {
-            var item = messages.get(e);
-            counter += (item.data.length - item.unread);
-        }
-    );
-    if (isElectron()) {
-        ipcRenderer.send(
-            'message-unread',
-            {
-                counter,
-            }
-        );
-    } else {
-        // TODO
-
-    }
-}
-
-async function updateMenus({ conversations = [], contacts = [] }) {
-    ipcRenderer.send('menu-update', {
-        conversations: conversations.map(e => ({
-            id: e.UserName,
-            name: e.RemarkName || e.NickName,
-            avatar: e.HeadImgUrl,
-        })),
-        contacts: contacts.map(e => ({
-            id: e.UserName,
-            name: e.RemarkName || e.NickName,
-            avatar: e.HeadImgUrl,
-        })),
-        cookies: await helper.getCookie(),
-    });
-}
 
 class Chat {
     // TODO remove
@@ -82,6 +36,7 @@ class Chat {
 
     loading = false;
     hasMore = true;
+    isVisible = true;
 
     @observable messageList = [];
 
@@ -148,8 +103,10 @@ class Chat {
                 }
             }
 
+            if(self.isVisible){
             let conversationInfo = wfc.getConversationInfo(self.conversation);
             sessions.clearConversationUnreadStatus(conversationInfo);
+            }
         }
     }
 
@@ -189,6 +146,27 @@ class Chat {
     @action
     changeConversationInfo(conversation) {
         self.conversationInfo = wfc.getConversationInfo(conversation);
+    }
+
+    @action
+    setVisibility(visible= false){
+        self.isVisible = visible;
+        if(visible && self.conversation){
+            setTimeout(()=>{
+                let conversationInfo = wfc.getConversationInfo(self.conversation);
+                sessions.clearConversationUnreadStatus(conversationInfo);
+            }, 1000)
+        }
+    }
+
+    @action
+    reset(){
+        wfc.eventEmitter.removeListener(EventType.ReceiveMessage, self.onReceiveMessage);
+        wfc.eventEmitter.removeListener(EventType.SendMessage, self.onSendMessage)
+        wfc.eventEmitter.removeListener(EventType.MessageStatusUpdate, self.onMessageStatusUpdate)
+        wfc.eventEmitter.removeListener(EventType.RecallMessage, self.onRecallMessage);
+        wfc.eventEmitter.removeListener(EventType.UserInfosUpdate, self.onUserInfosUpdate);
+        wfc.eventEmitter.removeListener(EventType.GroupInfosUpdate, self.onGroupInfosUpdate);
     }
 
     @action

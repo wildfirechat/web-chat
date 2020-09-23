@@ -58,21 +58,6 @@ class sessions {
     async loadConversations() {
         let cl = wfc.getConversationList([ConversationType.Single, ConversationType.Group, ConversationType.Channel], [0]);
         self.conversations = cl;
-        let counter = 0;
-        cl.forEach((e) => {
-            counter += e.unreadCount.unread;
-        });
-        console.log('loadConversations', counter);
-        if (ipcRenderer) {
-            ipcRenderer.send(
-                'message-unread',
-                {
-                    counter,
-                }
-            );
-        } else {
-            document.title = counter === 0 ? "野火IM" : (`野火IM(有${counter}条未读消息)`);
-        }
     }
 
 

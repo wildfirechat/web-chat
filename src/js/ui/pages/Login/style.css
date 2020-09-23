@@ -18,18 +18,21 @@
 
     & img {
         display: block;
-        width: 100%;
+        margin: 0 auto;
     }
 
     & p {
         color: #000;
         font-family: "Helvetica-Light";
+        font-size: large;
+        margin-top: 30px;
+        margin-bottom: 5px;
     }
 
     & p:last-child {
-        margin-top: 20px;
+        margin-top: 5px;
         color: #888;
-        font-size: 16px;
+        font-size: medium;
     }
 
     & a {
@@ -41,6 +44,43 @@
 
     & a:hover {
         border-bottom-color: #777;
+    }
+
+    & .success {
+      color: #3B62E0;
+    }
+
+    .hint {
+      margin-top: 20px;
+      color: #888;
+      font-size: 12px;
+    }
+
+    & .confirm {
+        width: 260px;
+        height: 40px;
+        background-color: #3B62E0;
+        font-size: large;
+        border-radius: 8px;
+        margin-top: 50px;
+        color: white;
+    }
+
+    & .cancel {
+        width: 260px;
+        height: 40px;
+        margin-top: 50px;
+        border: none;
+        font-size: large;
+        color: gray;
+    }
+    & .portrait {
+        display: block;
+        height: 200px;
+        max-width: 200px;
+        margin: auto auto 0;
+        border-radius: 5px;
+        pointer-events: none;
     }
 }
 
