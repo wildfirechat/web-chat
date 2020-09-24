@@ -6,8 +6,6 @@ import { ipcRenderer, remote, isElectron } from '../../platform';
 import classes from './Layout.css';
 import Header from './Header';
 import Footer from './Footer';
-// import Login from './Login';
-import Chats from './Home/Chats';
 import UserInfo from './UserInfo';
 import AddFriend from './AddFriend';
 import NewChat from './NewChat';
@@ -18,7 +16,6 @@ import Forward from './Forward';
 import ConfirmImagePaste from './ConfirmImagePaste';
 import Loader from 'components/Loader';
 import Snackbar from 'components/Snackbar';
-import Offline from 'components/Offline';
 import Login from './Login';
 import wfc from '../../wfc/client/wfc'
 import { observable, action } from 'mobx';
@@ -29,6 +26,7 @@ import ConversationType from "../../wfc/model/conversationType";
 import MessageConfig from "../../wfc/client/messageConfig";
 import PersistFlag from "../../wfc/messages/persistFlag";
 import Push from "push.js";
+import stores from "../stores";
 
 @inject(stores => ({
     isLogin: () => !!stores.sessions.auth,
@@ -38,7 +36,7 @@ import Push from "push.js";
     process: stores.chat.process,
     reconnect: stores.sessions.checkTimeout,
     close: () => stores.snackbar.toggle(false),
-    canidrag: () => !!stores.chat.conversation && !stores.batchsend.show,
+    canidrag: () => !!stores.chat.conversation,
 }))
 @observer
 export default class Layout extends Component {
@@ -174,6 +172,7 @@ export default class Layout extends Component {
         cl.forEach((e) => {
             counter += e.isSilent ? 0 : e.unreadCount.unread;
         });
+        stores.sessions.setUnreadCount(counter)
         if (ipcRenderer) {
             ipcRenderer.send(
                 'message-unread',

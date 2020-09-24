@@ -13,7 +13,8 @@ import UserCard from '../../components/userCard'
 import wfc from '../../../wfc/client/wfc'
 
 @inject(stores => ({
-    showConversation: stores.chat.showConversation
+    showConversation: stores.chat.showConversation,
+    unreadCount: stores.sessions.unreadCount
 }))
 @observer
 export default class Footer extends Component {
@@ -26,7 +27,7 @@ export default class Footer extends Component {
         })
     }
     render() {
-        var { showConversation } = this.props;
+        var { unreadCount, showConversation } = this.props;
         var pathname = this.props.location.pathname;
         var component = {
             '/': Home,
@@ -57,7 +58,11 @@ export default class Footer extends Component {
                         <span className={clazz({
                             [classes.active]: pathname === '/'
                         })}>
+                            <div data-aftercontent={unreadCount} className={clazz(classes.dot, {
+                                [classes.red]:unreadCount > 0
+                        })}>
                             <i className="icon-ion-android-chat" />
+                            </div>
                         </span>
                     </Link>
 

@@ -837,6 +837,7 @@ export default class ChatContent extends Component {
     }
     componentWillMount() {
         console.log('componentWillMount');
+        stores.chat.setVisibility(true);
         document.addEventListener("visibilitychange", this.onVisibilityChange);
         wfc.eventEmitter.on(EventType.UserInfosUpdate, this.onUserInfosUpdate);
         wfc.eventEmitter.on(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
@@ -845,6 +846,7 @@ export default class ChatContent extends Component {
     }
 
     componentWillUnmount() {
+        stores.chat.setVisibility(false);
         document.removeEventListener("visibilitychange", this.onVisibilityChange)
         this.lastBottomMessage = null;
         !this.props.rememberConversation && this.props.reset();
@@ -854,7 +856,6 @@ export default class ChatContent extends Component {
         wfc.eventEmitter.removeListener(EventType.GroupInfosUpdate, this.onGroupInfosUpdate);
         wfc.eventEmitter.removeListener(EventType.MessageReceived, this.onMessageDelivered)
         wfc.eventEmitter.removeListener(EventType.MessageRead, this.onMessageRead)
-        stores.chat.reset();
     }
 
     stopAudio() {

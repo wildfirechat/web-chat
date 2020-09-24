@@ -38,22 +38,22 @@ export default class Home extends Component {
     }
 
     onReceiveMessage = (msg) => {
-        // let chatTo = this.props.chatTo;
-        // if (document.hidden) {
-        //     let content = msg.messageContent;
-        //     if (MessageConfig.getMessageContentPersitFlag(content.type) === PersistFlag.Persist_And_Count) {
-        //         Push.create("新消息来了", {
-        //             body: content.digest(),
-        //             icon: '../../../../assets/images/icon.png',
-        //             timeout: 4000,
-        //             onClick: function () {
-        //                 window.focus();
-        //                 this.close();
-        //                 chatTo(msg.conversation);
-        //             }
-        //         });
-        //     }
-        // }
+        let chatTo = this.props.chatTo;
+        if (document.hidden) {
+            let content = msg.messageContent;
+            if (MessageConfig.getMessageContentPersitFlag(content.type) === PersistFlag.Persist_And_Count) {
+                Push.create("新消息来了", {
+                    body: content.digest(),
+                    icon: '../../../../assets/images/icon.png',
+                    timeout: 4000,
+                    onClick: function () {
+                        window.focus();
+                        this.close();
+                        chatTo(msg.conversation);
+                    }
+                });
+            }
+        }
     }
 
     render() {

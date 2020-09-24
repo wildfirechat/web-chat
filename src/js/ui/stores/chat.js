@@ -159,15 +159,6 @@ class Chat {
         }
     }
 
-    @action
-    reset(){
-        wfc.eventEmitter.removeListener(EventType.ReceiveMessage, self.onReceiveMessage);
-        wfc.eventEmitter.removeListener(EventType.SendMessage, self.onSendMessage)
-        wfc.eventEmitter.removeListener(EventType.MessageStatusUpdate, self.onMessageStatusUpdate)
-        wfc.eventEmitter.removeListener(EventType.RecallMessage, self.onRecallMessage);
-        wfc.eventEmitter.removeListener(EventType.UserInfosUpdate, self.onUserInfosUpdate);
-        wfc.eventEmitter.removeListener(EventType.GroupInfosUpdate, self.onGroupInfosUpdate);
-    }
 
     @action
     async chatToN(conversation) {
