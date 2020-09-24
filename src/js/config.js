@@ -17,6 +17,9 @@ export default class Config {
     // Secure WebSocket连接端口，需要和服务端对应，不能随意修改
     static WSS_PORT = 8084;
 
+    // IM SERVER的HOST，是域名或者ip，没有http等前缀!
+    static IM_SERVER_HOST = 'wildfirechat.cn';
+
     // APP SERVER的地址，启用https时，APP SERVER也需要支持https
     // 默认的app server使用端口是8888
     static APP_SERVER = 'https://app.wildfirechat.cn';
