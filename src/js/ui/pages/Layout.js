@@ -215,6 +215,8 @@ export default class Layout extends Component {
         wfc.eventEmitter.on(EventType.ReceiveMessage, this.onReceiveMessage);
         wfc.eventEmitter.on(EventType.RecallMessage, this.updateUnreadStatus);
         wfc.eventEmitter.on(EventType.ConversationInfoUpdate, this.updateUnreadStatus);
+        // 多端会话同步，其他端已读之后，更新pc未读状态
+        wfc.eventEmitter.on(EventType.SettingUpdate, this.updateUnreadStatus);
     }
 
     componentWillUnmount() {
@@ -223,6 +225,7 @@ export default class Layout extends Component {
         wfc.eventEmitter.removeListener(EventType.ReceiveMessage, this.onReceiveMessage);
         wfc.eventEmitter.removeListener(EventType.RecallMessage, this.updateUnreadStatus);
         wfc.eventEmitter.removeListener(EventType.ConversationInfoUpdate, this.updateUnreadStatus);
+        wfc.eventEmitter.removeListener(EventType.SettingUpdate, this.updateUnreadStatus);
     }
     isMac(){
         // var agent = navigator.userAgent.toLowerCase();
