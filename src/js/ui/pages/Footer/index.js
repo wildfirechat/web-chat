@@ -11,23 +11,39 @@ import { inject , observer } from 'mobx-react';
 import UserCard from '../../components/userCard'
 
 import wfc from '../../../wfc/client/wfc'
+import EventType from "../../../wfc/client/wfcEvent";
 
 @inject(stores => ({
     showConversation: stores.chat.showConversation,
-    unreadCount: stores.sessions.unreadCount
+    unreadMessageCount: stores.sessions.unreadMessageCount
 }))
 @observer
 export default class Footer extends Component {
     state ={
-        isShowUserCard:false
+        isShowUserCard:false,
+        unreadFriendRequestCount:0
     }
     showUserCard(){
         this.setState({
             isShowUserCard:!this.state.isShowUserCard
         })
     }
+    onFriendRequestUpdate = ()=>{
+        this.setState({
+            unreadFriendRequestCount: wfc.getUnreadFriendRequestCount()
+        })
+    }
+
+    componentWillMount() {
+        this.onFriendRequestUpdate();
+        wfc.eventEmitter.on(EventType.FriendRequestUpdate, this.onFriendRequestUpdate);
+    }
+
+    componentWillUnmount() {
+        wfc.eventEmitter.removeListener(EventType.FriendRequestUpdate, this.onFriendRequestUpdate);
+    }
     render() {
-        var { unreadCount, showConversation } = this.props;
+        var { unreadMessageCount, showConversation } = this.props;
         var pathname = this.props.location.pathname;
         var component = {
             '/': Home,
@@ -58,8 +74,8 @@ export default class Footer extends Component {
                         <span className={clazz({
                             [classes.active]: pathname === '/'
                         })}>
-                            <div data-aftercontent={unreadCount} className={clazz(classes.dot, {
-                                [classes.red]:unreadCount > 0
+                            <div data-aftercontent={unreadMessageCount} className={clazz(classes.dot, {
+                                [classes.red]:unreadMessageCount > 0
                         })}>
                             <i className="icon-ion-android-chat" />
                             </div>
@@ -73,7 +89,11 @@ export default class Footer extends Component {
                         <span className={clazz({
                             [classes.active]: pathname === '/contacts'
                         })}>
+                            <div data-aftercontent={this.state.unreadFriendRequestCount} className={clazz(classes.dot, {
+                                [classes.red]:this.state.unreadFriendRequestCount > 0
+                        })}>
                             <i className="icon-ion-ios-book-outline" />
+                            </div>
                         </span>
                     </Link>
 
@@ -102,4 +122,3 @@ export default class Footer extends Component {
     }
 }
  
-{/* */ }

@@ -7,7 +7,6 @@ import classes from './style.css';
 import EventType from '../../../../wfc/client/wfcEvent';
 import stores from '../../../stores';
 import wfc from '../../../../wfc/client/wfc';
-import connectionStatus from "../../../../wfc/client/connectionStatus";
 
 @inject(stores => ({
     filter: stores.contacts.filter,
@@ -57,7 +56,7 @@ export default class Contacts extends Component {
                                             }
                                             this.props.showUserinfo(true, e)
                                         }}>
-                                        <div className={classes.avatar}>
+                                        <div >
                                             <img
                                                 src={this.itemPortrait(e)}
                                                 style={{
@@ -126,16 +125,7 @@ export default class Contacts extends Component {
         text = text.trim();
         this.props.filter(text);
     }
-    getAllNewFriend() {
-        var addUserList = this.props.getIncommingFriendRequest();
-        var userlist = addUserList.map(item => {
-            var user = this.props.getUserInfo(item.target);
-            user.friendMsg = item;
-            return user;
-        });
-        stores.contactInfo.toggle(true, userlist);
-    }
-    changeGroup(group) {
+    showGroupInfo(group) {
         console.warn(group);
 
         stores.contactInfo.toggle(true, group);
@@ -143,12 +133,71 @@ export default class Contacts extends Component {
     renderGroupColumns() {
         return this.state.groupList.map((item, index) => {
             return (
-                <div className={classes.groupList} onClick={() => { this.changeGroup(item); }} key={index}>
+                <div className={classes.groupList} onClick={() => { this.showGroupInfo(item); }} key={index}>
                     <img src={item.portrait}></img>
                     <span >{item.name}</span>
                 </div>
             );
         });
+    }
+
+    handleFriendRequest(friendUid, accept){
+        wfc.handleFriendRequest(friendUid, accept, '', () =>{
+            this.forceUpdate();
+        }, (err) =>{
+            this.forceUpdate();
+        });
+    }
+
+
+    renderFriendRequest() {
+        let addUserList = wfc.getIncommingFriendRequest();
+        let userlist = addUserList.map(item => {
+            let user = wfc.getUserInfo(item.target);
+            user.friendMsg = item;
+            return user;
+        });
+        return (
+            userlist.map((item, index) => {
+                let friendMsg = item.friendMsg;
+                return (
+                    <div className={classes.friendRequestItem} key={index} onClick={ ()=> this.props.showUserinfo(true, item)}>
+                        <div className={classes.friendItem}>
+                            <img
+                            style={{
+                                height: 32,
+                                width: 32,
+                            }} src={item.portrait} />
+                            <span className={classes.username}>{item.displayName}</span>
+                            <span className={classes.userReason}>{item.friendMsg.reason}</span>
+                        </div>
+                        <div className={classes.statusButton}>
+                            {/*{friendMsg.status === 0 && <button onClick={()=>{this.acceptEvent(item)}}>接受/拒绝</button>}*/}
+                            {friendMsg.status === 0 && <p className={classes.enable}>接受/拒绝</p>}
+                            {friendMsg.status === 1 && <p className={classes.disable}>已添加</p>}
+                            {friendMsg.status === 3 && <p className={classes.disable}>已拒绝</p>}
+                            {
+                                friendMsg.status === 0 ? (
+                                    <div className={classes.handleButton}>
+                                        <ul style={{listStyleType:"none", margin:0, padding:0}}>
+                                            <li><button className={classes.accept} onClick={(e) =>
+                                            {
+                                                e.stopPropagation();
+                                                this.handleFriendRequest(friendMsg.target, true)
+                                            }}>接受</button></li>
+                                            <li><button className={classes.reject} onClick={(e) => {
+                                                e.stopPropagation();
+                                                this.handleFriendRequest(friendMsg.target, false)
+                                            }}>拒绝</button></li>
+                                        </ul>
+                                    </div>
+                                ):''
+                            }
+                        </div>
+                    </div>
+                );
+            })
+        );
     }
     expandIconEvent() {
         this.setState({
@@ -156,6 +205,7 @@ export default class Contacts extends Component {
         });
     }
     expandNewEvent() {
+        wfc.clearUnreadFriendRequestStatus();
         this.setState({
             newExpand: !this.state.newExpand
         });
@@ -205,17 +255,19 @@ export default class Contacts extends Component {
                 </div>
                 <div className={classes.userListContainer}>
                     {
+                        // TODO 未读好友请求数小红点
                         !query && (
                             <div className={classes.userList}>
                                 <div className={classes.userListTitle} onClick={() => { this.expandNewEvent(); }}>
                                     {this.state.newExpand ? expandIcon : closeIcon}
-                                    <span>新的朋友</span>
+                                    <span>新的朋友</span>{
+                                        wfc.getUnreadFriendRequestCount() > 0 ? (
+                                            <i style={{color:'red'}}>{wfc.getUnreadFriendRequestCount()}</i>
+                                        ) : ''
+                                    }
                                 </div>
                                 {
-                                    this.state.newExpand && (<div className={classes.adduser} onClick={() => { this.getAllNewFriend(); }}>
-                                        {addUserIcon}
-                                        <span >新的朋友</span>
-                                    </div>)
+                                    this.state.newExpand && this.renderFriendRequest()
                                 }
                             </div>
                         )

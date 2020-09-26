@@ -9,7 +9,7 @@
   height: 30px;
   width: 250px;
   box-shadow: inset 0 -1px 0 0 #eaedea;
-  padding: 20px 0 15px 0;
+  padding: 20px 0 14px 0;
   -webkit-user-select: auto;
   -webkit-app-region: drag;
   & div {
@@ -31,7 +31,7 @@
     font-family: "Helvetica";
     font-size: 18px;
     font-weight: 100;
-    text-indent: 16px;
+    text-indent: 20px;
     margin-left: 18px;
   }
 
@@ -47,8 +47,8 @@
 
 .contacts {
   height: auto; /* Height - Header - Footer - Search Input */
-  overflow-x: hidden;
-  overflow-y: auto;
+  /*overflow-x: hidden;*/
+  /*overflow-y: auto;*/
 }
 
 .notfound {
@@ -84,13 +84,16 @@
 .group {
   width: 100%;
   /* padding: 8px 5px 8px 20px; */
-  border-bottom: 1px solid #dcdbdb;
+  /*padding-left: 10px;*/
+  /*margin-right: 10px;*/
 }
 
 .header {
   /* position: relative;
     width: 100%;
     height: 36px; */
+  border-bottom: 1px solid #dcdbdb;
+  margin-left: 25px;
 
   & label {
     /* position: absolute;
@@ -100,7 +103,6 @@
     font-size: 16px;
     font-weight: 300;
     color: #999999;
-    padding-left: 12px;
   }
 
   & span {
@@ -120,7 +122,7 @@
   display: flex;
   height: 20px;
   margin: 5px 0;
-  padding: 20px 10px 20px 20px;
+  padding: 20px 10px 20px 25px;
   align-items: center;
   cursor: pointer;
 
@@ -177,10 +179,13 @@
   height: auto;
 
   & .userListTitle {
+    background: #edeae8;
+    position: sticky;
+    top: 0;
+    z-index: 1;
     color: #000;
     margin-left: 10px;
     margin-bottom: 7px;
-    position: relative;
     height: 22px;
     font-family: 'SimHei';
     
@@ -228,7 +233,7 @@
 }
 .groupList {
   height: 60px;
-  padding-left: 20px;
+  padding-left: 25px;
   color: #000;
   position: relative;
 
@@ -257,6 +262,104 @@
 }
 .groupList:hover {
   background: #d7d8d9;
+}
+.friendRequestItem{
+    height: 60px;
+    color: #000;
+    width: 100%;
+    position: relative;
+    min-width: 250px;
+    border-bottom: 1px solid #eee;
+
+    & .friendItem {
+          padding-left: 25px;
+        & img {
+              position: absolute;
+              width: 32px;
+              height: 32px;
+              margin-top: 3px;
+              margin-right: 19px;
+              border-radius: 3px;
+              top: 10px;
+          }
+        & .username {
+            position: absolute;
+            left: 70px;
+            top: 12px;
+          }
+        & .userReason {
+            position: absolute;
+            bottom: 8px;
+            left: 70px;
+            color: #999;
+        }
+    }
+
+& .statusButton {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 80px;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    text-align:center;
+    & .enable {
+      background: #1aad19;
+      border: 1px solid #ddd;
+      color: #fff;
+      padding: 5px 5px;
+      margin: auto;
+      font-size: 12px;
+      font-weight: 600;
+      }
+    & .disable {
+        margin: auto;
+        color: #999;
+        background: inherit;
+        border: 0;
+    }
+ }
+
+& .statusButton:hover > .enable{
+    display: none;
+  }
+
+& .statusButton:hover div {
+      display: block;
+  }
+& .handleButton {
+      position: absolute;
+      right: 10px;
+      z-index: 1;
+      top: 0px;
+      width: 60px;
+      height: 100%;
+      align-items: center;
+      text-align:center;
+  display:none;
+
+ & .accept{
+      width: 90%;
+      background: #1aad19;
+      border: 1px solid #ddd;
+      color: #fff;
+      padding: 5px 10px;
+      font-weight: 600;
+  }
+& .reject{
+    width: 90%;
+    background: red;
+    border: 1px solid #ddd;
+    color: #fff;
+    padding: 5px 10px;
+    font-weight: 600;
+}
+}
+}
+
+.friendRequestItem:hover {
+    background: #d7d8d9;
 }
 @media (width <= 800px) {
   .searchBar {
