@@ -5,6 +5,7 @@ import wfc from '../../wfc/client/wfc';
 import ConversationType from '../../wfc/model/conversationType';
 import pinyin from "../han/lib";
 
+import stores from "./index";
 
 class sessions {
     @observable conversations = [];
@@ -52,6 +53,7 @@ class sessions {
 
         wfc.removeConversation(conversationInfo.conversation, true);
 
+        stores.chat.removeConversation(conversationInfo.conversation);
     }
 
     @action clearConversationUnreadStatus(conversationInfo) {

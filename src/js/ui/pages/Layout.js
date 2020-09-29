@@ -174,6 +174,9 @@ export default class Layout extends Component {
         });
         stores.sessions.setUnreadMessageCount(counter)
         if (ipcRenderer) {
+            if(this.isWin()){
+                ipcRenderer.sendSync('update-badge', counter > 0 ? counter : null);
+            }
             ipcRenderer.send(
                 'message-unread',
                 {
@@ -190,22 +193,29 @@ export default class Layout extends Component {
         if(conversationInfo.isSilent){
             return;
         }
-        if(!isElectron()) {
+        let toConversation = (conversation) =>{
+            stores.chat.chatToN(conversation);
+            if (this.props.history.location.pathname !== '/') {
+                this.props.history.push('/');
+            }
+            document.querySelector('#messageInput').focus();
+        }
             if (document.hidden) {
                 let content = msg.messageContent;
+            let conversationInfo = wfc.getConversationInfo(msg.conversation);
                 if (MessageConfig.getMessageContentPersitFlag(content.type) === PersistFlag.Persist_And_Count) {
-                    Push.create("新消息来了", {
+                Push.create(conversationInfo.title(), {
                         body: content.digest(),
-                        icon: '../../../../assets/images/icon.png',
+                    icon: conversationInfo.portrait(),
                         timeout: 4000,
                         onClick: function () {
                             window.focus();
                             this.close();
+                        toConversation(msg.conversation);
                         }
                     });
                 }
             }
-        }
         this.updateUnreadStatus();
     }
 
@@ -227,7 +237,7 @@ export default class Layout extends Component {
         wfc.eventEmitter.removeListener(EventType.ConversationInfoUpdate, this.updateUnreadStatus);
         wfc.eventEmitter.removeListener(EventType.SettingUpdate, this.updateUnreadStatus);
     }
-    isMac(){
+    isWin(){
         // var agent = navigator.userAgent.toLowerCase();
         // var isMac = /macintosh|mac os x/i.test(navigator.userAgent);
         // if(isMac){
@@ -262,7 +272,7 @@ export default class Layout extends Component {
                 <Loader show={loading} />
                 <div
                     className={clazz(classes.container,{
-                        [classes.winContainer]:this.isMac()
+                        [classes.winContainer]:this.isWin()
                     })}
                     ref="viewport">
                     {this.props.children}
@@ -270,7 +280,7 @@ export default class Layout extends Component {
                 <Footer 
                     className={classes.footer}
                     location={location}
-                    isMac={this.isMac}
+                    isWin={this.isWin}
                     ref="footer" />
                 <UserInfo />
                 <AddFriend />

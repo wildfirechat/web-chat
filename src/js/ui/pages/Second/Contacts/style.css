@@ -389,7 +389,6 @@
   .group {
     width: 100%;
     padding: 6px 0;
-    margin-bottom: 20px;
   }
 
   .header {
@@ -409,7 +408,7 @@
   .item {
     height: 36px;
     margin: 8px 0;
-    padding: 0 8px;
+    padding: 4px 25px;
 
     & img {
       margin-top: 4px;

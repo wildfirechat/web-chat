@@ -54,7 +54,7 @@ export default class Footer extends Component {
         
         return (
             <footer className={clazz(classes.footer,{
-                [classes.winrleft]:this.props.isMac(),
+                [classes.winrleft]:this.props.isWin(),
             })}>
                 <div className={classes.user} onClick= {()=>this.showUserCard()}>
                     <img src={user.portrait}/>
@@ -111,7 +111,7 @@ export default class Footer extends Component {
 
                 <div className={clazz(classes.right, {
                     [classes.hideConversation]: !showConversation,
-                    [classes.winright]:this.props.isMac()
+                    [classes.winright]:this.props.isWin()
                 })}>
                     {
                         component ? React.createElement(component) : ""
