@@ -54,8 +54,6 @@
 
 ![create_conversation](./screenshots/create_conversation.png)
 
-更多截图，请查看[wewechat readme](./README_wewechat.MD)
-
 ## 开发、打包依赖
 1. nodejs v10.16.3
 2. npm 6.9.0
