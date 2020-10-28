@@ -33,6 +33,7 @@ import {gt, gte, numberValue} from '../../../../wfc/util/longUtil'
 import {copyImg, copyText} from "../../../utils/clipboard";
 import CardMessageContent from "../../../../wfc/messages/cardMessageContent";
 import stores from "../../../stores";
+import TextMessageContent from "../../../../wfc/messages/textMessageContent";
 
 @inject(stores => ({
     sticky: stores.sessions.sticky,
@@ -53,10 +54,7 @@ import stores from "../../../stores";
     reset: () => {
         //stores.chat.user = false;
     },
-    isFriend: (id) => {
-        var user = stores.contacts.memberList.find(e => e.UserName === id) || {};
-        return helper.isContact(user);
-    },
+
     isMyFriend: wfc.isMyFriend,
     showUserinfo: async (isme, user) => {
         var caniremove = false;
@@ -103,13 +101,11 @@ import stores from "../../../stores";
             stores.members.toggle(isShow);
         }
     },
-    showContact: (userid) => {
-        var user = stores.contacts.memberList.find(e => e.UserName === userid);
-        stores.userinfo.toggle(true, user);
-    },
+
     showForward: (message) => stores.forward.toggle(true, message),
     showAddFriend: (user) => stores.addfriend.toggle(true, user),
     recallMessage: stores.chat.recallMessage,
+    quoteMessage: stores.chat.quoteMessage,
     rememberConversation: stores.settings.rememberConversation,
     showConversation: stores.chat.showConversation,
     toggleConversation: stores.chat.toggleConversation,
@@ -517,16 +513,30 @@ export default class ChatContent extends Component {
                 <div>
                 <div className={classes.content} data-message-id={message.messageId}
                     onClick={e => this.handleClick(e)}>
-                    <p
+                        <p style={{width:'fit-content'}}
                         onContextMenu={e => this.showMessageAction(message)}
                         dangerouslySetInnerHTML={{ __html: this.getMessageContent(message) }} />
                     </div>
+                    {
+                        (message.messageContent instanceof TextMessageContent && message.messageContent.quoteInfo)
+                        ? (
+                            <p style={{
+                                fontSize:'10px',
+                                color:'#a9a9a9',
+                                userSelect:'none',
+                                paddingTop:0,
+                                textAlign:"left"
+                            }}> {message.messageContent.quoteInfo.userDisplayName + ':' + message.messageContent.quoteInfo.messageDigest} </p>
+                        ) : ''
+                    }
                     {
                         message.direction === 0 && wfc.isCommercialServer() && wfc.isReceiptEnabled() && wfc.isUserReceiptEnabled() ?
                             <p style={{
                                 fontSize:'10px',
                                 color:'#a9a9a9',
                                 userSelect:'none',
+                                paddingBottom:0,
+                                width:'fit-content',
                                 textAlign:"right"
                             }}>{this.formatReceiptMessage(message.timestamp)}</p> : ''
                     }
@@ -547,11 +557,25 @@ export default class ChatContent extends Component {
                         this.showMessageAction(message, `menu_item_${message.messageId}`)
                     }
                     {
-                        message.direction === 0 ?
+                        (message.messageContent instanceof TextMessageContent && message.messageContent.quoteInfo)
+                            ? (
+                                <p style={{
+                                    fontSize:'10px',
+                                    color:'#a9a9a9',
+                                    userSelect:'none',
+                                    paddingTop:0,
+                                    textAlign:"left"
+                                }}> {message.messageContent.quoteInfo.userDisplayName + ':' + message.messageContent.quoteInfo.messageDigest} </p>
+                            ) : ''
+                    }
+                    {
+                        message.direction === 0 && wfc.isReceiptEnabled() && wfc.isUserReceiptEnabled() ?
                         <p style={{
                             fontSize:'10px',
                             color:'#a9a9a9',
-                            userSelect:'none'
+                            userSelect:'none',
+                            paddingBottom:0,
+                            textAlign:"right"
                         }}>{this.formatReceiptMessage(message.timestamp)}</p> : ''
                     }
                 </div>
@@ -801,6 +825,12 @@ export default class ChatContent extends Component {
                     this.props.showForward(message);
                 }
             });
+            templates.unshift({
+                label: 'Quote',
+                click: () => {
+                    this.props.quoteMessage(message);
+                }
+            });
         }
 
         if([MessageContentType.Text, MessageContentType.Image].indexOf(message.messageContent.type) >= 0){
@@ -868,6 +898,9 @@ export default class ChatContent extends Component {
 
     componentDidUpdate() {
         this.scrollToBottom();
+        if(this.props.target && this.props.target instanceof GroupInfo){
+            stores.members.changeShowUserName(wfc.isHiddenGroupMemberName(this.props.target.target))
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -917,6 +950,7 @@ export default class ChatContent extends Component {
 
         // maybe userName, groupName, ChannelName or ChatRoomName
         let title = this.title();
+        console.log('ChatContent render....')
 
         return (
             <div

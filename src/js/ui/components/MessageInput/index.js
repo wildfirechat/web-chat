@@ -9,7 +9,6 @@ import classes from './style.css';
 import Emoji from './Emoji';
 import Tribute from "tributejs";
 import TextMessageContent from '../../../wfc/messages/textMessageContent';
-import PTextMessageContent from '../../../wfc/messages/ptextMessageContent';
 import ConversationType from '../../../wfc/model/conversationType';
 import wfc from '../../../wfc/client/wfc'
 import pinyin from '../../han';
@@ -18,10 +17,18 @@ import GroupInfo from '../../../wfc/model/groupInfo';
 import GroupType from '../../../wfc/model/groupType';
 import GroupMemberType from '../../../wfc/model/groupMemberType';
 import avenginekitProxy from '../../../wfc/av/engine/avenginekitproxy';
-import CheckBox from "rc-checkbox";
 import Config from "../../../config";
 import {parser as emojiParse} from 'utils/emoji';
+import {inject} from "mobx-react";
+import stores from "../../stores";
+import QuoteInfo from "../../../wfc/model/quoteInfo";
+import {stringValue} from "../../../wfc/util/longUtil";
+import chat from "../../stores/chat";
+import Draft from "../../utils/draft";
 
+@inject(stores => ({
+    quotedMessage: stores.chat.quotedMessage,
+}))
 export default class MessageInput extends Component {
     static propTypes = {
         me: PropTypes.object,
@@ -194,9 +201,15 @@ export default class MessageInput extends Component {
             .replace(/" src="assets\/twemoji\/72x72\/[0-9a-z-]+\.png">/g, '')
 
         let textMessageContent = this.handleMention(message);
+        let quotedMessage = this.props.quotedMessage;
+        if(quotedMessage){
+            let quoteInfo = QuoteInfo.initWithMessage(quotedMessage);
+            textMessageContent.setQuoteInfo(quoteInfo);
+        }
         this.props.sendMessage(textMessageContent);
         this.refs.input.innerHTML = '';
-        wfc.setConversationDraft(conversation, '');
+        stores.chat.cancelQuote();
+        Draft.setConversationDraft(conversation, '', null);
         e.preventDefault();
     }
 
@@ -422,11 +435,14 @@ export default class MessageInput extends Component {
                 return;
             }
             if (text !== conversationInfo.draft) {
-                wfc.setConversationDraft(this.props.conversation, text)
+                Draft.setConversationDraft(this.props.conversation, text, this.props.quotedMessage)
             }
 
-            conversationInfo = wfc.getConversationInfo(nextProps.conversation);
-            input.innerHTML = conversationInfo ? conversationInfo.draft : '';
+            let draft = Draft.getConversationDraft(nextProps.conversation);
+            input.innerHTML = draft ? draft.text : '';
+            if(draft.quotedMessage){
+                chat.quoteMessage(draft.quotedMessage);
+            }
 
             if (this.tribute) {
                 this.tribute.detach(document.getElementById('messageInput'));
@@ -441,7 +457,11 @@ export default class MessageInput extends Component {
             if (!conversationInfo || (this.props.conversation && this.props.conversation.equal(nextProps.conversation))) {
                 return;
             }
-            input.innerHTML = conversationInfo.draft ? conversationInfo.draft : '';
+            let draft = Draft.getConversationDraft(nextProps.conversation);
+            input.innerHTML = draft ? draft.text : '';
+            if(draft.quotedMessage){
+                chat.quoteMessage(draft.quotedMessage);
+            }
 
             if (!this.tribute && this.shouldHandleMention(nextProps.conversation)) {
                 this.initMention(nextProps.conversation);
@@ -640,7 +660,11 @@ export default class MessageInput extends Component {
                     />
                 </div>
 
+                <div id="messageInputContainer"
+                     className={classes.messageInputContainer}
+                >
                 <div contentEditable={true}
+                         style={{overflowY:'scroll'}}
                      className={classes.messageInput}
                      id="messageInput"
                      ref="input"
@@ -649,6 +673,37 @@ export default class MessageInput extends Component {
                      onPaste={e => this.handlePaste(e)}
                      onKeyPress={e => this.handleEnter(e)}
                 />
+                    {
+                        this.props.quotedMessage ? (
+                            <div id="messageRefContainer"
+                                 style={{display:'inline-block'}}
+                                 contentEditable={false}
+                                 ref="messageRefContainer">
+                                <p id="quotedMessageContent"
+                                   ref="quotedMessageContent"
+                                   style={{
+                                       display:'inline-block',
+                                       marginRight:'10px',
+                                       padding:'5px',
+                                       background:'lightgray'
+                                   }}
+                                >
+                                    {
+                                        this.props.quotedMessage.messageContent.digest().length > 50
+                                            ? this.props.quotedMessage.messageContent.digest().substr(0, 50) + '...' : this.props.quotedMessage.messageContent.digest()}
+                                </p>
+                                <i
+                                    className="icon-ion-android-close"
+                                    id="cancelQuote"
+                                    onClick={ ()=>{
+                                        stores.chat.cancelQuote();
+                                    }}
+                                />
+                            </div>
+                        ) :''
+
+                    }
+                </div>
             </div>
         );
     }

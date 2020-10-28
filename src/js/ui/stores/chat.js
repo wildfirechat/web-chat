@@ -27,6 +27,7 @@ class Chat {
 
     @observable conversation;
     @observable conversationInfo;
+    @observable quotedMessage;
 
     initialized = false;
 
@@ -71,6 +72,13 @@ class Chat {
             self.conversation = null;
             self.target = null;
         }
+    }
+    @action quoteMessage(msg){
+        self.quotedMessage = msg;
+    }
+
+    @action cancelQuote(){
+        self.quotedMessage = null;
     }
     onRecallMessage(operatorUid, messageUid) {
         let msg = wfc.getMessageByUid(messageUid);
@@ -186,6 +194,7 @@ class Chat {
         self.loading = false;
         self.hasMore = true;
         self.conversationInfo = wfc.getConversationInfo(conversation);
+        self.quotedMessage = null;
         self.loadConversationMessages(conversation, 0);
 
         // TODO update observable for chat content
