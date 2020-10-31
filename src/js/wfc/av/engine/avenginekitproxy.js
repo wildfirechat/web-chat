@@ -11,7 +11,8 @@ import MessageConfig from "../../client/messageConfig";
 import CallByeMessageContent from "../messages/callByeMessageContent";
 import DetectRTC from 'detectrtc';
 import Config from "../../../config";
-import {numberValue} from '../../util/longUtil'
+import {numberValue, longValue} from '../../util/longUtil'
+import CallEndReason from './callEndReason'
 
 const path = require('path');
 
@@ -29,11 +30,17 @@ export class AvEngineKitProxy {
     hasSpeaker = false;
     hasWebcam = false;
 
+    /**
+     * 应用初始化的时候调用
+     * @param wfc
+     */
     setup(wfc) {
         DetectRTC.load(() => {
             this.isSupportVoip = DetectRTC.isWebRTCSupported;
             this.hasMicrophone = DetectRTC.hasMicrophone;
-            this.hasSpeaker = DetectRTC.hasSpeakers;
+            // Safari 14.0 版本，hasSpeakers一直为false，先全部置为true
+            //this.hasSpeaker = DetectRTC.hasSpeakers;
+            this.hasSpeaker = true;
             this.hasWebcam = DetectRTC.hasWebcam;
             console.log(`detectRTC, isWebRTCSupported: ${DetectRTC.isWebRTCSupported}, hasWebcam: ${DetectRTC.hasWebcam}, hasSpeakers: ${DetectRTC.hasSpeakers}, hasMicrophone: ${DetectRTC.hasMicrophone}`, this.isSupportVoip);
         });
@@ -67,6 +74,7 @@ export class AvEngineKitProxy {
         });
     }
 
+    // 发送消息时，返回的timestamp，已经过修正，后面使用时,不用考虑和服务器的时间差
     sendVoipListener = (event, msg) => {
 
         let contentClazz = MessageConfig.getMessageContentClazz(msg.content.type);
@@ -74,6 +82,8 @@ export class AvEngineKitProxy {
         let content = new contentClazz();
         content.decode(msg.content);
         console.log('to send voip message', content);
+        let delta = wfc.getServerDeltaTime();
+        console.log('delta', delta);
         if (content.type === MessageContentType.VOIP_CONTENT_TYPE_ADD_PARTICIPANT) {
             this.participants.push(content.participants);
         } else if (content.type === MessageContentType.VOIP_CONTENT_TYPE_END) {
@@ -94,7 +104,7 @@ export class AvEngineKitProxy {
                 error: 0,
                 sendMessageId: msg.sendMessageId,
                 messageUid: messageUid,
-                timestamp: timestamp
+                timestamp: longValue(numberValue(timestamp) - delta)
             })
         }, (errorCode) => {
             this.emitToVoip('sendMessageResult', {error: errorCode, sendMessageId: msg.sendMessageId})
@@ -105,6 +115,7 @@ export class AvEngineKitProxy {
         this.emitToVoip("conferenceEvent", event);
     }
 
+    // 收到消息时，timestamp已经过修正，后面使用时，不用考虑和服务器的时间差
     onReceiveMessage = (msg) => {
         if (!this.isSupportVoip || !this.hasSpeaker || !this.hasMicrophone) {
             console.log('not support voip, just ignore voip message')
@@ -126,6 +137,7 @@ export class AvEngineKitProxy {
                 return ;
             }
         }
+
         let now = (new Date()).valueOf();
         let delta = wfc.getServerDeltaTime();
         if ((msg.conversation.type === ConversationType.Single || msg.conversation.type === ConversationType.Group) && now - (numberValue(msg.timestamp) - delta) < 90 * 1000) {
@@ -198,6 +210,7 @@ export class AvEngineKitProxy {
 
                 msg.participantUserInfos = participantUserInfos;
                 msg.selfUserInfo = selfUserInfo;
+                msg.timestamp = longValue(numberValue(msg.timestamp) - delta)
                 this.emitToVoip("message", msg);
             }
         }
@@ -362,6 +375,7 @@ export class AvEngineKitProxy {
         if (this.conversation) {
             let byeMessage = new CallByeMessageContent();
             byeMessage.callId = this.callId;
+            byeMessage.reason = CallEndReason.RemoteNetworkError;
             wfc.sendConversationMessage(this.conversation, byeMessage, this.participants);
             this.conversation = null;
             this.callId = null;
@@ -393,8 +407,8 @@ export class AvEngineKitProxy {
             events.forEach(e => ipcRenderer.removeAllListeners(e));
         } else {
             if(this.events){
-                this.events.stop();
-                this.events = null;
+            this.events.stop();
+            this.events = null;
             }
         }
     }
