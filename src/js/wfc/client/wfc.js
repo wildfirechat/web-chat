@@ -12,6 +12,7 @@ import Long from 'long';
 import impl from '../proto/proto.min';
 import Config from "../../config";
 import avenginekit from "../av/engine/avenginekitproxy";
+import ConversationType from "../model/conversationType";
 
 
 export class WfcManager {
@@ -884,11 +885,11 @@ export class WfcManager {
     /**
      * 搜索会话
      * @param {string} keyword 关键字
-     * @param {[ConversationType]} types 从哪些类型的会话中进行搜索，可选值可参考{@link ConversationType}
+     * @param {[number]} types 从哪些类型的会话中进行搜索，可选值可参考{@link ConversationType}
      * @param {[number]} lines 从哪些会话线路进行搜索，默认传[0]即可
      * @returns {[ConversationInfo]}
      */
-    searchConversation(keyword, types = [], lines = []) {
+    searchConversation(keyword, types = [0, 1, 2], lines = [0, 1]) {
         return impl.searchConversation(keyword, types, lines);
     }
 

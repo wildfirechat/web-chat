@@ -96,12 +96,7 @@ class sessions {
             return;
         }
         let pinyinText = pinyin.letter(text.toLocaleLowerCase(), '', null);
-        var list = self.conversations.filter(c => {
-            let name = c.title();
-            var res = pinyin.letter(name, '', null).toLowerCase().indexOf(pinyinText) > -1;
-
-            return res;
-        });
+        let list = wfc.searchConversation(pinyinText)
         self.filtered = {
             query: text,
             result: list.length ? list : []
