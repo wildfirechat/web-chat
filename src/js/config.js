@@ -63,6 +63,9 @@ export default class Config {
     // 发送消息超时时间，超时之后，认为当前连接已不可用，将进行重连，单位是秒。没有特殊需求不，不建议修改
     static SEND_MESSAGE_TIMEOUT = 20;
 
+    // 会话过期时间，表示一个会话，自己不再参与之后，多久会过期。会话列表不展示已过期的会话；单位是天
+    static CONVERSATION_EXPIRE_TIME = 30;
+
     static getWFCPlatform() {
         if (isElectron()) {
             if (window.process && window.process.platform === 'darwin') {
