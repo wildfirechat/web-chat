@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { ipcRenderer, popMenu, isElectron, fs, ContextMenuTrigger, hideMenu } from '../../../../platform';
+import { ipcRenderer, isElectron, fs} from '../../../../platform';
+import { popMenu, ContextMenuTrigger, hideMenu } from '../../../../ui';
 import clazz from 'classname';
 import moment from 'moment';
 import axios from 'axios';
