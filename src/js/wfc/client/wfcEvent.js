@@ -5,7 +5,7 @@
 export default class EventType {
     // function (message) {}
     static SendMessage = 'sendMsg';
-    // function (message) {}
+    // function (message, hasMore) {}
     static ReceiveMessage = 'receiveMsg';
     // function (Map(userId, receiveTime)) {}
     static MessageReceived = 'msgReceived';
@@ -31,7 +31,7 @@ export default class EventType {
     static GroupInfosUpdate = 'groupInfosUpdate';
     // function (updatedFriendIds) {}
     static FriendListUpdate = 'friendListUpdate';
-    // function () {}
+    // function ([newFriendRequests]) {}
     static FriendRequestUpdate = 'friendRequestUpdate';
     // function (conversationInfo) {}
     static ConversationInfoUpdate = 'conversationInfoUpdate';
