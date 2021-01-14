@@ -1,5 +1,7 @@
 ## 野火IM Web端说明
 
+**本仓库原始代码，已迁移至 [react-chat](https://github.com/wildfirechat/react-chat) ，请点击前往查看。**
+
 目前，野火IM Web有两个版本
 
 1. [vue-chat](https://github.com/wildfirechat/vue-chat), 
